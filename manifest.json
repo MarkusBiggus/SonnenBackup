@@ -1,0 +1,10 @@
+{
+  "domain": "sonnen",
+  "name": "Sonnen Power unit Evo",
+  "codeowners": ["@markusbiggus"],
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/sonnen",
+  "iot_class": "local_polling",
+  "loggers": ["sonnen"],
+  "requirements": ["sonnen_api_v2>=0.5.12"]
+}
