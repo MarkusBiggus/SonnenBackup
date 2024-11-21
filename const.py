@@ -1,4 +1,4 @@
-"""Constants for the sonnen integration."""
+"""Constants for the sonnen batterie integration."""
 
 DOMAIN = "sonnen"
 

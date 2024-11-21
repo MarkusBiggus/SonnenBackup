@@ -1,14 +1,14 @@
-"""The sonnen component."""
+"""The sonnen batterie component."""
 
 from dataclasses import dataclass
 from datetime import timedelta
 import logging
 
-from sonnen_api_v2.sonnen import BatterieResponse, RealTimeAPI, Sonnen, BatterieError
+from sonnen_api_v2.sonnen import BatterieResponse, RealTimeAPI, Sonnen as Batterie, BatterieError
 #from sonnen.inverter import InverterError
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_IP_ADDRESS, CONF_API_TOKEN, CONF_PORT, Platform
+from homeassistant.const import CONF_IP_ADDRESS, CONF_API_TOKEN, CONF_PORT, CONF_DEVICE_ID, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed
@@ -22,10 +22,11 @@ SCAN_INTERVAL = timedelta(seconds=30)
 
 @dataclass(slots=True)
 class SonnenData:
-    """Class for storing sonnen data."""
+    """Class for storing sonnen batterie data."""
 
     api: RealTimeAPI
     coordinator: SonnenDataUpdateCoordinator
+    serial_number: str
 
 
 type SonnenConfigEntry = ConfigEntry[SonnenData]
@@ -37,7 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SonnenConfigEntry) -> bo
     """Set up the sensors from a ConfigEntry."""
 
     try:
-        api = await Sonnen(
+        api = await Batterie(
             entry.data[CONF_API_TOKEN],
             entry.data[CONF_IP_ADDRESS],
             entry.data[CONF_PORT],
@@ -60,7 +61,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SonnenConfigEntry) -> bo
     )
     await coordinator.async_config_entry_first_refresh()
 
-    entry.runtime_data = SonnenData(api=api, coordinator=coordinator)
+    entry.runtime_data = SonnenData(api=api, coordinator=coordinator, serial_number=entry.data[CONF_DEVICE_ID])
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True

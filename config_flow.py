@@ -1,16 +1,16 @@
-"""Config flow for sonnen integration."""
+"""Config flow for sonnen batterie integration."""
 
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-from sonnen_api_v2.sonnen import Sonnen
+from sonnen_api_v2.sonnen import Sonnen as Batterie
 from sonnen_api_v2.discovery import DiscoveryError
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
-from homeassistant.const import CONF_IP_ADDRESS, CONF_API_TOKEN, CONF_PORT, CONF_API_VERSION
+from homeassistant.const import CONF_IP_ADDRESS, CONF_API_TOKEN, CONF_PORT, CONF_DEVICE_ID, CONF_API_VERSION
 import homeassistant.helpers.config_validation as cv
 
 from .const import DOMAIN
@@ -18,14 +18,15 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_PORT = 80
-DEFAULT_PASSWORD = ""
+DEFAULT_API_VERSION = 'V2'
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_IP_ADDRESS): cv.string,
         vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
         vol.Required(CONF_API_TOKEN): cv.string,
-        vol.Optional(CONF_API_VERSION, default='V2'): cv.string,
+        vol.Optional(CONF_API_VERSION, default=DEFAULT_API_VERSION): cv.string,
+        vol.Required(CONF_DEVICE_ID): cv.string,
     }
 )
 
@@ -33,17 +34,17 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 async def validate_api(data) -> str:
     """Validate the credentials."""
 
-    api = await Sonnen(
+    api = await Batterie(
         data[CONF_API_TOKEN],
         data[CONF_IP_ADDRESS],
         data[CONF_PORT],
     )
     response = await api.get_data()
-    return response.serial_number
+    return response.version
 
 
 class SonnenConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Sonnen."""
+    """Handle a config flow for Sonnen Batterie."""
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -54,9 +55,10 @@ class SonnenConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_show_form(
                 step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
             )
+        serial_number = user_input[CONF_DEVICE_ID]
 
         try:
-            serial_number = await validate_api(user_input)
+            version = await validate_api(user_input)
         except (ConnectionError, DiscoveryError):
             errors["base"] = "cannot_connect"
         except Exception:

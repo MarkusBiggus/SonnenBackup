@@ -11,8 +11,10 @@
             "user": {
                 "data": {
                     "ip_address": "IP address",
-                    "password": "Password",
-                    "port": "Port"
+                    "port": "Port",
+                    "api_token": "API Token",
+                    "api_version": "API Version",
+                    "device_id": "Serial Number"
                 }
             }
         }

@@ -1,4 +1,4 @@
-"""Support for Sonnen batterie via local API."""
+"""Support for Sonnen Batterie via local API."""
 
 from __future__ import annotations
 
@@ -27,8 +27,6 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from . import SonnenConfigEntry
 from .const import DOMAIN, MANUFACTURER
 from .coordinator import SonnenDataUpdateCoordinator
-
-DEFAULT_PORT = 80
 
 
 SENSOR_DESCRIPTIONS: dict[tuple[Units, bool], SensorEntityDescription] = {
@@ -95,17 +93,17 @@ async def async_setup_entry(
     api = entry.runtime_data.api
     coordinator = entry.runtime_data.coordinator
     resp = coordinator.data
-    serial = resp.serial_number
+    serial = entry.runtime_data.serial_number
     version = resp.version
     entities: list[BatterySensorEntity] = []
-    for sensor, (idx, measurement) in api.inverter.sensor_map().items():
+    for sensor, (idx, measurement) in api.battery.sensor_map().items():
         description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
 
         uid = f"{serial}-{idx}"
         entities.append(
             BatterySensorEntity(
                 coordinator,
-                api.inverter.manufacturer,
+                api.battery.manufacturer,
                 uid,
                 serial,
                 version,
