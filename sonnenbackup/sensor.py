@@ -20,6 +20,7 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
+#from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -137,6 +138,7 @@ class BatterySensorEntity(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = uid
         self._attr_name = f"{manufacturer} {serial} {key}"
+        self._attr_has_entity_name = True
         self._attr_native_unit_of_measurement = unit
         self._attr_state_class = state_class
         self._attr_device_class = device_class

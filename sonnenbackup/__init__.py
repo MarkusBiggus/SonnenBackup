@@ -1,14 +1,15 @@
-"""The sonnen batterie component."""
+"""The sonnen batterie backup component."""
 
 from dataclasses import dataclass
 from datetime import timedelta
 import logging
 
-from sonnen_api_v2.sonnen import BatterieResponse, RealTimeAPI, Sonnen as Batterie, BatterieError
+#from sonnen_api_v2.sonnen import BatterieResponse, RealTimeAPI, Sonnen as Batterie, BatterieError
+from sonnen_api_v2 import BatterieResponse, RealTimeAPI, Batterie, BatterieError
 #from sonnen.inverter import InverterError
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_IP_ADDRESS, CONF_API_TOKEN, CONF_PORT, CONF_DEVICE_ID, Platform
+from homeassistant.const import Platform, CONF_IP_ADDRESS, CONF_API_TOKEN, CONF_PORT, CONF_DEVICE_ID
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed
@@ -38,7 +39,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SonnenConfigEntry) -> bo
     """Set up the sensors from a ConfigEntry."""
 
     try:
-        api = await Batterie(
+        _batterie = Batterie(
             entry.data[CONF_API_TOKEN],
             entry.data[CONF_IP_ADDRESS],
             entry.data[CONF_PORT],
@@ -48,7 +49,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SonnenConfigEntry) -> bo
 
     async def _async_update() -> BatterieResponse:
         try:
-            return await api.get_data()
+            return await _batterie.get_data()
         except BatterieError as err:
             raise UpdateFailed from err
 
@@ -61,7 +62,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SonnenConfigEntry) -> bo
     )
     await coordinator.async_config_entry_first_refresh()
 
-    entry.runtime_data = SonnenData(api=api, coordinator=coordinator, serial_number=entry.data[CONF_DEVICE_ID])
+    entry.runtime_data = SonnenData(api=_batterie, coordinator=coordinator, serial_number=entry.data[CONF_DEVICE_ID])
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
