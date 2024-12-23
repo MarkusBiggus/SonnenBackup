@@ -1,14 +1,11 @@
 # SonnenBackup
 
-[![Build Status](https://github.com/squishykid/sonnenbackup/workflows/tests/badge.svg)](https://github.com/squishykid/sonnenbackup/actions)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/sonnenbackup.svg)](https://pypi.org/project/sonnenbackup)
-
-Read energy usage data from the real-time API on Sonnen Batterie inverter.
+Read energy usage data from the real-time API on Sonnen Batterie batterie.
 
 * Real time power, current and voltage
 * Grid power information
 * Battery level
-* Temperature and inverter health
+* Temperature and batterie health
 * Daily/Total energy summaries
 
 ## Usage
@@ -18,12 +15,12 @@ Read energy usage data from the real-time API on Sonnen Batterie inverter.
 Then from within your project:
 
 ```
-import sonnenbackup
+from sonnen_api_v2 import BatterieBackup, BatterieResponse,
 import asyncio
 
 async def work():
-    r = await sonnenbackup.real_time_api('10.0.0.1')
-    return await r.get_data()
+    _batterie = await BatterieBackup(auth_token, ip_address, port)
+    return await _batterie.get_response()
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
@@ -31,39 +28,8 @@ data = loop.run_until_complete(work())
 print(data)
 ```
 
-This will try all the inverter classes in turn until it finds the first one that works with your installation. You can see the list of inverter implementation classes in the entry points configured in [setup.py](setup.py).
+## Confirmed Supported Batterie
 
-If you want to bypass the inverter discovery code and use a specific inverter class, you can invoke `discover` specifying directly the class. In this example, the X1 Hybrid Gen4 implementation is used:
+These batteries have been tested and confirmed to be working. If your batterie is not listed below, this library may still work provided your battery admin portal can generate an API read token and responds to Sonnen API V2 endpoints.
 
-```
-from importlib.metadata import entry_points
-import sonnenbackup
-import asyncio
-
-INVERTERS_ENTRY_POINTS = {
-   ep.name: ep.load() for ep in entry_points(group="sonnenbackup.inverter")
-}
-
-async def work():
-    inverter = await sonnenbackup.discover("10.0.0.1", 80, "xxxxx", inverters=[INVERTERS_ENTRY_POINTS.get("x1_hybrid_gen4")], return_when=asyncio.FIRST_COMPLETED)
-    return await inverter.get_data()
-
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
-data = loop.run_until_complete(work())
-print(data)
-```
-
-## Confirmed Supported Inverters
-
-These inverters have been tested and confirmed to be working. If your inverter is not listed below, this library may still work- please create an issue so we can add your inverter to the list 😊.
-
-* SK-TL5000E
-* X1 Hybrid Gen4
-
-You can get the list of supported inverters by looking up the `sonnenbackup.inverter` entry points:
-
-```
-for ep in entry_points(group="sonnenbackup.inverter"):
-    print(ep)
-```
+* Power unit Evo IP56
