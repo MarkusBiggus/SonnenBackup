@@ -9,16 +9,19 @@ from sonnen_api_v2 import BatterieResponse, RealTimeAPI, Batterie, BatterieError
 #from sonnen.inverter import InverterError
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform, CONF_IP_ADDRESS, CONF_API_TOKEN, CONF_PORT, CONF_DEVICE_ID
+from homeassistant.const import CONF_IP_ADDRESS, CONF_API_TOKEN, CONF_PORT, CONF_DEVICE_ID
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from .coordinator import SonnenDataUpdateCoordinator
 
-PLATFORMS = [Platform.SENSOR]
+from .const import (
+    PLATFORMS,
+    DEFAULT_SCAN_INTERVAL
+    )
 
-SCAN_INTERVAL = timedelta(seconds=30)
+SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 
 
 @dataclass(slots=True)
@@ -49,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SonnenConfigEntry) -> bo
 
     async def _async_update() -> BatterieResponse:
         try:
-            return await _batterie.get_data()
+            return await _batterie.async_update()
         except BatterieError as err:
             raise UpdateFailed from err
 
@@ -62,7 +65,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SonnenConfigEntry) -> bo
     )
     await coordinator.async_config_entry_first_refresh()
 
-    entry.runtime_data = SonnenData(api=_batterie, coordinator=coordinator, serial_number=entry.data[CONF_DEVICE_ID])
+    entry.runtime_data = SonnenData(api=_batterie.RealTimeAPI, coordinator=coordinator, serial_number=entry.data[CONF_DEVICE_ID])
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
