@@ -1,9 +1,9 @@
-# Solax
+# SonnenBackup
 
-[![Build Status](https://github.com/squishykid/solax/workflows/tests/badge.svg)](https://github.com/squishykid/solax/actions)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/solax.svg)](https://pypi.org/project/solax)
+[![Build Status](https://github.com/squishykid/sonnenbackup/workflows/tests/badge.svg)](https://github.com/squishykid/sonnenbackup/actions)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/sonnenbackup.svg)](https://pypi.org/project/sonnenbackup)
 
-Read energy usage data from the real-time API on Solax solar inverters.
+Read energy usage data from the real-time API on Sonnen Batterie inverter.
 
 * Real time power, current and voltage
 * Grid power information
@@ -13,16 +13,16 @@ Read energy usage data from the real-time API on Solax solar inverters.
 
 ## Usage
 
-`pip install solax`
+`pip install sonnenbackup`
 
 Then from within your project:
 
 ```
-import solax
+import sonnenbackup
 import asyncio
 
 async def work():
-    r = await solax.real_time_api('10.0.0.1')
+    r = await sonnenbackup.real_time_api('10.0.0.1')
     return await r.get_data()
 
 loop = asyncio.new_event_loop()
@@ -37,15 +37,15 @@ If you want to bypass the inverter discovery code and use a specific inverter cl
 
 ```
 from importlib.metadata import entry_points
-import solax
+import sonnenbackup
 import asyncio
 
 INVERTERS_ENTRY_POINTS = {
-   ep.name: ep.load() for ep in entry_points(group="solax.inverter")
+   ep.name: ep.load() for ep in entry_points(group="sonnenbackup.inverter")
 }
 
 async def work():
-    inverter = await solax.discover("10.0.0.1", 80, "xxxxx", inverters=[INVERTERS_ENTRY_POINTS.get("x1_hybrid_gen4")], return_when=asyncio.FIRST_COMPLETED)
+    inverter = await sonnenbackup.discover("10.0.0.1", 80, "xxxxx", inverters=[INVERTERS_ENTRY_POINTS.get("x1_hybrid_gen4")], return_when=asyncio.FIRST_COMPLETED)
     return await inverter.get_data()
 
 loop = asyncio.new_event_loop()
@@ -61,9 +61,9 @@ These inverters have been tested and confirmed to be working. If your inverter i
 * SK-TL5000E
 * X1 Hybrid Gen4
 
-You can get the list of supported inverters by looking up the `solax.inverter` entry points:
+You can get the list of supported inverters by looking up the `sonnenbackup.inverter` entry points:
 
 ```
-for ep in entry_points(group="solax.inverter"):
+for ep in entry_points(group="sonnenbackup.inverter"):
     print(ep)
 ```
