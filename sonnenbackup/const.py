@@ -1,4 +1,4 @@
-"""Constants for the sonnen batterie backup integration."""
+"""Constants for the sonnen backup batterie integration."""
 import voluptuous as vol
 
 import homeassistant.helpers.config_validation as cv
@@ -18,7 +18,7 @@ DEFAULT_SCAN_INTERVAL = 15
 ATTR_SONNEN_DEBUG = "sonnenbackup_debug"
 DEFAULT_PORT = '80'
 
-PLATFORMS = [Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 CONFIG_SCHEMA = vol.Schema(
     {
@@ -34,8 +34,8 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Required("SONNEN_DEBUG", default=False): bool,
                 }
             ),
-            # Whether or not the section is initially collapsed (default = False)
-            {"collapsed": False},
+        # Whether or not the section is initially collapsed (default = False)
+        {"collapsed": False},
         )
     }
 )

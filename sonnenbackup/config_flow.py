@@ -1,4 +1,4 @@
-"""Config flow for sonnen batterie integration."""
+"""Config flow for sonnenbackup batterie integration."""
 
 from __future__ import annotations
 
@@ -9,34 +9,46 @@ from sonnen_api_v2 import Batterie
 from sonnen_api_v2.discovery import DiscoveryError
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+#from homeassistant import config_entries, core, exceptions
+
+from homeassistant.config_entries import (
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+    CONN_CLASS_LOCAL_POLL,
+)
 from homeassistant.core import callback
-from homeassistant.const import CONF_IP_ADDRESS, CONF_API_TOKEN, CONF_PORT, CONF_DEVICE_ID, CONF_API_VERSION, CONF_MODEL
+from homeassistant.const import (
+        CONF_IP_ADDRESS,
+        CONF_API_TOKEN,
+        CONF_PORT,
+        CONF_MODEL,
+        CONF_DEVICE_ID,
+        CONF_SCAN_INTERVAL,
+        )
 import homeassistant.helpers.config_validation as cv
 
-from .const import DOMAIN, CONFIG_SCHEMA
+from .const import DOMAIN, CONFIG_SCHEMA, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
 
 _LOGGER = logging.getLogger(__name__)
 
-DEFAULT_PORT = '80'
-DEFAULT_API_VERSION = 'V2'
-
-
 async def validate_api(data) -> str:
-    """Validate the credentials."""
+    """Validate credentials."""
 
     _batterie = Batterie(
         data[CONF_API_TOKEN],
         data[CONF_IP_ADDRESS],
         data[CONF_PORT],
     )
-    response = await _batterie.get_data()
+    response = await _batterie.get_response()
     return response.version
 
 
 class SonnenConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Sonnen Batterie."""
+    """Handle a config flow for SonnenBackup Batterie."""
     VERSION = 1
+
+    CONNECTION_CLASS = CONN_CLASS_LOCAL_POLL
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -65,38 +77,37 @@ class SonnenConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
         )
 
-    async def async_step_progress(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """Displaying rogress for two tasks"""
-        _LOGGER.info("async_step_progress")
-        task = asyncio.sleep(3)
-        _LOGGER.info("scheduling task")
- #       self.task_one = self.hass.async_create_task(self._async_do_task(task))
-        progress_action = "user_task"
-        _LOGGER.info("showing_progress: %s", progress_action)
-        return self.async_show_progress(
-            step_id="progress",
-            progress_action=progress_action,
-        )
-        _LOGGER.info("async_step_progress - all tasks done")
-        return self.async_show_progress_done(next_step_id="finish")
+#     async def async_step_progress(
+#         self, user_input: dict[str, Any] | None = None
+#     ) -> ConfigFlowResult:
+#         """Displaying rogress for two tasks"""
+#         _LOGGER.info("async_step_progress")
+#         task = asyncio.sleep(3)
+#         _LOGGER.info("scheduling task")
+#  #       self.task_one = self.hass.async_create_task(self._async_do_task(task))
+#         progress_action = "user_task"
+#         _LOGGER.info("showing_progress: %s", progress_action)
+#         return self.async_show_progress(
+#             step_id="progress",
+#             progress_action=progress_action,
+#         )
+#         _LOGGER.info("async_step_progress - all tasks done")
+#         return self.async_show_progress_done(next_step_id="finish")
 
-    async def async_step_finish(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        _LOGGER.info("async_step_finish")
-        return self.async_create_entry(
-            title="SonnenBackup",
-            data={},
-        )
-
+#     async def async_step_finish(
+#         self, user_input: dict[str, Any] | None = None
+#     ) -> ConfigFlowResult:
+#         _LOGGER.info("async_step_finish")
+#         return self.async_create_entry(
+#             title="SonnenBackup",
+#             data={},
+#         )
 
 
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        return OptionsFlowHandler(config_entry)
+        return SonnenBackupOptionsFlow(config_entry)
 
 
 
@@ -104,14 +115,14 @@ OPTIONS_SCHEMA = vol.Schema(
     {
         vol.Optional(
             CONF_SCAN_INTERVAL,
-            default=self.config_entry.options.get(
-                CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
-            ),
+            default=DEFAULT_SCAN_INTERVAL
+        ): cv.Number,
         vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
     }
 )
 
-class SonnenOptionsFlow(config_entries.OptionsFlow):
+class SonnenBackupOptionsFlow(OptionsFlow):
+    """SonnenBackup options."""
     def __init__(self, config_entry):
         """Initialize options flow."""
         self.config_entry = config_entry
@@ -119,7 +130,7 @@ class SonnenOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
 
         if user_input is not None:
             return self.async_create_entry(title="XxX", data=user_input)

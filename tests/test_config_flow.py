@@ -1,93 +1,145 @@
-"""Tests for the sonnenbackup config flow."""
+"""Test the SonnenBackup config flow."""
 
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from homeassistant import config_entries
-from homeassistant.const import CONF_IP_ADDRESS, CONF_PASSWORD, CONF_PORT
+from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth
+from homeassistant.components.sonnenbackup.const import DOMAIN
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
-from sonnenbackup.const import DOMAIN
-from sonnen_api_v2 import BatterieResponse, BatterieBackup
-from .mock_batterieresponse import __mock_batterieresponse
 
-
-def __mock_real_time_api_success():
-    return BatterieBackup('fakeUsername', 'fakeToken', 'fakeHost')
-
-
-async def test_form_success(hass: HomeAssistant) -> None:
-    """Test successful form."""
-    flow = await hass.config_entries.flow.async_init(
+async def test_form(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> None:
+    """Test we get the form."""
+    result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
-    assert flow["type"] is FlowResultType.FORM
-    assert flow["errors"] == {}
+    assert result["type"] == FlowResultType.FORM
+    assert result["errors"] == {}
 
-    with (
-        patch(
-            "homeassistant.custom_components.sonnen.config_flow.real_time_api",
-            return_value=__mock_real_time_api_success(),
-        ),
-        patch("sonnen.BatterieBackup.get_response", return_value=__mock_batterieresponse()),
-        patch(
-            "homeassistant.custom_components.sonnenbackup.async_setup_entry",
-            return_value=True,
-        ) as mock_setup_entry,
+    with patch(
+        "homeassistant.components.sonnenbackup.config_flow.PlaceholderHub.authenticate",
+        return_value=True,
     ):
-        entry_result = await hass.config_entries.flow.async_configure(
-            flow["flow_id"],
-            {CONF_IP_ADDRESS: "192.168.100.200", CONF_PORT: 80, CONF_PASSWORD: "password"},
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            {
+                CONF_HOST: "1.1.1.1",
+                CONF_USERNAME: "test-username",
+                CONF_PASSWORD: "test-password",
+            },
         )
         await hass.async_block_till_done()
 
-    assert entry_result["type"] is FlowResultType.CREATE_ENTRY
-    assert entry_result["title"] == "ABCDEFGHIJ"
-    assert entry_result["data"] == {
-        CONF_IP_ADDRESS: "192.168.100.200",
-        CONF_PORT: 80,
-        CONF_PASSWORD: "password",
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["title"] == "Name of the device"
+    assert result["data"] == {
+        CONF_HOST: "1.1.1.1",
+        CONF_USERNAME: "test-username",
+        CONF_PASSWORD: "test-password",
     }
     assert len(mock_setup_entry.mock_calls) == 1
 
 
-async def test_form_connect_error(hass: HomeAssistant) -> None:
-    """Test cannot connect form."""
-    flow = await hass.config_entries.flow.async_init(
+async def test_form_invalid_auth(
+    hass: HomeAssistant, mock_setup_entry: AsyncMock
+) -> None:
+    """Test we handle invalid auth."""
+    result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
-    assert flow["type"] is FlowResultType.FORM
-    assert flow["errors"] == {}
 
     with patch(
-        "homeassistant.custom_components.sonnenbackup.config_flow.real_time_api",
-        side_effect=ConnectionError,
+        "homeassistant.components.sonnenbackup.config_flow.PlaceholderHub.authenticate",
+        side_effect=InvalidAuth,
     ):
-        entry_result = await hass.config_entries.flow.async_configure(
-            flow["flow_id"],
-            {CONF_IP_ADDRESS: "192.168.100.200", CONF_PORT: 80, CONF_PASSWORD: "password"},
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            {
+                CONF_HOST: "1.1.1.1",
+                CONF_USERNAME: "test-username",
+                CONF_PASSWORD: "test-password",
+            },
         )
 
-    assert entry_result["type"] is FlowResultType.FORM
-    assert entry_result["errors"] == {"base": "cannot_connect"}
+    assert result["type"] == FlowResultType.FORM
+    assert result["errors"] == {"base": "invalid_auth"}
+
+    # Make sure the config flow tests finish with either an
+    # FlowResultType.CREATE_ENTRY or FlowResultType.ABORT so
+    # we can show the config flow is able to recover from an error.
+    with patch(
+        "homeassistant.components.sonnenbackup.config_flow.PlaceholderHub.authenticate",
+        return_value=True,
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            {
+                CONF_HOST: "1.1.1.1",
+                CONF_USERNAME: "test-username",
+                CONF_PASSWORD: "test-password",
+            },
+        )
+        await hass.async_block_till_done()
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["title"] == "Name of the device"
+    assert result["data"] == {
+        CONF_HOST: "1.1.1.1",
+        CONF_USERNAME: "test-username",
+        CONF_PASSWORD: "test-password",
+    }
+    assert len(mock_setup_entry.mock_calls) == 1
 
 
-async def test_form_unknown_error(hass: HomeAssistant) -> None:
-    """Test unknown error form."""
-    flow = await hass.config_entries.flow.async_init(
+async def test_form_cannot_connect(
+    hass: HomeAssistant, mock_setup_entry: AsyncMock
+) -> None:
+    """Test we handle cannot connect error."""
+    result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
-    assert flow["type"] is FlowResultType.FORM
-    assert flow["errors"] == {}
 
     with patch(
-        "homeassistant.custom_components.sonnenbackup.config_flow.real_time_api",
-        side_effect=Exception,
+        "homeassistant.components.sonnenbackup.config_flow.PlaceholderHub.authenticate",
+        side_effect=CannotConnect,
     ):
-        entry_result = await hass.config_entries.flow.async_configure(
-            flow["flow_id"],
-            {CONF_IP_ADDRESS: "192.168.100.200", CONF_PORT: 80, CONF_PASSWORD: "password"},
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            {
+                CONF_HOST: "1.1.1.1",
+                CONF_USERNAME: "test-username",
+                CONF_PASSWORD: "test-password",
+            },
         )
 
-    assert entry_result["type"] is FlowResultType.FORM
-    assert entry_result["errors"] == {"base": "unknown"}
+    assert result["type"] == FlowResultType.FORM
+    assert result["errors"] == {"base": "cannot_connect"}
+
+    # Make sure the config flow tests finish with either an
+    # FlowResultType.CREATE_ENTRY or FlowResultType.ABORT so
+    # we can show the config flow is able to recover from an error.
+
+    with patch(
+        "homeassistant.components.sonnenbackup.config_flow.PlaceholderHub.authenticate",
+        return_value=True,
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            {
+                CONF_HOST: "1.1.1.1",
+                CONF_USERNAME: "test-username",
+                CONF_PASSWORD: "test-password",
+            },
+        )
+        await hass.async_block_till_done()
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["title"] == "Name of the device"
+    assert result["data"] == {
+        CONF_HOST: "1.1.1.1",
+        CONF_USERNAME: "test-username",
+        CONF_PASSWORD: "test-password",
+    }
+    assert len(mock_setup_entry.mock_calls) == 1

@@ -10,24 +10,16 @@
         },
         "step": {
             "user": {
-              "title": "Sonnen Backup Batterie device",
-              "description": "Batterie IP Address & API Token"
+              "title": "Sonnen Backup Batterie",
+              "description": "Batterie IP Address & API Token",
                 "data": {
                     "ip_address": "IP address",
                     "port": "Port",
                     "api_token": "API Token",
-                    "api_version": "API Version",
                     "model": "Model",
                     "device_id": "Serial Number"
                 }
-            },
-            "progress":{
-              "title": "Progress step",
-              "description":"Progress step description"
             }
-        },
-       "progress": {
-        "task_one": "Device config.",
-      }
-   }
+        }
+    }
 }

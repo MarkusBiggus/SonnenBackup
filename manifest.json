@@ -1,16 +1,19 @@
 {
     "domain": "sonnenbackup",
-    "name": "Sonnen Backup Power unit Evo",
+    "name": "Sonnen Backup",
     "codeowners": ["@markusbiggus"],
     "config_flow": true,
     "documentation": "https://www.home-assistant.io/integrations/sonnenbackup",
+    "homekit": {},
     "iot_class": "local_polling",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "loggers": ["sonnenbackup"],
     "requirements": [
         "asyncio>=3.4.3",
         "voluptuous>=0.15.2",
         "sonnen_api_v2>=0.5.12",
-        "setuptools==65.5.1"
-    ]
+        "setuptools==75.1.0"
+    ],
+    "ssdp": [],
+    "zeroconf": []
 }
