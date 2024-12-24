@@ -1,30 +1,19 @@
-"""Tests for the sonnen config flow."""
+"""Tests for the sonnenbackup config flow."""
 
 from unittest.mock import patch
 
-from sonnen_api_v2 import RealTimeAPI
-from sonnen_api_v2 import BatterieResponse
-#from sonnen.inverters import X1MiniV34
-
 from homeassistant import config_entries
-from homeassistant.components.sonnen.const import DOMAIN
 from homeassistant.const import CONF_IP_ADDRESS, CONF_PASSWORD, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
+from sonnenbackup.const import DOMAIN
+from sonnen_api_v2 import BatterieResponse, BatterieBackup
+from .mock_batterieresponse import __mock_batterieresponse
+
 
 def __mock_real_time_api_success():
-    return RealTimeAPI(X1MiniV34)
-
-
-def __mock_get_data():
-    return InverterResponse(
-        data=None,
-        dongle_serial_number="ABCDEFGHIJ",
-        version="2.034.06",
-        type=4,
-        inverter_serial_number="XXXXXXX",
-    )
+    return BatterieBackup('fakeUsername', 'fakeToken', 'fakeHost')
 
 
 async def test_form_success(hass: HomeAssistant) -> None:
@@ -40,9 +29,9 @@ async def test_form_success(hass: HomeAssistant) -> None:
             "homeassistant.custom_components.sonnen.config_flow.real_time_api",
             return_value=__mock_real_time_api_success(),
         ),
-        patch("sonnen.RealTimeAPI.get_data", return_value=__mock_get_data()),
+        patch("sonnen.BatterieBackup.get_response", return_value=__mock_batterieresponse()),
         patch(
-            "homeassistant.custom_components.sonnen.async_setup_entry",
+            "homeassistant.custom_components.sonnenbackup.async_setup_entry",
             return_value=True,
         ) as mock_setup_entry,
     ):
@@ -71,7 +60,7 @@ async def test_form_connect_error(hass: HomeAssistant) -> None:
     assert flow["errors"] == {}
 
     with patch(
-        "homeassistant.custom_components.sonnen.config_flow.real_time_api",
+        "homeassistant.custom_components.sonnenbackup.config_flow.real_time_api",
         side_effect=ConnectionError,
     ):
         entry_result = await hass.config_entries.flow.async_configure(
@@ -92,7 +81,7 @@ async def test_form_unknown_error(hass: HomeAssistant) -> None:
     assert flow["errors"] == {}
 
     with patch(
-        "homeassistant.custom_components.sonnen.config_flow.real_time_api",
+        "homeassistant.custom_components.sonnenbackup.config_flow.real_time_api",
         side_effect=Exception,
     ):
         entry_result = await hass.config_entries.flow.async_configure(

@@ -1,6 +1,9 @@
 """Constants for the sonnen batterie backup integration."""
 import voluptuous as vol
 
+import homeassistant.helpers.config_validation as cv
+from homeassistant.data_entry_flow import section
+
 from homeassistant.const import (
     Platform,
     CONF_IP_ADDRESS,
@@ -9,9 +12,6 @@ from homeassistant.const import (
     CONF_MODEL,
     CONF_DEVICE_ID,
 )
-import homeassistant.helpers.config_validation as cv
-from homeassistant.data_entry_flow import section
-
 DOMAIN = "sonnenbackup"
 MANUFACTURER = "Sonnen GmbH"
 DEFAULT_SCAN_INTERVAL = 15

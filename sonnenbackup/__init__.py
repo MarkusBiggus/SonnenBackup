@@ -5,7 +5,7 @@ from datetime import timedelta
 import logging
 
 #from sonnen_api_v2.sonnen import BatterieResponse, RealTimeAPI, Sonnen as Batterie, BatterieError
-from sonnen_api_v2 import BatterieResponse, RealTimeAPI, Batterie, BatterieError
+from sonnen_api_v2 import BatterieResponse, BatterieBackup, Batterie, BatterieError
 #from sonnen.inverter import InverterError
 
 from homeassistant.config_entries import ConfigEntry
@@ -28,7 +28,7 @@ SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 class SonnenData:
     """Class for storing sonnen batterie data."""
 
-    api: RealTimeAPI
+    api: BatterieBackup
     coordinator: SonnenDataUpdateCoordinator
     serial_number: str
 
@@ -52,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SonnenConfigEntry) -> bo
 
     async def _async_update() -> BatterieResponse:
         try:
-            return await _batterie.async_update()
+            return await _batterie.get_response()
         except BatterieError as err:
             raise UpdateFailed from err
 
@@ -65,7 +65,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SonnenConfigEntry) -> bo
     )
     await coordinator.async_config_entry_first_refresh()
 
-    entry.runtime_data = SonnenData(api=_batterie.RealTimeAPI, coordinator=coordinator, serial_number=entry.data[CONF_DEVICE_ID])
+    entry.runtime_data = SonnenData(api=_batterie.BatterieBackup, coordinator=coordinator, serial_number=entry.data[CONF_DEVICE_ID])
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True

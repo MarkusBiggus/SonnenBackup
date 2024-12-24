@@ -1,6 +1,6 @@
 # SonnenBackup
 
-Read energy usage data from the real-time API on Sonnen Batterie batterie.
+Read energy usage data from the real-time API on Sonnen Batterie.
 
 * Real time power, current and voltage
 * Grid power information

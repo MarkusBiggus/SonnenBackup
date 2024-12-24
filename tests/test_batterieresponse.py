@@ -1,7 +1,7 @@
 """pytest tests/test_batterieresponse.py -s -v -x
 
     Async update called from an async method to
-    get BatterResponse as used by HA component.
+    get BatterieResponse as used by HA component.
 """
 import datetime
 import os
@@ -41,7 +41,7 @@ if LOGGER_NAME is not None:
 @pytest.mark.usefixtures("battery_charging")
 @freeze_time("20-11-2023 17:00:00")
 async def test_batterieresponse(battery_charging: Batterie) -> None:
-    """Batterie Response using mock data"""
+    """Batterie Response using mock data."""
 
 #     status_data = await battery_charging.async_fetch_status()
 # #    print(f'status: {status_data}')
