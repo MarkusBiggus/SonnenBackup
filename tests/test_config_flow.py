@@ -1,14 +1,19 @@
-"""Test the SonnenBackup config flow."""
+"""Test the SonnenBackup config flow.
+
+    pytest tests/test_config_flow.py -s -v -x
+"""
 
 from unittest.mock import AsyncMock, patch
 
 from homeassistant import config_entries
-from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth
-from homeassistant.components.sonnenbackup.const import DOMAIN
+# from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth
+# from homeassistant.components.sonnenbackup.const import DOMAIN
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
+from sonnenbackup.config_flow import CannotConnect, InvalidAuth
+from sonnenbackup.const import DOMAIN
 
 async def test_form(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> None:
     """Test we get the form."""
@@ -19,7 +24,7 @@ async def test_form(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> None:
     assert result["errors"] == {}
 
     with patch(
-        "homeassistant.components.sonnenbackup.config_flow.PlaceholderHub.authenticate",
+        "homeassistant.components.sonnenbackup.config_flow.validate_api",
         return_value=True,
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -51,7 +56,7 @@ async def test_form_invalid_auth(
     )
 
     with patch(
-        "homeassistant.components.sonnenbackup.config_flow.PlaceholderHub.authenticate",
+        "homeassistant.components.sonnenbackup.config_flow.validate_api",
         side_effect=InvalidAuth,
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -70,8 +75,8 @@ async def test_form_invalid_auth(
     # FlowResultType.CREATE_ENTRY or FlowResultType.ABORT so
     # we can show the config flow is able to recover from an error.
     with patch(
-        "homeassistant.components.sonnenbackup.config_flow.PlaceholderHub.authenticate",
-        return_value=True,
+        "homeassistant.components.sonnenbackup.config_flow.validate_api",
+        return_value='1.14.5',
     ):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
@@ -102,7 +107,7 @@ async def test_form_cannot_connect(
     )
 
     with patch(
-        "homeassistant.components.sonnenbackup.config_flow.PlaceholderHub.authenticate",
+        "homeassistant.components.sonnenbackup.config_flow.validate_api",
         side_effect=CannotConnect,
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -122,8 +127,8 @@ async def test_form_cannot_connect(
     # we can show the config flow is able to recover from an error.
 
     with patch(
-        "homeassistant.components.sonnenbackup.config_flow.PlaceholderHub.authenticate",
-        return_value=True,
+        "homeassistant.components.sonnenbackup.config_flow.validate_api",
+        return_value='1.14.5',
     ):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],

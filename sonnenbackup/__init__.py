@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 import logging
 
-from sonnen_api_v2 import BatterieResponse, BatterieBackup, Batterie, BatterieError
+from sonnen_api_v2 import BatterieResponse, BatterieBackup, Batterie, BatterieAuthError, BatterieHTTPError, BatterieError
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_IP_ADDRESS, CONF_API_TOKEN, CONF_PORT, CONF_DEVICE_ID

@@ -69,7 +69,7 @@ class SonnenConfigFlow(ConfigFlow, domain=DOMAIN):
         serial_number = user_input[CONF_DEVICE_ID]
 
         try:
-            version = await validate_api(user_input)
+            version:str = await validate_api(user_input)
         except InvalidAuth:
             errors["base"] = "invalid_auth"
         except (ConnectionError, BatterieError):
