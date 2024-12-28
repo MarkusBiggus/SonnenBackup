@@ -11,6 +11,7 @@ from homeassistant.const import (
     CONF_PORT,
     CONF_MODEL,
     CONF_DEVICE_ID,
+    CONF_SCAN_INTERVAL,
 )
 DOMAIN = "sonnenbackup"
 MANUFACTURER = "Sonnen GmbH"
@@ -27,15 +28,22 @@ CONFIG_SCHEMA = vol.Schema(
         vol.Required(CONF_API_TOKEN): cv.string,
         vol.Required(CONF_MODEL): cv.string,
         vol.Required(CONF_DEVICE_ID): cv.string,
-        "options": section(
-            vol.Schema(
-                {
-                    vol.Required("SCAN_INTERVAL", default=DEFAULT_SCAN_INTERVAL): int,
-                    vol.Required("SONNEN_DEBUG", default=False): bool,
-                }
-            ),
-        # Whether or not the section is initially collapsed (default = False)
-        {"collapsed": False},
-        )
+        # "options": section(
+        #     vol.Schema(
+        #         {
+        #             vol.Required("SCAN_INTERVAL", default=DEFAULT_SCAN_INTERVAL): int,
+        #             vol.Required("SONNEN_DEBUG", default=False): bool,
+        #         }
+        #     ),
+        # # Whether or not the section is initially collapsed (default = False)
+        # {"collapsed": False},
+        # )
+    }
+)
+
+OPTIONS_SCHEMA = vol.Schema(
+    {
+        vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
+        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.Number,
     }
 )

@@ -1,11 +1,11 @@
 {
   "domain": "sonnenbackup",
-  "name": "Sonnen Backup Power unit Evo",
+  "name": "SonnenBackup Power unit Evo",
   "codeowners": ["@markusbiggus"],
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/sonnenbackup",
   "iot_class": "local_polling",
-  "version": "1.0.0"
-  "loggers": ["sonnen"],
-  "requirements": ["sonnen_api_v2>=0.5.12"]
+  "version": "0.1.0",
+  "loggers": ["sonnenbackup"],
+  "requirements": ["sonnen_api_v2>=0.5.13"]
 }

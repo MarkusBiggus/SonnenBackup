@@ -1,0 +1,31 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "ip_address": "[%key:common::config_flow::data::ip_address%]",
+          "api_token": "[%key:common::config_flow::data::api_token%]",
+          "model": "[%key:common::config_flow::data::model%]",
+          "device_id": "[%key:common::config_flow::data::device_id%]"
+        }
+      },
+      "init": {
+        "title": "SonnenBackup Options",
+        "description": "Override Port & Scan interval",
+        "data": {
+          "port": "[%key:common::config_flow::data::port%]",
+          "scan_interval": "[%key:common::config_flow::data::scan_interval%]"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "device_api_error": "[%key:common::config_flow::error::device_api_error%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    }
+  }
+}

@@ -5,9 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from sonnen_api_v2 import Batterie, BatterieAuthError, BatterieError
-
-import voluptuous as vol
+from sonnen_api_v2 import Batterie, BatterieAuthError, BatterieHTTPError, BatterieError
 
 #from homeassistant import config_entries, core, exceptions
 
@@ -24,16 +22,15 @@ from homeassistant.const import (
         CONF_PORT,
         CONF_MODEL,
         CONF_DEVICE_ID,
-        CONF_SCAN_INTERVAL,
         )
 import homeassistant.helpers.config_validation as cv
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import DOMAIN, CONFIG_SCHEMA, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
+from .const import DOMAIN, CONFIG_SCHEMA, OPTIONS_SCHEMA
 
 _LOGGER = logging.getLogger(__name__)
 
-async def validate_api(user_input) -> str:
+async def _validate_api(user_input) -> str:
     """Validate credentials."""
 
     _batterie = Batterie(
@@ -42,13 +39,18 @@ async def validate_api(user_input) -> str:
         user_input[CONF_PORT],
     )
     try:
-        response = await _batterie.get_response()
-    except BatterieAuthError:
-        raise InvalidAuth
-    except BatterieError:
-        raise CannotConnect
+        success = await _batterie.async_validate_token()
+    except BatterieAuthError as error:
+        raise InvalidAuth (f'{str(error)}')
+    except BatterieHTTPError as error:
+        raise DeviceAPIError (f'{str(error)}')
+    except BatterieError as error:
+        raise CannotConnect(f'Batterie connection fail. {str(error)}')
 
-    return response.version
+    if success is False:
+        raise InvalidAuth ('Invalid Token or IP address')
+
+    return success
 
 
 class SonnenConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -61,26 +63,35 @@ class SonnenConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle the initial step."""
+
         errors: dict[str, Any] = {}
         if user_input is None:
             return self.async_show_form(
                 step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
             )
+
         serial_number = user_input[CONF_DEVICE_ID]
+        batterie_model = user_input[CONF_MODEL]
 
         try:
-            version:str = await validate_api(user_input)
-        except InvalidAuth:
-            errors["base"] = "invalid_auth"
-        except (ConnectionError, BatterieError):
-            errors["base"] = "cannot_connect"
-        except Exception:
-            _LOGGER.exception("Unexpected exception")
+            await _validate_api(user_input)
+        except InvalidAuth as error:
+            errors["base"] = 'invalid_auth'
+            errors["message"] = f'{str(error)}'
+        except DeviceAPIError as error:
+            errors["base"] = 'device_api_error'
+            errors["message"] = f'{str(error)}'
+        except (ConnectionError, CannotConnect) as error:
+            errors["base"] = 'cannot_connect'
+            errors["message"] = f'{str(error)}'
+        except Exception as error:
+            _LOGGER.exception('Unexpected exception')
             errors["base"] = "unknown"
+            errors["message"] = f'{str(error)}'
         else:
-            await self.async_set_unique_id(serial_number)
+            self.async_set_unique_id(serial_number)
             self._abort_if_unique_id_configured()
-            return self.async_create_entry(title=f'Sonnen Batterie ({serial_number})', data=user_input)
+            return self.async_create_entry(title=f'SonnenBackup {batterie_model} ({serial_number})', data=user_input)
 
         return self.async_show_form(
             step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
@@ -112,21 +123,50 @@ class SonnenConfigFlow(ConfigFlow, domain=DOMAIN):
 #             data={},
 #         )
 
-
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
         return SonnenBackupOptionsFlow(config_entry)
 
-OPTIONS_SCHEMA = vol.Schema(
-    {
-        vol.Optional(
-            CONF_SCAN_INTERVAL,
-            default=DEFAULT_SCAN_INTERVAL
-        ): cv.Number,
-        vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
-    }
-)
+    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
+        """Handle the reconfiguration step."""
+
+        errors: dict[str, Any] = {}
+        if user_input is None:
+            return self.async_show_form(
+                step_id="reconfigure", data_schema=CONFIG_SCHEMA, errors=errors
+            )
+
+        serial_number = user_input[CONF_DEVICE_ID] # can't be changed!
+        batterie_model = user_input[CONF_MODEL]
+
+        try:
+            await _validate_api(user_input)
+        except InvalidAuth as error:
+            errors["base"] = 'invalid_auth'
+            errors["message"] = f'{str(error)}'
+        except DeviceAPIError as error:
+            errors["base"] = 'device_api_error'
+            errors["message"] = f'{str(error)}'
+        except (ConnectionError, CannotConnect) as error:
+            errors["base"] = 'cannot_connect'
+            errors["message"] = f'{str(error)}'
+        except Exception as error:
+            _LOGGER.exception('Unexpected exception')
+            errors["base"] = "unknown"
+            errors["message"] = f'{str(error)}'
+        else:
+            self.async_set_unique_id(serial_number)
+            self._abort_if_unique_id_mismatch()
+            return self.async_update_reload_and_abort(
+                self._get_reconfigure_entry(),
+                title=f'SonnenBackup {batterie_model} ({serial_number})',
+                data_updates=user_input,
+            )
+
+        return self.async_show_form(
+            step_id="reconfigure", data_schema=CONFIG_SCHEMA, errors=errors
+        )
 
 class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
@@ -140,7 +180,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
     ) -> ConfigFlowResult:
 
         if user_input is not None:
-            return self.async_create_entry(title=f'Sonnen Batterie ({self.options[CONF_DEVICE_ID]})', data=user_input)
+            return self.async_create_entry(title=f'SonnenBackup {self.options[CONF_MODEL]} ({self.options[CONF_DEVICE_ID]})', data=user_input)
 
         return self.async_show_form(
             step_id="init",
@@ -152,6 +192,8 @@ class SonnenBackupOptionsFlow(OptionsFlow):
 class CannotConnect(HomeAssistantError):
     """Error to indicate we cannot connect."""
 
+class DeviceAPIError(HomeAssistantError):
+    """Error to indicate device API error."""
 
 class InvalidAuth(HomeAssistantError):
     """Error to indicate there is invalid auth."""

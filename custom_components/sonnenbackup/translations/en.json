@@ -1,0 +1,34 @@
+{
+    "config": {
+        "flow_title": "SonnenBackup Batterie",
+        "abort": {
+            "already_configured": "Batterie is already configured"
+        },
+        "error": {
+            "invalid_auth": "Invalid API Token",
+            "device_api_error": "Device HTTP error",
+            "cannot_connect": "Failed to connect",
+            "unknown": "Unexpected error"
+        },
+        "step": {
+            "user": {
+                "title": "Sonnen Backup Batterie",
+                "description": "Batterie IP Address & API Token",
+                "data": {
+                    "ip_address": "IP address",
+                    "api_token": "API Token",
+                    "model": "Model",
+                    "device_id": "Serial Number"
+                }
+            },
+            "init": {
+                "title": "SonnenBackup Options",
+                "description": "Override Port & Scan interval",
+                "data": {
+                    "port": "Port",
+                    "scan_interval": "Scan Interval"
+                }
+            }
+        }
+    }
+}
