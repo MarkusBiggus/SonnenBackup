@@ -53,7 +53,7 @@ async def _validate_api(user_input) -> str:
     return success
 
 
-class SonnenConfigFlow(ConfigFlow, domain=DOMAIN):
+class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for SonnenBackup."""
     VERSION = 1
 
@@ -89,7 +89,7 @@ class SonnenConfigFlow(ConfigFlow, domain=DOMAIN):
             errors["base"] = "unknown"
             errors["message"] = f'{str(error)}'
         else:
-            self.async_set_unique_id(serial_number)
+            await self.async_set_unique_id(serial_number)
             self._abort_if_unique_id_configured()
             return self.async_create_entry(title=f'SonnenBackup {batterie_model} ({serial_number})', data=user_input)
 
