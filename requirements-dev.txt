@@ -10,6 +10,6 @@ pytest-asyncio
 pytest-cov
 pytest-mock
 coverage>=7.2.1
-pytest-homeassistant-custom-component>=2024.12.5
+pytest-homeassistant-custom-component
 freezegun~=1.5.1
 asyncmock>=0.4.2

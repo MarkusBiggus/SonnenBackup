@@ -8,7 +8,7 @@ setuptools.setup(
     use_scm_version=True,
     author="@MarkusBiggus",
     author_email="",
-    description="Sonnen Batterie V2 API component",
+    description="SonnenBackup Batterie V2 API component",
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="MIT",
@@ -18,7 +18,7 @@ setuptools.setup(
         "asyncio>=3.4.3",
         "voluptuous>=0.15.2",
         "sonnen_api_v2>=0.5.12",
-        "setuptools==65.5.1",
+        "setuptools==75.1.0",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
