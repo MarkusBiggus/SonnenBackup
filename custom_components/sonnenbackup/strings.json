@@ -10,12 +10,25 @@
         }
       },
       "init": {
-        "title": "SonnenBackup Options",
-        "description": "Override Port & Scan interval",
+        "title": "SonnenBackup Component Behaviours",
         "data": {
           "port": "[%key:common::config_flow::data::port%]",
           "scan_interval": "[%key:common::config_flow::data::scan_interval%]"
+        },
+        "description": "Change scan interval or toggle debug mode."
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "data": {
+            "scan_interval": "[%key:common::config_flow::options::scan_interval%]",
+            "sonnenbackup_debug": "[%key:common::config_flow::options::sonnenbackup_debug%]"
+          }
         }
+      },
+      "error": {
+      "invalid_interval": "[%key:common::config_flow::error::invalid_interval%]"
       }
     },
     "abort": {

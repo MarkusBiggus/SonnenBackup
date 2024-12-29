@@ -13,6 +13,7 @@ from homeassistant.config_entries import (
     ConfigFlow,
     ConfigFlowResult,
     OptionsFlow,
+    ConfigEntry,
     CONN_CLASS_LOCAL_POLL,
 )
 from homeassistant.core import HomeAssistant, callback
@@ -22,11 +23,15 @@ from homeassistant.const import (
         CONF_PORT,
         CONF_MODEL,
         CONF_DEVICE_ID,
+        CONF_SCAN_INTERVAL,
         )
-import homeassistant.helpers.config_validation as cv
+#import homeassistant.helpers.config_validation as cv
 from homeassistant.exceptions import HomeAssistantError
 
+from .coordinator import SonnenBackupAPI
 from .const import DOMAIN, CONFIG_SCHEMA, OPTIONS_SCHEMA
+
+type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,9 +70,11 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
 
         errors: dict[str, Any] = {}
+        placeholders: dict[str, Any] = {}
+
         if user_input is None:
             return self.async_show_form(
-                step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
+                step_id="user", data_schema=CONFIG_SCHEMA
             )
 
         serial_number = user_input[CONF_DEVICE_ID]
@@ -77,64 +84,36 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             await _validate_api(user_input)
         except InvalidAuth as error:
             errors["base"] = 'invalid_auth'
-            errors["message"] = f'{str(error)}'
+            placeholders["error_detail"] = f'{str(error)}'
         except DeviceAPIError as error:
             errors["base"] = 'device_api_error'
-            errors["message"] = f'{str(error)}'
+            placeholders["error_detail"] = f'{str(error)}'
         except (ConnectionError, CannotConnect) as error:
             errors["base"] = 'cannot_connect'
-            errors["message"] = f'{str(error)}'
+            placeholders["error_detail"] = f'{str(error)}'
         except Exception as error:
             _LOGGER.exception('Unexpected exception')
             errors["base"] = "unknown"
-            errors["message"] = f'{str(error)}'
+            placeholders["error_detail"] = f'{str(error)}'
         else:
             await self.async_set_unique_id(serial_number)
             self._abort_if_unique_id_configured()
             return self.async_create_entry(title=f'SonnenBackup {batterie_model} ({serial_number})', data=user_input)
 
         return self.async_show_form(
-            step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
+            step_id="user", data_schema=CONFIG_SCHEMA,
+            errors=errors,
+            description_placeholders=placeholders
         )
-
-#     async def async_step_progress(
-#         self, user_input: dict[str, Any] | None = None
-#     ) -> ConfigFlowResult:
-#         """Displaying rogress for two tasks"""
-#         _LOGGER.info("async_step_progress")
-#         task = asyncio.sleep(3)
-#         _LOGGER.info("scheduling task")
-#  #       self.task_one = self.hass.async_create_task(self._async_do_task(task))
-#         progress_action = "user_task"
-#         _LOGGER.info("showing_progress: %s", progress_action)
-#         return self.async_show_progress(
-#             step_id="progress",
-#             progress_action=progress_action,
-#         )
-#         _LOGGER.info("async_step_progress - all tasks done")
-#         return self.async_show_progress_done(next_step_id="finish")
-
-#     async def async_step_finish(
-#         self, user_input: dict[str, Any] | None = None
-#     ) -> ConfigFlowResult:
-#         _LOGGER.info("async_step_finish")
-#         return self.async_create_entry(
-#             title="SonnenBackup",
-#             data={},
-#         )
-
-    @staticmethod
-    @callback
-    def async_get_options_flow(config_entry):
-        return SonnenBackupOptionsFlow(config_entry)
 
     async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
         """Handle the reconfiguration step."""
 
         errors: dict[str, Any] = {}
+        placeholders: dict[str, Any] = {}
         if user_input is None:
             return self.async_show_form(
-                step_id="reconfigure", data_schema=CONFIG_SCHEMA, errors=errors
+                step_id="reconfigure", data_schema=CONFIG_SCHEMA
             )
 
         serial_number = user_input[CONF_DEVICE_ID] # can't be changed!
@@ -144,17 +123,16 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             await _validate_api(user_input)
         except InvalidAuth as error:
             errors["base"] = 'invalid_auth'
-            errors["message"] = f'{str(error)}'
+            placeholders["error_detail"] = f'{str(error)}'
         except DeviceAPIError as error:
             errors["base"] = 'device_api_error'
-            errors["message"] = f'{str(error)}'
+            placeholders["error_detail"] = f'{str(error)}'
         except (ConnectionError, CannotConnect) as error:
             errors["base"] = 'cannot_connect'
-            errors["message"] = f'{str(error)}'
+            placeholders["error_detail"] = f'{str(error)}'
         except Exception as error:
             _LOGGER.exception('Unexpected exception')
             errors["base"] = "unknown"
-            errors["message"] = f'{str(error)}'
         else:
             self.async_set_unique_id(serial_number)
             self._abort_if_unique_id_mismatch()
@@ -165,12 +143,19 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             )
 
         return self.async_show_form(
-            step_id="reconfigure", data_schema=CONFIG_SCHEMA, errors=errors
+            step_id="reconfigure", data_schema=CONFIG_SCHEMA,
+            errors=errors,
+            description_placeholders=placeholders
         )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: SonnenBackupConfigEntry):
+        return SonnenBackupOptionsFlow(config_entry)
 
 class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
-    def __init__(self, config_entry):
+    def __init__(self, config_entry: SonnenBackupConfigEntry):
         """Initialize options flow."""
         self.config_entry = config_entry
         self.options = dict(config_entry.options)
@@ -179,13 +164,29 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
 
-        if user_input is not None:
-            return self.async_create_entry(title=f'SonnenBackup {self.options[CONF_MODEL]} ({self.options[CONF_DEVICE_ID]})', data=user_input)
+        errors: dict[str, Any] = {}
+        placeholders: dict[str, Any] = {}
+
+        if user_input is None:
+            return self.async_show_form(
+                step_id="init",
+                data_schema = self.add_suggested_values_to_schema(
+                    OPTIONS_SCHEMA, self.options
+                )
+            )
+
+#       return self.async_create_entry(title=f'SonnenBackup {self.options[CONF_MODEL]} ({self.options[CONF_DEVICE_ID]})', data=user_input)
+        if user_input[CONF_SCAN_INTERVAL] > 3 and user_input[CONF_SCAN_INTERVAL] < 121:
+            return self.async_create_entry(title='', data=user_input)
+
+        errors["base"] = 'invalid_interval'
+        placeholders["error_detail"] = 'Scan interval {user_input[CONF_SCAN_INTERVAL]} must be at least 3 seconds and no more than 120.'
+        user_input[CONF_SCAN_INTERVAL] = 3 if user_input[CONF_SCAN_INTERVAL] < 3 else 120
 
         return self.async_show_form(
             step_id="init",
             data_schema = self.add_suggested_values_to_schema(
-                OPTIONS_SCHEMA, self.entry.options
+                OPTIONS_SCHEMA, user_input
             )
         )
 
@@ -196,4 +197,4 @@ class DeviceAPIError(HomeAssistantError):
     """Error to indicate device API error."""
 
 class InvalidAuth(HomeAssistantError):
-    """Error to indicate there is invalid auth."""
+    """Error to indicate invalid authorisation."""

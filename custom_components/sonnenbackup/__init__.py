@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import timedelta
 import logging
 import json
@@ -10,12 +9,18 @@ import json
 from sonnen_api_v2 import BatterieResponse, BatterieBackup, BatterieAuthError, BatterieHTTPError, BatterieError
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_IP_ADDRESS, CONF_API_TOKEN, CONF_PORT, CONF_DEVICE_ID
+from homeassistant.const import (
+    CONF_IP_ADDRESS,
+    CONF_API_TOKEN,
+    CONF_PORT,
+    CONF_DEVICE_ID,
+    CONF_SCAN_INTERVAL,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
-from .coordinator import SonnenBackupUpdateCoordinator
+from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupAPI
 
 from .const import (
     DOMAIN,
@@ -26,15 +31,6 @@ from .const import (
 SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 
 
-@dataclass(slots=True)
-class SonnenBackupAPI:
-    """Sonnenbackup batterie API context."""
-
-    api: BatterieBackup
-    coordinator: SonnenBackupUpdateCoordinator
-    serial_number: str
-
-
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
 _LOGGER = logging.getLogger(__name__)
@@ -43,8 +39,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry):
     """Set up SonnenBackup component."""
 
-#    print(f'config_OBJ:  {config_entry.items()}') #{config_entry.runtime_data.serial_number}')
-#    entity_id = f'{DOMAIN}.{config_entry["runtime_data"]["serial_number"]}' #data[CONF_DEVICE_ID]}'
+# !!!!!!!!!!!!!! config_entry is empty !!!!!!!!!!!!!
     entity_id = f'{DOMAIN}.{'987789'}' #data[CONF_DEVICE_ID]}'
     hass.states.async_set(entity_id, {})
 
@@ -76,7 +71,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     coordinator = SonnenBackupUpdateCoordinator(
         hass,
         logger=_LOGGER,
-        name=f"sonnenbackup {config_entry.title}",
+        name=f"{config_entry.title} coordinator",
         update_interval=SCAN_INTERVAL,
         update_method=_async_update,
     )
@@ -85,8 +80,21 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     config_entry.runtime_data = SonnenBackupAPI(api=_batterie, coordinator=coordinator, serial_number=config_entry.data[CONF_DEVICE_ID])
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
 
+    hass_data = dict(config_entry.data)
+    # Registers update listener to update config entry when options are updated.
+    unsub_options_update_listener = config_entry.add_update_listener(options_update_listener)
+    # Store a reference to the unsubscribe function to cleanup if an entry is unloaded.
+    hass_data["unsub_options_update_listener"] = unsub_options_update_listener
+    hass.data[DOMAIN][config_entry.entry_id] = hass_data
+
     return True
 
+async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry):
+    """Handle options update."""
+
+    coordinator: SonnenBackupUpdateCoordinator = config_entry.runtime_data["coordinator"]
+    coordinator.update_interval(timedelta(seconds=config_entry.options[CONF_SCAN_INTERVAL]))
+    await hass.config_entries.async_reload(config_entry.entry_id)
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:
     """Unload a config entry."""

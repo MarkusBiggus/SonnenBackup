@@ -2,13 +2,13 @@
     "config": {
         "flow_title": "SonnenBackup Batterie",
         "abort": {
-            "already_configured": "Batterie is already configured"
+            "already_configured": "Batterie is already configured."
         },
         "error": {
-            "invalid_auth": "Invalid API Token",
-            "device_api_error": "Device HTTP error",
-            "cannot_connect": "Failed to connect",
-            "unknown": "Unexpected error"
+            "invalid_auth": "Invalid API Token.<br>{error_detail}",
+            "device_api_error": "Device HTTP error.<br>{error_detail}",
+            "cannot_connect": "Failed to connect.<br>{error_detail}",
+            "unknown": "Unexpected error.<br>{error_detail}"
         },
         "step": {
             "user": {
@@ -28,6 +28,67 @@
                     "port": "Port",
                     "scan_interval": "Scan Interval"
                 }
+            }
+        },
+        "options": {
+            "step": {
+                "init": {
+                    "data": {
+                        "scan_interval": "Update interval (seconds)",
+                        "sonnenbackup_debug": "Debug mode (more log entries)"
+                    }
+                }
+            },
+            "error": {
+            "invalid_interval": "Invalid Interval.<br>{error_detail}"
+            }
+        }
+    },
+    "entity": {
+        "sensor": {
+            "state_sonnenbackup": {
+                "name": "SonnenBackup Batterie",
+                 "state": {
+                    "standby": "Standby",
+                    "charging": "Charging",
+                    "discharging": "Discharging",
+                    "dischargingReserve": "Discharging Reserve",
+                    "charged": "Charged",
+                    "discharged" : "Discharged"
+                }
+            },
+            "state_system_status": {
+                "name": "System Status",
+                "state": {
+                    "ongrid": "On Grid",
+                    "offgrid": "Off Grid",
+                    "config": "Config",
+                    "critical error": "Critical Error"
+                }
+            },
+            "state_consumption_avg": {
+                "name": "Average consumption"
+            },
+            "state_battery_backup_buffer": {
+                "name": "Battery Backup Buffer%"
+            },
+            "state_battery_state_of_charge_real": {
+                "name": "Battery state of charge (real)%"
+            },
+            "state_battery_state_of_charge_usable": {
+                "name": "Battery state of charge (usable)%"
+            },
+            "state_operating_mode": {
+                "name": "Operating Mode",
+                "state": {
+                    "1": "Manual",
+                    "2": "Automatic",
+                    "6": "Extension module",
+                    "10": "Time of Use"
+                }
+            },
+            "battery_system_cycles": {
+                "name": "Charge cycles"
             }
         }
     }
