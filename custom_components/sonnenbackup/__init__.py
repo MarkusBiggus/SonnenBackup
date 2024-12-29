@@ -36,12 +36,13 @@ type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry):
+async def async_setup(hass: HomeAssistant, config_entry: dict):
     """Set up SonnenBackup component."""
 
 # !!!!!!!!!!!!!! config_entry is empty !!!!!!!!!!!!!
-    entity_id = f'{DOMAIN}.{'987789'}' #data[CONF_DEVICE_ID]}'
-    hass.states.async_set(entity_id, {})
+    # entity_id = f'{DOMAIN}.{'987789'}' #data[CONF_DEVICE_ID]}'
+    # hass.states.async_set(entity_id, {})
+    hass.data.setdefault(DOMAIN, {})
 
     # Return boolean to indicate that initialization was successful.
     return True
@@ -50,6 +51,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     """Set up SonnenBackup from a config entry."""
 
     _LOGGER.info("SonnenBackupConfigEntry: " + json.dumps(dict(config_entry.data)))
+
+    entity_id = f'{DOMAIN}.{config_entry.data[CONF_DEVICE_ID]}'
+    hass.states.async_set(entity_id, 'on')
 
     try:
         _batterie:BatterieBackup = BatterieBackup(
@@ -68,6 +72,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         # except Exception as error:
         #     raise UpdateFailed from error
 
+
+    # coordinator.data is BatterieResponse from update_method
     coordinator = SonnenBackupUpdateCoordinator(
         hass,
         logger=_LOGGER,
@@ -77,7 +83,13 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     )
     await coordinator.async_config_entry_first_refresh()
 
-    config_entry.runtime_data = SonnenBackupAPI(api=_batterie, coordinator=coordinator, serial_number=config_entry.data[CONF_DEVICE_ID])
+    config_entry.runtime_data = SonnenBackupAPI(
+        api=_batterie,
+        coordinator=coordinator,
+        serial_number=config_entry.data[CONF_DEVICE_ID],
+        version=coordinator.data.version,
+        last_updated=coordinator.data.last_updated
+    )
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
 
     hass_data = dict(config_entry.data)
@@ -98,4 +110,10 @@ async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBacku
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:
     """Unload a config entry."""
-    return await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS)
+    if unload_ok := await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS):
+        # Remove config entry from domain.
+        entry_data = hass.data[DOMAIN].pop(config_entry.entry_id)
+        # Remove options_update_listener.
+        entry_data["unsub_options_update_listener"]()
+
+    return unload_ok

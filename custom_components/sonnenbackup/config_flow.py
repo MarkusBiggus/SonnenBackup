@@ -74,7 +74,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is None:
             return self.async_show_form(
-                step_id="user", data_schema=CONFIG_SCHEMA
+                step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
             )
 
         serial_number = user_input[CONF_DEVICE_ID]
@@ -113,7 +113,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
         placeholders: dict[str, Any] = {}
         if user_input is None:
             return self.async_show_form(
-                step_id="reconfigure", data_schema=CONFIG_SCHEMA
+                step_id="reconfigure", data_schema=CONFIG_SCHEMA, errors=errors
             )
 
         serial_number = user_input[CONF_DEVICE_ID] # can't be changed!
@@ -157,7 +157,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
     def __init__(self, config_entry: SonnenBackupConfigEntry):
         """Initialize options flow."""
-        self.config_entry = config_entry
+
         self.options = dict(config_entry.options)
 
     async def async_step_init(

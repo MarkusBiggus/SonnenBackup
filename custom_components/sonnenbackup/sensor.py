@@ -99,33 +99,39 @@ SENSOR_DESCRIPTIONS: dict[tuple[Units, bool], SensorEntityDescription] = {
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: SonnenBackupConfigEntry,
+    config_entry: SonnenBackupConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Entry setup."""
-    api = entry.runtime_data.api
-    coordinator = entry.runtime_data.coordinator
-    resp = coordinator.data
-    serial_number = entry.runtime_data.serial_number
-    version = resp.version
-    entities: list[BatterieSensorEntity] = []
-    for sensor, (idx, measurement) in api.battery.sensor_map().items():
-        description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
 
-        uid = f"{serial_number}-{idx}"
-        entities.append(
-            BatterieSensorEntity(
-                coordinator,
-                api.battery.manufacturer,
-                uid,
-                serial_number,
-                version,
-                sensor,
-                description.native_unit_of_measurement,
-                description.state_class,
-                description.device_class,
-            )
+    _LOGGER.info('Setup sensor entry')
+
+    # api is BatterieBackup class
+#    api = config_entry.runtime_data.api
+    coordinator = config_entry.runtime_data.coordinator
+    batterie_response = coordinator.data
+    serial_number = config_entry.runtime_data.serial_number
+    version = batterie_response.version
+    entities: list[BatterieSensorEntity] = []
+#    for sensor, (idx, measurement) in api.battery.sensor_map().items():
+#    description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
+    description = SENSOR_DESCRIPTIONS[(Units.PERCENT, False)]
+    idx=1
+
+    uid = f"{serial_number}-{idx}"
+    entities.append(
+        BatterieSensorEntity(
+            coordinator,
+            MANUFACTURER,
+            uid,
+            serial_number,
+            version,
+            "battery_backup_buffer", #sensor,
+            description.native_unit_of_measurement,
+            description.state_class,
+            description.device_class,
         )
+    )
     async_add_entities(entities)
 
 async def async_setup_platform(
