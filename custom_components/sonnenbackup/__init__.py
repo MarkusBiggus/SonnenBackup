@@ -50,7 +50,7 @@ async def async_setup(hass: HomeAssistant, config_entry: dict):
 async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:
     """Set up SonnenBackup from a config entry."""
 
-    _LOGGER.info("SonnenBackupConfigEntry: " + json.dumps(dict(config_entry.data)))
+#    _LOGGER.info("SonnenBackupConfigEntry: " + json.dumps(dict(config_entry.data)))
 
     entity_id = f'{DOMAIN}.{config_entry.data[CONF_DEVICE_ID]}'
     hass.states.async_set(entity_id, 'on')

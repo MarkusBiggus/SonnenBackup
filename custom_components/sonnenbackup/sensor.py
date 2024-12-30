@@ -7,22 +7,12 @@ from collections.abc import Callable
 from typing import Any
 
 from sonnen_api_v2 import BatterieError
-from sonnen_api_v2.units import Units
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
-    SensorEntityDescription,
+#    SensorEntityDescription,
     SensorStateClass,
-)
-from homeassistant.const import (
-    PERCENTAGE,
-    UnitOfElectricCurrent,
-    UnitOfElectricPotential,
-    UnitOfEnergy,
-    UnitOfFrequency,
-    UnitOfPower,
-    UnitOfTemperature,
 )
 from homeassistant import config_entries, core
 from homeassistant.core import HomeAssistant
@@ -34,68 +24,14 @@ from homeassistant.helpers.typing import (
     ConfigType,
     DiscoveryInfoType,
 )
-from .const import DOMAIN, MANUFACTURER
+from .const import DOMAIN, MANUFACTURER, SENSOR_DESCRIPTIONS
 from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupAPI
+from .PowerUnitEVO import PowerUnitEVO
 
 #from . import SonnenConfigEntry
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
 _LOGGER = logging.getLogger(__name__)
-
-SENSOR_DESCRIPTIONS: dict[tuple[Units, bool], SensorEntityDescription] = {
-    (Units.C, False): SensorEntityDescription(
-        key=f"{Units.C}_{False}",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    (Units.KWH, False): SensorEntityDescription(
-        key=f"{Units.KWH}_{False}",
-        device_class=SensorDeviceClass.ENERGY,
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    (Units.KWH, True): SensorEntityDescription(
-        key=f"{Units.KWH}_{True}",
-        device_class=SensorDeviceClass.ENERGY,
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    (Units.V, False): SensorEntityDescription(
-        key=f"{Units.V}_{False}",
-        device_class=SensorDeviceClass.VOLTAGE,
-        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    (Units.A, False): SensorEntityDescription(
-        key=f"{Units.A}_{False}",
-        device_class=SensorDeviceClass.CURRENT,
-        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    (Units.W, False): SensorEntityDescription(
-        key=f"{Units.W}_{False}",
-        device_class=SensorDeviceClass.POWER,
-        native_unit_of_measurement=UnitOfPower.WATT,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    (Units.PERCENT, False): SensorEntityDescription(
-        key=f"{Units.PERCENT}_{False}",
-        device_class=SensorDeviceClass.BATTERY,
-        native_unit_of_measurement=PERCENTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    (Units.HZ, False): SensorEntityDescription(
-        key=f"{Units.HZ}_{False}",
-        device_class=SensorDeviceClass.FREQUENCY,
-        native_unit_of_measurement=UnitOfFrequency.HERTZ,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    (Units.NONE, False): SensorEntityDescription(
-        key=f"{Units.NONE}_{False}",
-    ),
-}
-
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -104,34 +40,36 @@ async def async_setup_entry(
 ) -> None:
     """Entry setup."""
 
-    _LOGGER.info('Setup sensor entry')
+    _LOGGER.info('Setup sensor entries')
 
     # api is BatterieBackup class
 #    api = config_entry.runtime_data.api
-    coordinator = config_entry.runtime_data.coordinator
-    batterie_response = coordinator.data
+#    coordinator = config_entry.runtime_data.coordinator
+#    batterie_response = coordinator.data
     serial_number = config_entry.runtime_data.serial_number
-    version = batterie_response.version
+#    version = batterie_response.version
     entities: list[BatterieSensorEntity] = []
-#    for sensor, (idx, measurement) in api.battery.sensor_map().items():
-#    description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
-    description = SENSOR_DESCRIPTIONS[(Units.PERCENT, False)]
-    idx=1
-
-    uid = f"{serial_number}-{idx}"
-    entities.append(
-        BatterieSensorEntity(
-            coordinator,
-            MANUFACTURER,
-            uid,
-            serial_number,
-            version,
-            "battery_backup_buffer", #sensor,
-            description.native_unit_of_measurement,
-            description.state_class,
-            description.device_class,
+    for sensor, (idx, measurement) in PowerUnitEVO.sensor_map().items():
+        description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
+    # description = SENSOR_DESCRIPTIONS[(Units.PERCENT, False)]
+    # idx=1
+        uid = f"SB{serial_number}-{idx}"
+        entities.append(
+            BatterieSensorEntity(
+                config_entry,
+                # coordinator,
+                # MANUFACTURER,
+                # uid,
+                # serial_number,
+                # version,
+                MANUFACTURER,
+                uid,
+                sensor,
+                description.native_unit_of_measurement,
+                description.state_class,
+                description.device_class,
+            )
         )
-    )
     async_add_entities(entities)
 
 async def async_setup_platform(
@@ -149,7 +87,6 @@ async def async_setup_platform(
     # async_add_entities(sensors, update_before_add=True)
 
 
-
 class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
     """Class for a sensor."""
 
@@ -157,20 +94,30 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
 
     def __init__(
         self,
-        coordinator: SonnenBackupUpdateCoordinator,
+        config_entry: SonnenBackupConfigEntry,
+        # coordinator: SonnenBackupUpdateCoordinator,
+        # manufacturer: str,
+        # uid: str,
+        # serial_number: str,
+        # version: str,
         manufacturer: str,
         uid: str,
-        serial_number: str,
-        version: str,
-        key: str,
+        sensor: str,
         unit: str | None,
         state_class: SensorStateClass | str | None,
         device_class: SensorDeviceClass | None,
     ) -> None:
         """Initialize a battery sensor."""
-        super().__init__(coordinator)
+        super().__init__(config_entry.runtime_data.coordinator)
+
+
+        coordinator = config_entry.runtime_data.coordinator
+        batterie_response = coordinator.data
+        version = batterie_response.version
+        serial_number = config_entry.runtime_data.serial_number
+        self._batterybackup = config_entry.runtime_data.api
         self._unique_id = uid
-        self._name = f"{DOMAIN} {serial_number} {key}"
+        self._name = f"{DOMAIN} {sensor} {serial_number}"
         self._has_entity_name = True
         self._native_unit_of_measurement = unit
         self._state_class = state_class
@@ -182,7 +129,10 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
             sw_version=version,
         )
         self._available = True
-        self.key = key
+        self.key = sensor
+        self._state = 'on'
+
+    #    _LOGGER.info(f'Setup sensor: {sensor} value: {self.native_value}')
 
     @property
     def device_info(self):
@@ -192,7 +142,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Value of this battery attribute."""
-        return self.coordinator.data[self.key]
+        return getattr(self._batterybackup.battery, self.key)() #self.coordinator.data[self.key]
 
     @property
     def name(self) -> str:
