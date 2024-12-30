@@ -297,9 +297,6 @@ def __mock_BatterieResponse(*args):
 @patch.object(Batterie, 'fetch_configurations', __mock_configurations)
 async def test_options_flow(hass):
     """Test config flow options."""
-    # m_instance = AsyncMock()
-    # m_instance.getitem = AsyncMock()
-    # m_github.return_value = m_instance
 
     config_entry = MockConfigEntry(
         domain=DOMAIN,
@@ -335,11 +332,6 @@ async def test_options_flow(hass):
     assert "" == result["title"]
     assert result["result"] is True
     assert {
-            # CONF_IP_ADDRESS: "1.1.1.1",
-            # CONF_PORT: '80',
-            # CONF_API_TOKEN: "fakeToken",
-            # CONF_MODEL: 'Power unit Evo IP56',
-            # CONF_DEVICE_ID: "321123",
             CONF_SCAN_INTERVAL: 5,
             "sonnen_debug": True,
             } == result["data"]

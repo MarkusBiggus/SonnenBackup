@@ -69,7 +69,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 
         _LOGGER.info("SonnenBackup component async_update")
         try:
-            return await _batterie.get_response() # returned into coordinator.data
+            return _batterie.get_response() # returned into coordinator.data
         except (BatterieAuthError, BatterieHTTPError, BatterieError) as error:
             raise UpdateFailed from error
         # except Exception as error:
