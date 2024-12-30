@@ -4,7 +4,7 @@
 """
 
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 import datetime
 
 from sonnen_api_v2 import Batterie, BatterieBackup, BatterieResponse
@@ -29,7 +29,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.sonnenbackup.config_flow import CannotConnect, InvalidAuth, DeviceAPIError
 from custom_components.sonnenbackup.const import DOMAIN, DEFAULT_SCAN_INTERVAL
 
-async def test_form(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> None:
+async def test_form(hass: HomeAssistant) -> None:
     """Test we get the form."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -45,10 +45,12 @@ async def test_form(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> None:
             result["flow_id"],
             {
                 CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: '80',
+                CONF_PORT: 80,
                 CONF_API_TOKEN: "fakeToken",
-                CONF_MODEL: 'Power unit Evo IP56',
-                CONF_DEVICE_ID: "321123",
+                "details": {
+                    CONF_MODEL: 'Power unit Evo IP56',
+                    CONF_DEVICE_ID: "321123"
+                }
             },
         )
         await hass.async_block_till_done()
@@ -57,16 +59,18 @@ async def test_form(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> None:
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == {
         CONF_IP_ADDRESS: "1.1.1.1",
-        CONF_PORT: '80',
+        CONF_PORT: 80,
         CONF_API_TOKEN: "fakeToken",
-        CONF_MODEL: 'Power unit Evo IP56',
-        CONF_DEVICE_ID: "321123",
+        "details": {
+            CONF_MODEL: 'Power unit Evo IP56',
+            CONF_DEVICE_ID: "321123"
+        }
     }
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
 async def test_form_invalid_auth(
-    hass: HomeAssistant, mock_setup_entry: AsyncMock
+    hass: HomeAssistant
 ) -> None:
     """Test we handle invalid auth."""
     result = await hass.config_entries.flow.async_init(
@@ -81,10 +85,12 @@ async def test_form_invalid_auth(
             result["flow_id"],
             {
                 CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: '80',
+                CONF_PORT: 80,
                 CONF_API_TOKEN: "fakeToken",
-                CONF_MODEL: 'Power unit Evo IP56',
-                CONF_DEVICE_ID: "321123",
+                "details": {
+                    CONF_MODEL: 'Power unit Evo IP56',
+                    CONF_DEVICE_ID: "321123"
+                }
             },
         )
 
@@ -103,10 +109,12 @@ async def test_form_invalid_auth(
             result["flow_id"],
             {
                 CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: '80',
+                CONF_PORT: 80,
                 CONF_API_TOKEN: "fakeToken",
-                CONF_MODEL: 'Power unit Evo IP56',
-                CONF_DEVICE_ID: "321123",
+                "details": {
+                    CONF_MODEL: 'Power unit Evo IP56',
+                    CONF_DEVICE_ID: "321123"
+                }
             },
         )
         await hass.async_block_till_done()
@@ -115,16 +123,18 @@ async def test_form_invalid_auth(
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == {
         CONF_IP_ADDRESS: "1.1.1.1",
-        CONF_PORT: '80',
+        CONF_PORT: 80,
         CONF_API_TOKEN: "fakeToken",
-        CONF_MODEL: 'Power unit Evo IP56',
-        CONF_DEVICE_ID: "321123",
+        "details": {
+            CONF_MODEL: 'Power unit Evo IP56',
+            CONF_DEVICE_ID: "321123"
+        }
     }
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
 async def test_form_cannot_connect(
-    hass: HomeAssistant, mock_setup_entry: AsyncMock
+    hass: HomeAssistant
 ) -> None:
     """Test we handle cannot connect error."""
     result = await hass.config_entries.flow.async_init(
@@ -139,10 +149,12 @@ async def test_form_cannot_connect(
             result["flow_id"],
             {
                 CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: '80',
+                CONF_PORT: 80,
                 CONF_API_TOKEN: "fakeToken",
-                CONF_MODEL: 'Power unit Evo IP56',
-                CONF_DEVICE_ID: "321123",
+                "details": {
+                    CONF_MODEL: 'Power unit Evo IP56',
+                    CONF_DEVICE_ID: "321123"
+                }
             },
         )
 
@@ -162,10 +174,12 @@ async def test_form_cannot_connect(
             result["flow_id"],
             {
                 CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: '80',
+                CONF_PORT: 80,
                 CONF_API_TOKEN: "fakeToken",
-                CONF_MODEL: 'Power unit Evo IP56',
-                CONF_DEVICE_ID: "321123",
+                "details": {
+                    CONF_MODEL: 'Power unit Evo IP56',
+                    CONF_DEVICE_ID: "321123"
+                }
             },
         )
         await hass.async_block_till_done()
@@ -174,15 +188,17 @@ async def test_form_cannot_connect(
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == {
         CONF_IP_ADDRESS: "1.1.1.1",
-        CONF_PORT: '80',
+        CONF_PORT: 80,
         CONF_API_TOKEN: "fakeToken",
-        CONF_MODEL: 'Power unit Evo IP56',
-        CONF_DEVICE_ID: "321123",
+        "details": {
+            CONF_MODEL: 'Power unit Evo IP56',
+            CONF_DEVICE_ID: "321123"
+        }
     }
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 async def test_form_device_error(
-    hass: HomeAssistant, mock_setup_entry: AsyncMock
+    hass: HomeAssistant
 ) -> None:
     """Test we handle device API HTTP error."""
     result = await hass.config_entries.flow.async_init(
@@ -197,10 +213,12 @@ async def test_form_device_error(
             result["flow_id"],
             {
                 CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: '80',
+                CONF_PORT: 80,
                 CONF_API_TOKEN: "fakeToken",
-                CONF_MODEL: 'Power unit Evo IP56',
-                CONF_DEVICE_ID: "321123",
+                "details": {
+                    CONF_MODEL: 'Power unit Evo IP56',
+                    CONF_DEVICE_ID: "321123"
+                }
             },
         )
 
@@ -220,10 +238,12 @@ async def test_form_device_error(
             result["flow_id"],
             {
                 CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: '80',
+                CONF_PORT: 80,
                 CONF_API_TOKEN: "fakeToken",
-                CONF_MODEL: 'Power unit Evo IP56',
-                CONF_DEVICE_ID: "321123",
+                "details": {
+                    CONF_MODEL: 'Power unit Evo IP56',
+                    CONF_DEVICE_ID: "321123"
+                }
             },
         )
         await hass.async_block_till_done()
@@ -232,16 +252,18 @@ async def test_form_device_error(
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == {
         CONF_IP_ADDRESS: "1.1.1.1",
-        CONF_PORT: '80',
+        CONF_PORT: 80,
         CONF_API_TOKEN: "fakeToken",
-        CONF_MODEL: 'Power unit Evo IP56',
-        CONF_DEVICE_ID: "321123",
+        "details": {
+            CONF_MODEL: 'Power unit Evo IP56',
+            CONF_DEVICE_ID: "321123"
+        }
     }
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 @pytest.mark.asyncio
 @patch.object(Batterie, 'fetch_configurations', __mock_configurations)
-async def test_form_mocked(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> None:
+async def test_form_mocked(hass: HomeAssistant) -> None:
     """Test we get the form."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -257,10 +279,12 @@ async def test_form_mocked(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> 
             result["flow_id"],
             {
                 CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: '80',
+                CONF_PORT: 80,
                 CONF_API_TOKEN: "fakeToken",
-                CONF_MODEL: 'Power unit Evo IP56',
-                CONF_DEVICE_ID: "321123",
+                "details": {
+                    CONF_MODEL: 'Power unit Evo IP56',
+                    CONF_DEVICE_ID: "321123"
+                }
             },
         )
         await hass.async_block_till_done()
@@ -269,10 +293,12 @@ async def test_form_mocked(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> 
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == {
         CONF_IP_ADDRESS: "1.1.1.1",
-        CONF_PORT: '80',
+        CONF_PORT: 80,
         CONF_API_TOKEN: "fakeToken",
-        CONF_MODEL: 'Power unit Evo IP56',
-        CONF_DEVICE_ID: "321123",
+        "details": {
+            CONF_MODEL: 'Power unit Evo IP56',
+            CONF_DEVICE_ID: "321123"
+        }
     }
 #    assert len(mock_setup_entry.mock_calls) == 1
 
@@ -303,7 +329,7 @@ async def test_options_flow(hass):
         unique_id="fake_unique_id",
         data={
             CONF_IP_ADDRESS: "1.1.1.1",
-            CONF_PORT: '80',
+            CONF_PORT: 80,
             CONF_API_TOKEN: "fakeToken",
             CONF_MODEL: 'Power unit Evo IP56',
             CONF_DEVICE_ID: "321123",

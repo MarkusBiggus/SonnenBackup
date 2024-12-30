@@ -51,8 +51,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     """Set up SonnenBackup from a config entry."""
 
 #    _LOGGER.info("SonnenBackupConfigEntry: " + json.dumps(dict(config_entry.data)))
+    _LOGGER.info("SonnenBackupConfigEntry setup")
 
-    entity_id = f'{DOMAIN}.{config_entry.data[CONF_DEVICE_ID]}'
+    entity_id = f'{DOMAIN}.{config_entry.data['details'][CONF_DEVICE_ID]}'
     hass.states.async_set(entity_id, 'on')
 
     try:
@@ -89,7 +90,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     config_entry.runtime_data = SonnenBackupAPI(
         api=_batterie,
         coordinator=coordinator,
-        serial_number=config_entry.data[CONF_DEVICE_ID],
+        serial_number=config_entry.data['details'][CONF_DEVICE_ID],
         version=coordinator.data.version,
         last_updated=coordinator.data.last_updated
     )
@@ -101,6 +102,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     # Store a reference to the unsubscribe function to cleanup if an entry is unloaded.
     hass_data["unsub_options_update_listener"] = unsub_options_update_listener
     hass.data[DOMAIN][config_entry.entry_id] = hass_data
+    print(f'hass.data: {hass.data[DOMAIN]}  {config_entry}')
 
     return True
 
@@ -113,10 +115,13 @@ async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBacku
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:
     """Unload a config entry."""
+
     if unload_ok := await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS):
         # Remove config entry from domain.
-        entry_data = hass.data[DOMAIN].pop(config_entry.entry_id)
-        # Remove options_update_listener.
-        entry_data["unsub_options_update_listener"]()
+        if config_entry.entry_id in hass.data[DOMAIN]:
+            print(f'hass.data: {hass.data[DOMAIN]}  {config_entry}')
+            config_data = hass.data[DOMAIN].pop(config_entry.entry_id)
+            # Remove options_update_listener.
+            config_data["unsub_options_update_listener"]()
 
     return unload_ok
