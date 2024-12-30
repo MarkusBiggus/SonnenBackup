@@ -172,7 +172,8 @@ class SonnenBackupOptionsFlow(OptionsFlow):
                 step_id="init",
                 data_schema = self.add_suggested_values_to_schema(
                     OPTIONS_SCHEMA, self.options
-                )
+                ),
+                errors=errors
             )
 
 #       return self.async_create_entry(title=f'SonnenBackup {self.options[CONF_MODEL]} ({self.options[CONF_DEVICE_ID]})', data=user_input)
@@ -187,7 +188,9 @@ class SonnenBackupOptionsFlow(OptionsFlow):
             step_id="init",
             data_schema = self.add_suggested_values_to_schema(
                 OPTIONS_SCHEMA, user_input
-            )
+            ),
+            errors=errors,
+            description_placeholders=placeholders
         )
 
 class CannotConnect(HomeAssistantError):

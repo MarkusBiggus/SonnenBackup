@@ -65,8 +65,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         raise ConfigEntryNotReady from error
 
     async def _async_update() -> BatterieResponse:
+        """Update Batterie data caches"""
+
+        _LOGGER.info("SonnenBackup component async_update")
         try:
-            return await _batterie.get_response()
+            return await _batterie.get_response() # returned into coordinator.data
         except (BatterieAuthError, BatterieHTTPError, BatterieError) as error:
             raise UpdateFailed from error
         # except Exception as error:
@@ -104,8 +107,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry):
     """Handle options update."""
 
-    coordinator: SonnenBackupUpdateCoordinator = config_entry.runtime_data["coordinator"]
-    coordinator.update_interval(timedelta(seconds=config_entry.options[CONF_SCAN_INTERVAL]))
+    coordinator: SonnenBackupUpdateCoordinator = config_entry.runtime_data.coordinator
+    coordinator.update_interval = timedelta(seconds=config_entry.options[CONF_SCAN_INTERVAL])
     await hass.config_entries.async_reload(config_entry.entry_id)
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:
