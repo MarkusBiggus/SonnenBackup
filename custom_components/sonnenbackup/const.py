@@ -34,7 +34,7 @@ DOMAIN = "sonnenbackup"
 MANUFACTURER = "Sonnen GmbH"
 DEFAULT_SCAN_INTERVAL = 10
 ATTR_SONNEN_DEBUG = "sonnenbackup_debug"
-DEFAULT_PORT = '80'
+DEFAULT_PORT = 80
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 

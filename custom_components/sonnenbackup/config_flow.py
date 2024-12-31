@@ -79,6 +79,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 
         serial_number = user_input['details'][CONF_DEVICE_ID]
         batterie_model = user_input['details'][CONF_MODEL]
+        _LOGGER.info(f'user_input: {user_input}')
 
         try:
             await _validate_api(user_input)
@@ -131,8 +132,9 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             errors["base"] = 'cannot_connect'
             placeholders["error_detail"] = f'{str(error)}'
         except Exception as error:
-            _LOGGER.exception('Unexpected exception')
+            _LOGGER.exception(f'Unexpected exception: {str(error)}')
             errors["base"] = "unknown"
+            placeholders["error_detail"] = f'{str(error)}'
         else:
             self.async_set_unique_id(serial_number)
             self._abort_if_unique_id_mismatch()

@@ -23,7 +23,7 @@
             },
             "init": {
                 "title": "SonnenBackup Options",
-                "description": "Override Port & Scan interval",
+                "description": "Override default Port & Scan interval",
                 "data": {
                     "port": "Port",
                     "scan_interval": "Scan Interval"

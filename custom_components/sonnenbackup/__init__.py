@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 import logging
-import json
+#import json
 
 from sonnen_api_v2 import BatterieResponse, BatterieBackup, BatterieAuthError, BatterieHTTPError, BatterieError
 
@@ -70,7 +70,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 
         _LOGGER.info("SonnenBackup component async_update")
         try:
-            return _batterie.get_response() # returned into coordinator.data
+            return await _batterie.refresh_response() # returned into coordinator.data
         except (BatterieAuthError, BatterieHTTPError, BatterieError) as error:
             raise UpdateFailed from error
         # except Exception as error:
@@ -102,7 +102,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     # Store a reference to the unsubscribe function to cleanup if an entry is unloaded.
     hass_data["unsub_options_update_listener"] = unsub_options_update_listener
     hass.data[DOMAIN][config_entry.entry_id] = hass_data
-    print(f'hass.data: {hass.data[DOMAIN]}  {config_entry}')
+#    print(f'hass.data: {hass.data[DOMAIN]}  {config_entry}')
 
     return True
 

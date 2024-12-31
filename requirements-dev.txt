@@ -13,3 +13,4 @@ coverage>=7.2.1
 pytest-homeassistant-custom-component
 freezegun~=1.5.1
 asyncmock>=0.4.2
+responses

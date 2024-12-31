@@ -4,11 +4,14 @@
 """
 
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
+from responses import Response
+
 import datetime
+import urllib3
 
 from sonnen_api_v2 import Batterie, BatterieBackup, BatterieResponse
-from . mock_sonnenbatterie_v2_charging import __mock_configurations
+from .mock_sonnenbatterie_v2_charging import __mock_configurations
 
 from homeassistant import config_entries
 # from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth
@@ -27,14 +30,43 @@ from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.sonnenbackup.config_flow import CannotConnect, InvalidAuth, DeviceAPIError
-from custom_components.sonnenbackup.const import DOMAIN, DEFAULT_SCAN_INTERVAL
+from custom_components.sonnenbackup.const import DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
+
+CONFIG_DATA = {
+    CONF_IP_ADDRESS: "1.1.1.1",
+    CONF_PORT: DEFAULT_PORT,
+    CONF_API_TOKEN: "fakeToken",
+    "details": {
+        CONF_MODEL: 'Power unit Evo IP56',
+        CONF_DEVICE_ID: "321123"
+    }
+}
+CONFIG_OPTIONS = {
+    CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
+    "sonnen_debug": True,
+}
+
+
+def __battery_configurations(self, _method, _url, _body, _headers, _retries):
+    """Mock configurations to validate Auth naturally."""
+    resp = Response(
+        method=_method, #'GET',
+        url=_url, #(f'http://fakeHost:80/api/v2/configurations'),
+        json=__mock_configurations(),
+        status=200,
+        headers=_headers,
+    )
+    return resp
+
 
 async def test_form(hass: HomeAssistant) -> None:
     """Test we get the form."""
+
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
     assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "user"
     assert result["errors"] == {}
 
     with patch(
@@ -43,32 +75,17 @@ async def test_form(hass: HomeAssistant) -> None:
     ):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            {
-                CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: 80,
-                CONF_API_TOKEN: "fakeToken",
-                "details": {
-                    CONF_MODEL: 'Power unit Evo IP56',
-                    CONF_DEVICE_ID: "321123"
-                }
-            },
+            CONFIG_DATA,
         )
         await hass.async_block_till_done()
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
-    assert result["data"] == {
-        CONF_IP_ADDRESS: "1.1.1.1",
-        CONF_PORT: 80,
-        CONF_API_TOKEN: "fakeToken",
-        "details": {
-            CONF_MODEL: 'Power unit Evo IP56',
-            CONF_DEVICE_ID: "321123"
-        }
-    }
+    assert result["data"] == CONFIG_DATA
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
 async def test_form_invalid_auth(
     hass: HomeAssistant
 ) -> None:
@@ -83,56 +100,34 @@ async def test_form_invalid_auth(
     ):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            {
-                CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: 80,
-                CONF_API_TOKEN: "fakeToken",
-                "details": {
-                    CONF_MODEL: 'Power unit Evo IP56',
-                    CONF_DEVICE_ID: "321123"
-                }
-            },
+            CONFIG_DATA,
         )
-
-    assert result["type"] == FlowResultType.FORM
-#    assert result["errors"] == {"base": "invalid_auth"}
-    assert result["errors"]["base"] == "invalid_auth"
 
     # Make sure the config flow tests finish with either an
     # FlowResultType.CREATE_ENTRY or FlowResultType.ABORT so
     # we can show the config flow is able to recover from an error.
-    with patch(
-        "custom_components.sonnenbackup.config_flow._validate_api",
-        return_value=True,
-    ):
-        result = await hass.config_entries.flow.async_configure(
-            result["flow_id"],
-            {
-                CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: 80,
-                CONF_API_TOKEN: "fakeToken",
-                "details": {
-                    CONF_MODEL: 'Power unit Evo IP56',
-                    CONF_DEVICE_ID: "321123"
-                }
-            },
-        )
-        await hass.async_block_till_done()
+    assert result["type"] == FlowResultType.FORM
+    assert result["errors"]["base"] == "invalid_auth"
+
+    # with patch(
+    #     "custom_components.sonnenbackup.config_flow._validate_api",
+    #     return_value=True,
+    # ):
+
+    # use mocked battery response to cache data (more code gets tested)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        CONFIG_DATA,
+    )
+    await hass.async_block_till_done()
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
-    assert result["data"] == {
-        CONF_IP_ADDRESS: "1.1.1.1",
-        CONF_PORT: 80,
-        CONF_API_TOKEN: "fakeToken",
-        "details": {
-            CONF_MODEL: 'Power unit Evo IP56',
-            CONF_DEVICE_ID: "321123"
-        }
-    }
+    assert result["data"] == CONFIG_DATA
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
 async def test_form_cannot_connect(
     hass: HomeAssistant
 ) -> None:
@@ -147,56 +142,34 @@ async def test_form_cannot_connect(
     ):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            {
-                CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: 80,
-                CONF_API_TOKEN: "fakeToken",
-                "details": {
-                    CONF_MODEL: 'Power unit Evo IP56',
-                    CONF_DEVICE_ID: "321123"
-                }
-            },
+            CONFIG_DATA,
         )
 
     assert result["type"] == FlowResultType.FORM
-#    assert result["errors"] == {"base": "cannot_connect"}
     assert result["errors"]["base"] == "cannot_connect"
 
     # Make sure the config flow tests finish with either an
     # FlowResultType.CREATE_ENTRY or FlowResultType.ABORT so
     # we can show the config flow is able to recover from an error.
 
-    with patch(
-        "custom_components.sonnenbackup.config_flow._validate_api",
-        return_value=True,
-    ):
-        result = await hass.config_entries.flow.async_configure(
-            result["flow_id"],
-            {
-                CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: 80,
-                CONF_API_TOKEN: "fakeToken",
-                "details": {
-                    CONF_MODEL: 'Power unit Evo IP56',
-                    CONF_DEVICE_ID: "321123"
-                }
-            },
-        )
-        await hass.async_block_till_done()
+    # with patch(
+    #     "custom_components.sonnenbackup.config_flow._validate_api",
+    #     return_value=True,
+    # ):
+
+    # use mocked battery response to cache data (more code gets tested)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        CONFIG_DATA,
+    )
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
-    assert result["data"] == {
-        CONF_IP_ADDRESS: "1.1.1.1",
-        CONF_PORT: 80,
-        CONF_API_TOKEN: "fakeToken",
-        "details": {
-            CONF_MODEL: 'Power unit Evo IP56',
-            CONF_DEVICE_ID: "321123"
-        }
-    }
+    assert result["data"] == CONFIG_DATA
 #    assert len(mock_setup_entry.mock_calls) == 1
 
+
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
 async def test_form_device_error(
     hass: HomeAssistant
 ) -> None:
@@ -211,58 +184,36 @@ async def test_form_device_error(
     ):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            {
-                CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: 80,
-                CONF_API_TOKEN: "fakeToken",
-                "details": {
-                    CONF_MODEL: 'Power unit Evo IP56',
-                    CONF_DEVICE_ID: "321123"
-                }
-            },
+            CONFIG_DATA,
         )
 
     assert result["type"] == FlowResultType.FORM
-#    assert result["errors"] == {"base": "device_api_error"}
     assert result["errors"]["base"] == "device_api_error"
 
     # Make sure the config flow tests finish with either an
     # FlowResultType.CREATE_ENTRY or FlowResultType.ABORT so
     # we can show the config flow is able to recover from an error.
 
-    with patch(
-        "custom_components.sonnenbackup.config_flow._validate_api",
-        return_value=True,
-    ):
-        result = await hass.config_entries.flow.async_configure(
-            result["flow_id"],
-            {
-                CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: 80,
-                CONF_API_TOKEN: "fakeToken",
-                "details": {
-                    CONF_MODEL: 'Power unit Evo IP56',
-                    CONF_DEVICE_ID: "321123"
-                }
-            },
-        )
-        await hass.async_block_till_done()
+    # with patch(
+    #     "custom_components.sonnenbackup.config_flow._validate_api",
+    #     return_value=True,
+    # ):
+
+    # use mocked battery response to cache data (more code gets tested)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        CONFIG_DATA,
+    )
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
-    assert result["data"] == {
-        CONF_IP_ADDRESS: "1.1.1.1",
-        CONF_PORT: 80,
-        CONF_API_TOKEN: "fakeToken",
-        "details": {
-            CONF_MODEL: 'Power unit Evo IP56',
-            CONF_DEVICE_ID: "321123"
-        }
-    }
+    assert result["data"] == CONFIG_DATA
 #    assert len(mock_setup_entry.mock_calls) == 1
 
+
 @pytest.mark.asyncio
-@patch.object(Batterie, 'fetch_configurations', __mock_configurations)
+#@patch.object(Batterie, 'fetch_configurations', __mock_configurations)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
 async def test_form_mocked(hass: HomeAssistant) -> None:
     """Test we get the form."""
     result = await hass.config_entries.flow.async_init(
@@ -277,65 +228,35 @@ async def test_form_mocked(hass: HomeAssistant) -> None:
     ):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            {
-                CONF_IP_ADDRESS: "1.1.1.1",
-                CONF_PORT: 80,
-                CONF_API_TOKEN: "fakeToken",
-                "details": {
-                    CONF_MODEL: 'Power unit Evo IP56',
-                    CONF_DEVICE_ID: "321123"
-                }
-            },
+            CONFIG_DATA,
         )
         await hass.async_block_till_done()
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
-    assert result["data"] == {
-        CONF_IP_ADDRESS: "1.1.1.1",
-        CONF_PORT: 80,
-        CONF_API_TOKEN: "fakeToken",
-        "details": {
-            CONF_MODEL: 'Power unit Evo IP56',
-            CONF_DEVICE_ID: "321123"
-        }
-    }
+    assert result["data"] == CONFIG_DATA
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
 def __mock_BatterieResponse(*args):
+    """Mock BatterieResonse for to validate token & update data response"""
     return BatterieResponse(
-                version = '1.14.5',
-                last_updated = datetime.datetime.now(),
-                configurations = __mock_configurations()
-                )
+        version = '1.14.5',
+        last_updated = datetime.datetime.now(),
+        configurations = __mock_configurations()
+    )
+
 
 @pytest.mark.asyncio
-#@patch("custom_components.sonnenbackup.sensor.SonnenBackupAPI")
-#@patch.object("custom_components.sonnenbackup.BatterieBackup","get_response",
-@patch.object(BatterieBackup, "get_response", __mock_BatterieResponse)
-            # side_effect=lambda: BatterieResponse(
-            #     version = '1.14.5',
-            #     last_updated = datetime.datetime.now(),
-            #     configurations = __mock_configurations()
-            #     )
-            #)
-@patch.object(Batterie, 'fetch_configurations', __mock_configurations)
+@patch.object(BatterieBackup, "refresh_response", __mock_BatterieResponse)
+@patch.object(BatterieBackup, "validate_token", __mock_BatterieResponse)
 async def test_options_flow(hass):
     """Test config flow options."""
 
     config_entry = MockConfigEntry(
         domain=DOMAIN,
         unique_id="fake_unique_id",
-        data={
-            CONF_IP_ADDRESS: "1.1.1.1",
-            CONF_PORT: 80,
-            CONF_API_TOKEN: "fakeToken",
-            CONF_MODEL: 'Power unit Evo IP56',
-            CONF_DEVICE_ID: "321123",
-            CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
-            "sonnen_debug": False,
-        },
+        data=CONFIG_OPTIONS,
     )
     config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(config_entry.entry_id)
@@ -354,10 +275,55 @@ async def test_options_flow(hass):
             "sonnen_debug": True,
         }
     )
-    assert "create_entry" == result["type"]
+    assert FlowResultType.CREATE_ENTRY == result["type"]
     assert "" == result["title"]
     assert result["result"] is True
     assert {
             CONF_SCAN_INTERVAL: 5,
             "sonnen_debug": True,
             } == result["data"]
+
+
+@pytest.mark.asyncio
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+async def test_config_flow_fail_non_unique(
+    hass: HomeAssistant
+) -> None:
+    """Test that the config flow fails when user tries to add duplicate batterie."""
+
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "user"
+    assert result["errors"] == {}
+
+    with patch(
+        "custom_components.sonnenbackup.config_flow._validate_api",
+        return_value=True,
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            CONFIG_DATA,
+        )
+        await hass.async_block_till_done()
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
+    assert result["data"] == CONFIG_DATA
+
+
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "user"
+    assert result["errors"] == {}
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], CONFIG_DATA
+    )
+
+#    print(f'result: {dict(result)}')
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "already_configured"
