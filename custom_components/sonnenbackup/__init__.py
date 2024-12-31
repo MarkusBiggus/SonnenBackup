@@ -57,7 +57,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     hass.states.async_set(entity_id, 'on')
 
     try:
-        _batterie:BatterieBackup = BatterieBackup(
+        _batterie = BatterieBackup(
             config_entry.data[CONF_API_TOKEN],
             config_entry.data[CONF_IP_ADDRESS],
             config_entry.data[CONF_PORT],
@@ -70,7 +70,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 
         _LOGGER.info("SonnenBackup component async_update")
         try:
-            return await _batterie.refresh_response() # returned into coordinator.data
+            return _batterie.refresh_response() # returned into coordinator.data
         except (BatterieAuthError, BatterieHTTPError, BatterieError) as error:
             raise UpdateFailed from error
         # except Exception as error:
@@ -119,7 +119,7 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConf
     if unload_ok := await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS):
         # Remove config entry from domain.
         if config_entry.entry_id in hass.data[DOMAIN]:
-            print(f'hass.data: {hass.data[DOMAIN]}  {config_entry}')
+            print(f'remove hass.data: {hass.data[DOMAIN]}  {config_entry}')
             config_data = hass.data[DOMAIN].pop(config_entry.entry_id)
             # Remove options_update_listener.
             config_data["unsub_options_update_listener"]()

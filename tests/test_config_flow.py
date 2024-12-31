@@ -12,6 +12,7 @@ import urllib3
 
 from sonnen_api_v2 import Batterie, BatterieBackup, BatterieResponse
 from .mock_sonnenbatterie_v2_charging import __mock_configurations
+from .mock_batterieresponse import __mock_batterieresponse
 
 from homeassistant import config_entries
 # from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth
@@ -238,25 +239,16 @@ async def test_form_mocked(hass: HomeAssistant) -> None:
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
-def __mock_BatterieResponse(*args):
-    """Mock BatterieResonse for to validate token & update data response"""
-    return BatterieResponse(
-        version = '1.14.5',
-        last_updated = datetime.datetime.now(),
-        configurations = __mock_configurations()
-    )
-
-
 @pytest.mark.asyncio
-@patch.object(BatterieBackup, "refresh_response", __mock_BatterieResponse)
-@patch.object(BatterieBackup, "validate_token", __mock_BatterieResponse)
+@patch.object(BatterieBackup, "refresh_response", __mock_batterieresponse)
+@patch.object(BatterieBackup, "validate_token", __mock_batterieresponse)
 async def test_options_flow(hass):
     """Test config flow options."""
 
     config_entry = MockConfigEntry(
         domain=DOMAIN,
         unique_id="fake_unique_id",
-        data=CONFIG_OPTIONS,
+        data=CONFIG_DATA,
     )
     config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(config_entry.entry_id)
