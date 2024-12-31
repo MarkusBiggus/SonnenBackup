@@ -69,12 +69,15 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle the initial step."""
 
+        _LOGGER.info(" config_flow user")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 
         if user_input is None:
             return self.async_show_form(
-                step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
+                step_id="user",
+                data_schema=CONFIG_SCHEMA,
+                errors=errors
             )
 
         serial_number = user_input['details'][CONF_DEVICE_ID]
@@ -102,7 +105,8 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_create_entry(title=f'SonnenBackup {batterie_model} ({serial_number})', data=user_input)
 
         return self.async_show_form(
-            step_id="user", data_schema=CONFIG_SCHEMA,
+            step_id="user",
+            data_schema=CONFIG_SCHEMA,
             errors=errors,
             description_placeholders=placeholders
         )
@@ -110,11 +114,14 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
         """Handle the reconfiguration step."""
 
+        _LOGGER.info(" config_flow reconfigure")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
         if user_input is None:
             return self.async_show_form(
-                step_id="reconfigure", data_schema=CONFIG_SCHEMA, errors=errors
+                step_id="reconfigure",
+                data_schema=CONFIG_SCHEMA,
+                errors=errors
             )
 
         serial_number = user_input[CONF_DEVICE_ID] # can't be changed!
@@ -145,7 +152,8 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             )
 
         return self.async_show_form(
-            step_id="reconfigure", data_schema=CONFIG_SCHEMA,
+            step_id="reconfigure",
+            data_schema=CONFIG_SCHEMA,
             errors=errors,
             description_placeholders=placeholders
         )
@@ -166,6 +174,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
 
+        _LOGGER.info(" options_flow init")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 
@@ -173,17 +182,21 @@ class SonnenBackupOptionsFlow(OptionsFlow):
             return self.async_show_form(
                 step_id="init",
                 data_schema = self.add_suggested_values_to_schema(
-                    OPTIONS_SCHEMA, self.options
+                    OPTIONS_SCHEMA,
+                    self.options
                 ),
                 errors=errors
             )
 
 #       return self.async_create_entry(title=f'SonnenBackup {self.options[CONF_MODEL]} ({self.options[CONF_DEVICE_ID]})', data=user_input)
         if user_input[CONF_SCAN_INTERVAL] > 3 and user_input[CONF_SCAN_INTERVAL] < 121:
-            return self.async_create_entry(title='', data=user_input)
+            return self.async_create_entry(
+                title='',
+                data=user_input
+            )
 
         errors["base"] = 'invalid_interval'
-        placeholders["error_detail"] = 'Scan interval {user_input[CONF_SCAN_INTERVAL]} must be at least 3 seconds and no more than 120.'
+        placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least 3 seconds and no more than 120.'
         user_input[CONF_SCAN_INTERVAL] = 3 if user_input[CONF_SCAN_INTERVAL] < 3 else 120
 
         return self.async_show_form(

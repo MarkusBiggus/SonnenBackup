@@ -70,7 +70,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 
         _LOGGER.info("SonnenBackup component async_update")
         try:
-            return _batterie.refresh_response() # returned into coordinator.data
+            return await _batterie.refresh_response() # returned into coordinator.data
         except (BatterieAuthError, BatterieHTTPError, BatterieError) as error:
             raise UpdateFailed from error
         # except Exception as error:
@@ -109,6 +109,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry):
     """Handle options update."""
 
+    _LOGGER.info("SonnenBackupConfigEntry reload")
     coordinator: SonnenBackupUpdateCoordinator = config_entry.runtime_data.coordinator
     coordinator.update_interval = timedelta(seconds=config_entry.options[CONF_SCAN_INTERVAL])
     await hass.config_entries.async_reload(config_entry.entry_id)
@@ -116,6 +117,7 @@ async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBacku
 async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:
     """Unload a config entry."""
 
+    _LOGGER.info("SonnenBackupConfigEntry unload")
     if unload_ok := await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS):
         # Remove config entry from domain.
         if config_entry.entry_id in hass.data[DOMAIN]:
