@@ -262,7 +262,8 @@ async def test_options_flow(hass):
 
     # submit form with options
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], user_input={
+        result["flow_id"],
+        user_input={
             CONF_SCAN_INTERVAL: 5,
             "sonnen_debug": True,
         }
