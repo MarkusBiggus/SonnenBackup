@@ -121,7 +121,7 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConf
     if unload_ok := await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS):
         # Remove config entry from domain.
         if config_entry.entry_id in hass.data[DOMAIN]:
-            print(f'remove hass.data: {hass.data[DOMAIN]}  {config_entry}')
+    #        print(f'remove hass.data: {hass.data[DOMAIN]}  {config_entry}')
             config_data = hass.data[DOMAIN].pop(config_entry.entry_id)
             # Remove options_update_listener.
             config_data["unsub_options_update_listener"]()

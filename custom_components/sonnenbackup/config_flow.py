@@ -35,9 +35,10 @@ type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
 _LOGGER = logging.getLogger(__name__)
 
-async def _validate_api(user_input) -> str:
+async def _validate_api(user_input) -> bool:
     """Validate credentials."""
 
+    _LOGGER.info(" config_flow validate_api")
     _batterie = Batterie(
         user_input[CONF_API_TOKEN],
         user_input[CONF_IP_ADDRESS],
@@ -165,16 +166,17 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 
 class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
+
     def __init__(self, config_entry: SonnenBackupConfigEntry):
         """Initialize options flow."""
 
+        _LOGGER.info(f'options: config_entry:{config_entry.as_dict()}  options: {dict(config_entry.options)}')
         self.options = dict(config_entry.options)
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
 
-        _LOGGER.info(" options_flow init")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 
@@ -189,7 +191,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
             )
 
 #       return self.async_create_entry(title=f'SonnenBackup {self.options[CONF_MODEL]} ({self.options[CONF_DEVICE_ID]})', data=user_input)
-        if user_input[CONF_SCAN_INTERVAL] > 3 and user_input[CONF_SCAN_INTERVAL] < 121:
+        if user_input[CONF_SCAN_INTERVAL] > 2 and user_input[CONF_SCAN_INTERVAL] < 121:
             return self.async_create_entry(
                 title='',
                 data=user_input
