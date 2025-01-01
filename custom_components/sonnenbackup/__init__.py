@@ -53,8 +53,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 #    _LOGGER.info("SonnenBackupConfigEntry: " + json.dumps(dict(config_entry.data)))
     _LOGGER.info("SonnenBackupConfigEntry setup")
 
-    entity_id = f'{DOMAIN}.{config_entry.data['details'][CONF_DEVICE_ID]}'
-    hass.states.async_set(entity_id, 'on')
+    #entity_id = f'{DOMAIN}.{config_entry.data['details'][CONF_DEVICE_ID]}'
+    #hass.states.async_set(entity_id, 'on')
 
     try:
         _batterie = BatterieBackup(
