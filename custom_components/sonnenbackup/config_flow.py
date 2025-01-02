@@ -170,7 +170,8 @@ class SonnenBackupOptionsFlow(OptionsFlow):
     def __init__(self, config_entry: SonnenBackupConfigEntry):
         """Initialize options flow."""
 
-        _LOGGER.info(f'options: config_entry:{config_entry.as_dict()}  options: {dict(config_entry.options)}')
+    #    _LOGGER.info(f'options: config_entry:{config_entry.as_dict()}  options: {dict(config_entry.options)}')
+        _LOGGER.info(' config_options')
         self.options = dict(config_entry.options)
 
     async def async_step_init(
