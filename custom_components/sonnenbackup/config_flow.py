@@ -83,7 +83,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 
         serial_number = user_input['details'][CONF_DEVICE_ID]
         batterie_model = user_input['details'][CONF_MODEL]
-        _LOGGER.info(f'user_input: {user_input}')
+    #    _LOGGER.info(f'user_input: {user_input}')
 
         try:
             await _validate_api(user_input)

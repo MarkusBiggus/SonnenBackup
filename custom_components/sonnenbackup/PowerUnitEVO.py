@@ -1,10 +1,6 @@
 """Sensor definitions for Sonnen Batterie model Power Unit EVO"""
 
-from typing import Any, Dict, Optional
-
-import voluptuous as vol
-
-from sonnen_api_v2.units import DailyTotal, Total, Units
+from sonnen_api_v2.units import DailyTotal, Total, Units, BatteryCapacity
 #from sonnen_api_v2.utils import div10, div100 #, pack_u16, to_signed, to_signed32, twoway_div10
 
 from .batterie_sensors import BatterieSensors
@@ -16,27 +12,6 @@ class PowerUnitEVO(BatterieSensors):
         """At least 1 param expected for device serial_number:str"""
         super(PowerUnitEVO, self).__init__(*args, **kwargs)
 
-    # _schema = vol.Schema(
-    #     {
-    #         vol.Required("type"): vol.All(int, 16),
-    #         vol.Required("sn"): str,
-    #         vol.Required("ver"): str,
-    #         vol.Required("data"): vol.Schema(
-    #             vol.All(
-    #                 [vol.Coerce(float)],
-    #                 vol.Length(min=100, max=100),
-    #             )
-    #         ),
-    #         vol.Required("information"): vol.Schema(
-    #             vol.All(vol.Length(min=10, max=10))
-    #         ),
-    #     },
-    #     extra=vol.REMOVE_EXTRA,
-    # )
-
-    # @classmethod
-    # def build_all_variants(cls, host, port, pwd=""):
-    #     return [cls._build(host, port, pwd, False)]
     @classmethod
     def response_decoder(cls) -> dict:
         """sonnen_api_v2 properties used as sensor values"""
@@ -45,6 +20,19 @@ class PowerUnitEVO(BatterieSensors):
             "configuration_em_operatingmode": (0, Units.NONE, cls._decode_operating_mode),
             "configuration_em_usoc": (1, Units.PERCENT),
             "last_configurations": (2, Units.NONE, cls._format_datetime),
+            "system_status": (3, Units.NONE),
+            "system_status_timestamp": (4, Units.NONE, cls._format_datetime),
+            "battery_activity_state": (5, Units.NONE),
+            "fully_charged_at": (6, Units.NONE, cls._format_datetime),
+            "fully_discharged_at": (7, Units.NONE, cls._format_datetime),
+            "battery_cycle_count": (8, Units.NONE),
+            "battery_full_charge_capacity_wh":(9, BatteryCapacity),
+            "battery_remaining_capacity_wh":(10, BatteryCapacity),
+            "capacity_until_reserve":(11, BatteryCapacity),
+            "backup_reserve_at": (12, Units.NONE),
+            "backup_buffer_capacity_wh":(13, BatteryCapacity),
+            "kwh_consumed": (14, Units.KWH),
+            "kwh_produced": (15, Units.KWH),
             # "Grid 1 Voltage": (0, Units.V, div10),
             # "Grid 2 Voltage": (1, Units.V, div10),
             # "Grid 3 Voltage": (2, Units.V, div10),

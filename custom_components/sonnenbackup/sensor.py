@@ -44,15 +44,21 @@ async def async_setup_entry(
 
     # api is BatterieBackup class
 #    api = config_entry.runtime_data.api
-#    coordinator = config_entry.runtime_data.coordinator
-#    batterie_response = coordinator.data
     serial_number = config_entry.runtime_data.serial_number
-#    version = batterie_response.version
+    coordinator = config_entry.runtime_data.coordinator
+    batterie_response = coordinator.data
+    version = batterie_response.version
+    device_info = DeviceInfo(
+        identifiers={(DOMAIN, serial_number)},
+        manufacturer=MANUFACTURER,
+        name=f"{MANUFACTURER} {serial_number}",
+        sw_version=version,
+    )
     entities: list[BatterieSensorEntity] = []
-    for sensor, (idx, measurement) in PowerUnitEVO.sensor_map().items():
-        description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
     # description = SENSOR_DESCRIPTIONS[(Units.PERCENT, False)]
     # idx=1
+    for sensor, (idx, measurement) in PowerUnitEVO.sensor_map().items():
+        description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
         uid = f"SB{serial_number}-{idx}"
         entities.append(
             BatterieSensorEntity(
@@ -62,7 +68,7 @@ async def async_setup_entry(
                 # uid,
                 # serial_number,
                 # version,
-                MANUFACTURER,
+                device_info,
                 uid,
                 sensor,
                 description.native_unit_of_measurement,
@@ -99,8 +105,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         # manufacturer: str,
         # uid: str,
         # serial_number: str,
-        # version: str,
-        manufacturer: str,
+        device_info: DeviceInfo,
         uid: str,
         sensor: str,
         unit: str | None,
@@ -110,10 +115,6 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         """Initialize a battery sensor."""
         super().__init__(config_entry.runtime_data.coordinator)
 
-
-        coordinator = config_entry.runtime_data.coordinator
-        batterie_response = coordinator.data
-        version = batterie_response.version
         serial_number = config_entry.runtime_data.serial_number
         self._batterybackup = config_entry.runtime_data.api
         self._unique_id = uid
@@ -122,12 +123,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         self._native_unit_of_measurement = unit
         self._state_class = state_class
         self._device_class = device_class
-        self._device_info = DeviceInfo(
-            identifiers={(DOMAIN, serial_number)},
-            manufacturer=MANUFACTURER,
-            name=f"{manufacturer} {serial_number}",
-            sw_version=version,
-        )
+        self._device_info = device_info
         self._available = True
         self.key = sensor
         self._state = 'on'

@@ -117,3 +117,10 @@ SENSOR_DESCRIPTIONS: dict[tuple[Units, bool], SensorEntityDescription] = {
         key=f"{Units.NONE}_{False}",
     ),
 }
+
+SENSOR_TIMESTAMP: dict[tuple[Units, bool], SensorEntityDescription] = {
+    (Units.NONE, False): SensorEntityDescription(
+        key=f"{Units.NONE}_{False}",
+        device_class=SensorDeviceClass.TIMESTAMP,
+    ),
+}

@@ -1,19 +1,20 @@
 #from abc import abstractmethod
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Generator, Optional, Tuple, Union, Unpack
 from datetime import datetime
 
 import voluptuous as vol
 from .const import MANUFACTURER
 
-from sonnen_api_v2 import utils
-# from solax.inverter_http_client import InverterHttpClient, Method
-# from solax.response_parser import InverterResponse, ResponseDecoder, ResponseParser
-from sonnen_api_v2.units import Measurement, Units
+from sonnen_api_v2.utils import PackerBuilderResult
+from sonnen_api_v2.units import Measurement, Units, SensorUnit
 
 
-# class InverterError(Exception):
-#     """Indicates error communicating with inverter"""
-
+ProcessorTuple = Tuple[Callable[[Any], Any], ...]
+SensorIndexSpec = Union[int, PackerBuilderResult]
+ResponseDecoder = Dict[
+    str,
+    Tuple[SensorIndexSpec, SensorUnit, Unpack[ProcessorTuple]],
+]
 
 class BatterieSensors:
     """Base functions for batterie model sensor maps"""
@@ -38,56 +39,37 @@ class BatterieSensors:
         self.manufacturer = MANUFACTURER
         self._serial_number = serial_number
 
-#        self.http_client = http_client
+    def _decode_map(self) -> Dict[str, SensorIndexSpec]:
+        sensors: Dict[str, SensorIndexSpec] = {}
+        for name, mapping in self.response_decoder.items():
+            sensors[name] = mapping[0]
+        return sensors
 
-#        schema = type(self).schema()
-#        response_decoder = type(self).response_decoder()
-#        dongle_serial_number_getter = type(self).dongle_serial_number_getter
-#        serial_number_getter = type(self).serial_number_getter
-        # self.response_parser = ResponseParser(
-        #     schema,
-        #     response_decoder,
-        #     dongle_serial_number_getter,
-        #     serial_number_getter,
-        # )
-
-    # @classmethod
-    # def _build(cls, host, port, pwd="", params_in_query=True):
-    #     url = utils.to_url(host, port)
-    #     http_client = InverterHttpClient(url=url, method=Method.POST, pwd=pwd)
-    #     if params_in_query:
-    #         http_client = http_client.with_default_query()
-    #     else:
-    #         http_client = http_client.with_default_data()
-
-    #     return cls(http_client)
-
-    # @classmethod
-    # def build_all_variants(cls, host, port, pwd=""):
-    #     versions = {
-    #         cls._build(host, port, pwd, True),
-    #         cls._build(host, port, pwd, False),
-    #     }
-    #     return versions
-
-    # async def get_data(self) -> InverterResponse:
-    #     try:
-    #         data = await self.make_request()
-    #     except aiohttp.ClientError as ex:
-    #         msg = "Could not connect to inverter endpoint"
-    #         raise InverterError(msg, str(self.__class__.__name__)) from ex
-    #     except vol.Invalid as ex:
-    #         msg = "Received malformed JSON from inverter"
-    #         raise InverterError(msg, str(self.__class__.__name__)) from ex
-    #     return data
-
-    # async def make_request(self) -> InverterResponse:
+    # def _postprocess_gen(
+    #     self,
+    # ) -> Generator[Tuple[str, Callable[[Any], Any]], None, None]:
     #     """
-    #     Return instance of 'InverterResponse'
-    #     Raise exception if unable to get data
+    #     Return map of functions to be applied to each sensor value
     #     """
-    #     raw_response = await self.http_client.request()
-    #     return self.response_parser.handle_response(raw_response)
+    #     for name, mapping in self.response_decoder.items():
+    #         (_, _, *processors) = mapping
+    #         for processor in processors:
+    #             yield name, processor
+
+    def map_response(self, resp_data) -> Dict[str, Any]:
+        result = {}
+        for sensor_name, decode_info in self._decode_map().items():
+            if isinstance(decode_info, (tuple, list)):
+                indexes = decode_info[0]
+                packer = decode_info[1]
+                values = tuple(resp_data[i] for i in indexes)
+                val = packer(*values)
+            else:
+                val = resp_data[decode_info]
+            result[sensor_name] = val
+        # for sensor_name, processor in self._postprocess_gen():
+        #     result[sensor_name] = processor(result[sensor_name])
+        return result
 
     @classmethod
     def sensor_map(cls) -> Dict[str, Tuple[int, Measurement]]:
