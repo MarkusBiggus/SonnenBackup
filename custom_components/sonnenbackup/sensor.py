@@ -43,7 +43,7 @@ async def async_setup_entry(
     _LOGGER.info('Setup sensor entries')
 
     # api is BatterieBackup class
-#    api = config_entry.runtime_data.api
+    api = config_entry.runtime_data.api
     serial_number = config_entry.runtime_data.serial_number
     coordinator = config_entry.runtime_data.coordinator
     batterie_response = coordinator.data
@@ -54,10 +54,14 @@ async def async_setup_entry(
         name=f"{MANUFACTURER} {serial_number}",
         sw_version=version,
     )
+    battery_sensors = PowerUnitEVO(api)
+    sensor_values = battery_sensors.map_response()
+
     entities: list[BatterieSensorEntity] = []
     # description = SENSOR_DESCRIPTIONS[(Units.PERCENT, False)]
     # idx=1
-    for sensor, (idx, measurement) in PowerUnitEVO.sensor_map().items():
+    for sensor, (idx, measurement) in battery_sensors.sensor_map().items():
+#        print(f'sensor: {sensor}  idx:{idx}  measurement: {measurement}')
         description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
         uid = f"SB{serial_number}-{idx}"
         entities.append(

@@ -247,7 +247,6 @@ async def test_form_mocked(hass: HomeAssistant) -> None:
 async def test_options_flow(
         hass: HomeAssistant
 ) -> None:
-
     """Test config flow options."""
 
     # config_entry = MockConfigEntry(
@@ -377,3 +376,51 @@ async def test_config_flow_fail_non_unique(
 #    print(f'result: {dict(result)}')
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "already_configured"
+
+
+@pytest.mark.asyncio
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+async def test_options_flow_works(
+        hass: HomeAssistant
+) -> None:
+    """Test config flow options."""
+
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        CONFIG_DATA,
+    )
+    await hass.async_block_till_done()
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
+    assert result["data"] == CONFIG_DATA
+
+    # show initial form
+    config_entry:config_entries.ConfigEntry = result["result"]
+    result = await hass.config_entries.options.async_init(config_entry.entry_id)
+    assert FlowResultType.FORM == result["type"]
+    assert "init" == result["step_id"]
+    assert {} == result["errors"]
+
+    # submit form with valid options
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input=CONFIG_OPTIONS
+    )
+    assert FlowResultType.CREATE_ENTRY == result["type"]
+    assert "" == result["title"]
+    assert result["result"] is True
+    #print(f'result: {dict(result)}')
+    assert CONFIG_OPTIONS == result["data"]
+
+    # update entry with options
+    hass.config_entries.async_update_entry(
+        config_entry,
+        options=result["data"]
+    )
+    #print(f'config: {config_entry.as_dict()}')
+    assert config_entry.options == result["data"]
+    assert config_entry.data == CONFIG_DATA
