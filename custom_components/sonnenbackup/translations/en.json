@@ -16,23 +16,18 @@
                 "description": "Batterie IP Address & API Token",
                 "data": {
                     "ip_address": "IP address",
+                    "port": "Port",
                     "api_token": "API Token",
                     "model": "Model",
                     "device_id": "Serial Number"
-                }
-            },
-            "init": {
-                "title": "SonnenBackup Options",
-                "description": "Override default Port & Scan interval",
-                "data": {
-                    "port": "Port",
-                    "scan_interval": "Scan Interval"
                 }
             }
         },
         "options": {
             "step": {
                 "init": {
+                    "title": "SonnenBackup Options",
+                    "description": "Override default Port & Scan interval",
                     "data": {
                         "scan_interval": "Update interval (seconds)",
                         "sonnenbackup_debug": "Debug mode (more log entries)"
@@ -40,7 +35,7 @@
                 }
             },
             "error": {
-            "invalid_interval": "Invalid Interval.<br>{error_detail}"
+                "invalid_interval": "Invalid Interval.<br>{error_detail}"
             }
         }
     },
@@ -57,7 +52,10 @@
                     "discharged" : "Discharged"
                 }
             },
-            "state_system_status": {
+            "status_timestamp": {
+                "name": "Status Timestamp"
+            },
+            "system_status": {
                 "name": "System Status",
                 "state": {
                     "ongrid": "On Grid",
@@ -66,19 +64,22 @@
                     "critical error": "Critical Error"
                 }
             },
-            "state_consumption_avg": {
+            "consumption_average": {
                 "name": "Average consumption"
             },
-            "battery_backup_buffer": {
-                "name": "Battery Backup Buffer%"
+            "status_backup_buffer": {
+                "name": "Backup Buffer%"
             },
-            "state_battery_state_of_charge_real": {
-                "name": "Battery state of charge (real)%"
+            "backup_reserve_capacity": {
+                "name": "Backup Reserve Capacity kWh"
             },
-            "state_battery_state_of_charge_usable": {
-                "name": "Battery state of charge (usable)%"
+            "relative_state_of_charge": {
+                "name": "Relative State of Charge%"
             },
-            "state_operating_mode": {
+            "usable_state_of_charge": {
+                "name": "Usable State of Charge%"
+            },
+            "operating_mode": {
                 "name": "Operating Mode",
                 "state": {
                     "1": "Manual",
@@ -87,7 +88,10 @@
                     "10": "Time of Use"
                 }
             },
-            "battery_system_cycles": {
+            "frequency": {
+                "name": "Frequency Hz"
+            },
+            "battery_cycle_count": {
                 "name": "Charge cycles"
             }
         }

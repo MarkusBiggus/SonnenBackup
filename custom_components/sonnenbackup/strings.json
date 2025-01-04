@@ -4,35 +4,30 @@
       "user": {
         "data": {
           "ip_address": "[%key:common::config_flow::data::ip_address%]",
+          "port": "[%key:common::config_flow::data::port%]",
           "api_token": "[%key:common::config_flow::data::api_token%]",
           "model": "[%key:common::config_flow::data::model%]",
           "device_id": "[%key:common::config_flow::data::device_id%]"
         }
-      },
-      "init": {
-        "title": "SonnenBackup Component Behaviours",
-        "data": {
-          "port": "[%key:common::config_flow::data::port%]",
-          "scan_interval": "[%key:common::config_flow::data::scan_interval%]"
-        },
-        "description": "Change scan interval or toggle debug mode."
       }
     },
     "options": {
       "step": {
         "init": {
+          "title": "SonnenBackup Component Behaviours",
           "data": {
             "scan_interval": "[%key:common::config_flow::options::scan_interval%]",
             "sonnenbackup_debug": "[%key:common::config_flow::options::sonnenbackup_debug%]"
-          }
+          },
+          "description": "Change scan interval or toggle debug mode."
         }
       },
       "error": {
-      "invalid_interval": "[%key:common::config_flow::error::invalid_interval%]"
+        "invalid_interval": "[%key:common::config_flow::error::invalid_interval%]"
       }
     },
     "abort": {
-      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+      "already_configured": "[%key:common::config_flow::abort::already_configured%]"
     },
     "error": {
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
