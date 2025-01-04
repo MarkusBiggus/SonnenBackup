@@ -162,17 +162,16 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: SonnenBackupConfigEntry):
-        return SonnenBackupOptionsFlow(config_entry)
+        return SonnenBackupOptionsFlow()
 
 class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
 
-    def __init__(self, config_entry: SonnenBackupConfigEntry):
+    def __init__(self):
         """Initialize options flow."""
 
-    #    _LOGGER.info(f'options: config_entry:{config_entry.as_dict()}  options: {dict(config_entry.options)}')
         _LOGGER.info(' config_options')
-        self.options = dict(config_entry.options)
+        self.options = dict(self.config_entry.options)
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
