@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
-from typing import Any
+#from typing import Any
 
-from sonnen_api_v2 import BatterieError
+#from sonnen_api_v2 import BatterieError
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -14,7 +14,7 @@ from homeassistant.components.sensor import (
 #    SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant import config_entries, core
+#from homeassistant import config_entries, core
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -25,7 +25,7 @@ from homeassistant.helpers.typing import (
     DiscoveryInfoType,
 )
 from .const import DOMAIN, MANUFACTURER, SENSOR_DESCRIPTIONS
-from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupAPI
+from .coordinator import SonnenBackupAPI
 from .PowerUnitEVO import PowerUnitEVO
 
 #from . import SonnenConfigEntry
@@ -58,8 +58,6 @@ async def async_setup_entry(
     sensor_values = battery_sensors.map_response()
 
     entities: list[BatterieSensorEntity] = []
-    # description = SENSOR_DESCRIPTIONS[(Units.PERCENT, False)]
-    # idx=1
     for sensor, (idx, measurement) in battery_sensors.sensor_map().items():
 #        print(f'sensor: {sensor}  idx:{idx}  measurement: {measurement}')
         description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
@@ -105,10 +103,6 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
     def __init__(
         self,
         config_entry: SonnenBackupConfigEntry,
-        # coordinator: SonnenBackupUpdateCoordinator,
-        # manufacturer: str,
-        # uid: str,
-        # serial_number: str,
         device_info: DeviceInfo,
         uid: str,
         sensor: str,
