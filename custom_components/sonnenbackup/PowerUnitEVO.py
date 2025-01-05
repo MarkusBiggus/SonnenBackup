@@ -25,7 +25,7 @@ class PowerUnitEVO(BatterieSensors):
             "last_configurations": (2, Units.NONE, None, cls._format_datetime),
             "system_status": (3, Units.NONE),
             "system_status_timestamp": (4, Units.NONE, "status_timestamp", cls._format_datetime),
-            "battery_activity_state": (5, Units.NONE, "state_sonnenbackup"),
+            "battery_activity_state": (5, Units.NONE, "sonnenbackup_state"),
             "fully_charged_at": (6, Units.NONE, None, cls._format_datetime),
             "fully_discharged_at": (7, Units.NONE, None, cls._format_datetime),
             "battery_cycle_count": (8, Units.NONE),

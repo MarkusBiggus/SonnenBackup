@@ -2,12 +2,16 @@
     "config": {
         "flow_title": "SonnenBackup Batterie",
         "abort": {
-            "already_configured": "Batterie is already configured."
+            "cannot_connect": "Failed to connect.<br>{error_detail}",
+            "already_configured_device": "Batterie is already configured.",
+            "reauth_successful": "Re-authentication was successful",
+            "reconfigure_successful": "Re-configuration was successful"
         },
         "error": {
-            "invalid_auth": "Invalid API Token.<br>{error_detail}",
-            "device_api_error": "Device HTTP error.<br>{error_detail}",
             "cannot_connect": "Failed to connect.<br>{error_detail}",
+            "invalid_api_key": "Invalid API Token.<br>{error_detail}",
+            "device_api_error": "Device HTTP error.<br>{error_detail}",
+            "timeout_connect": "Timeout establishing connection",
             "unknown": "Unexpected error.<br>{error_detail}"
         },
         "step": {
@@ -15,7 +19,7 @@
                 "title": "Sonnen Backup Batterie",
                 "description": "Batterie IP Address & API Token",
                 "data": {
-                    "ip_address": "IP address",
+                    "ip": "IP address",
                     "port": "Port",
                     "api_token": "API Token",
                     "model": "Model",
@@ -26,8 +30,8 @@
         "options": {
             "step": {
                 "init": {
-                    "title": "SonnenBackup Options",
-                    "description": "Override default Port & Scan interval",
+                    "title": "SonnenBackup Component Behaviours",
+                    "description": "Change scan interval or toggle debug mode.",
                     "data": {
                         "scan_interval": "Update interval (seconds)",
                         "sonnenbackup_debug": "Debug mode (more log entries)"
@@ -41,43 +45,16 @@
     },
     "entity": {
         "sensor": {
-            "state_sonnenbackup": {
-                "name": "SonnenBackup Batterie",
-                 "state": {
-                    "standby": "Standby",
+            "sonnenbackup_state": {
+                "name": "Batterie State",
+                "state": {
+                    "standby": "Reserve Standby",
                     "charging": "Charging",
                     "discharging": "Discharging",
                     "dischargingReserve": "Discharging Reserve",
-                    "charged": "Charged",
-                    "discharged" : "Discharged"
+                    "charged": "Fully Charged",
+                    "discharged" : "Fully Discharged"
                 }
-            },
-            "status_timestamp": {
-                "name": "Status Timestamp"
-            },
-            "system_status": {
-                "name": "System Status",
-                "state": {
-                    "ongrid": "On Grid",
-                    "offgrid": "Off Grid",
-                    "config": "Config",
-                    "critical error": "Critical Error"
-                }
-            },
-            "consumption_average": {
-                "name": "Average consumption"
-            },
-            "status_backup_buffer": {
-                "name": "Backup Buffer%"
-            },
-            "backup_reserve_capacity": {
-                "name": "Backup Reserve Capacity kWh"
-            },
-            "relative_state_of_charge": {
-                "name": "Relative State of Charge%"
-            },
-            "usable_state_of_charge": {
-                "name": "Usable State of Charge%"
             },
             "operating_mode": {
                 "name": "Operating Mode",
@@ -88,11 +65,56 @@
                     "10": "Time of Use"
                 }
             },
-            "frequency": {
-                "name": "Frequency Hz"
+            "system_status": {
+                "name": "System Status",
+                "state": {
+                    "ongrid": "On Grid",
+                    "offgrid": "Off Grid",
+                    "config": "Config",
+                    "critical error": "Critical Error"
+                }
+            },
+            "status_timestamp": {
+                "name": "Status Timestamp"
+            },
+            "fully_charged_at": {
+                "name": "Fully Charged at"
+            },
+            "fully_discharged_at": {
+                "name": "Fully Discharged at"
+            },
+            "status_backup_buffer": {
+                "name": "Backup Buffer%"
             },
             "battery_cycle_count": {
                 "name": "Charge cycles"
+            },
+            "full_charge_capacity": {
+                "name": "Full Charge Capacity kWh"
+            },
+            "remaining_capacity": {
+                "name": "Remaining Capacity kWh"
+            },
+            "capacity_until_reserve": {
+                "name": "Capacity until Reserve kWh"
+            },
+            "backup_reserve_at": {
+                "name": "Reserve Standby at"
+            },
+            "backup_reserve_capacity": {
+                "name": "Backup Reserve Capacity kWh"
+            },
+            "consumption_average": {
+                "name": "Average consumption"
+            },
+            "frequency": {
+                "name": "Frequency Hz"
+            },
+            "relative_state_of_charge": {
+                "name": "Relative State of Charge%"
+            },
+            "usable_state_of_charge": {
+                "name": "Usable State of Charge%"
             }
         }
     }
