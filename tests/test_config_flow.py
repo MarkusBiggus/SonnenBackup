@@ -36,7 +36,7 @@ from custom_components.sonnenbackup.const import DOMAIN, DEFAULT_SCAN_INTERVAL, 
 CONFIG_DATA = {
     CONF_IP_ADDRESS: "1.1.1.1",
     CONF_PORT: DEFAULT_PORT,
-    CONF_API_TOKEN: "fakeToken",
+    CONF_API_TOKEN: "fakeToken-111-222-4444-3333",
     "details": {
         CONF_MODEL: 'Power unit Evo IP56',
         CONF_DEVICE_ID: "321123"

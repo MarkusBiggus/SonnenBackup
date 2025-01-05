@@ -62,7 +62,7 @@ class BatterieSensors:
             for processor in processors:
                 yield alias, processor
 
-    def map_response(self, ) -> Dict[str, Any]:
+    def map_response(self) -> Dict[str, Any]:
         result = {}
         for sensor_name, decode_info in self._decode_map().items():
             # if isinstance(decode_info, (tuple, list)):

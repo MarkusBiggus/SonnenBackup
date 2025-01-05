@@ -6,7 +6,7 @@ import logging
 from collections.abc import Callable
 #from typing import Any
 
-#from sonnen_api_v2 import BatterieError
+from sonnen_api_v2 import BatterieBackup
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -43,7 +43,7 @@ async def async_setup_entry(
     _LOGGER.info('Setup sensor entries')
 
     # api is BatterieBackup class
-    api = config_entry.runtime_data.api
+    api:BatterieBackup = config_entry.runtime_data.api
     serial_number = config_entry.runtime_data.serial_number
     coordinator = config_entry.runtime_data.coordinator
     batterie_response = coordinator.data
@@ -99,6 +99,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
     """Class for a sensor."""
 
     _attr_should_poll = False
+    _attr_icon = "mdi:battery-outline"
 
     def __init__(
         self,
@@ -135,8 +136,8 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self):
-        """Value of this battery attribute."""
-        return getattr(self._batterybackup.battery, self.key)() #self.coordinator.data[self.key]
+        """Value of this sensor from mapped battery property."""
+        return self.coordinator.data[self.key] # ??????????????????
 
     @property
     def name(self) -> str:
