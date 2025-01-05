@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+import voluptuous as vol
 
 from sonnen_api_v2 import Batterie, BatterieAuthError, BatterieHTTPError, BatterieError
 
@@ -17,6 +18,8 @@ from homeassistant.config_entries import (
     CONN_CLASS_LOCAL_POLL,
 )
 from homeassistant.core import HomeAssistant, callback
+import homeassistant.helpers.config_validation as cv
+from homeassistant.data_entry_flow import section
 from homeassistant.const import (
         CONF_IP_ADDRESS,
         CONF_API_TOKEN,
@@ -112,16 +115,40 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             description_placeholders=placeholders
         )
 
-    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
+    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Handle the reconfiguration step."""
 
         _LOGGER.info(" config_flow reconfigure")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
         if user_input is None:
+            config = self._get_reconfigure_entry().data
+            placeholders = {
+                'ip':config[CONF_IP_ADDRESS],
+                'port':config[CONF_IP_ADDRESS],
+                'token': config[CONF_API_TOKEN],
+                'model': config[CONF_MODEL],
+                'device_id': config[CONF_DEVICE_ID],
+            }
             return self.async_show_form(
                 step_id="reconfigure",
-                data_schema=CONFIG_SCHEMA,
+                data_schema=vol.Schema(
+                    {
+                        vol.Required(CONF_IP_ADDRESS, default=placeholders['ip']): cv.string,
+                        vol.Required(CONF_PORT, default=placeholders['port']): cv.port,
+                        vol.Required(CONF_API_TOKEN, default=placeholders['token']): cv.string,
+                        "details": section(
+                            vol.Schema(
+                                {
+                                    vol.Required(CONF_MODEL, default=placeholders['model']): cv.string,
+                                }
+                            ),
+                            {"collapsed": False},
+                        )
+                    }
+                ),
+                description_placeholders=placeholders,
                 errors=errors
             )
 

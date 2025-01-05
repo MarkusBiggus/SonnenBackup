@@ -1,4 +1,4 @@
-"""The SonnenBackup batterie backup component."""
+"""The SonnenBackup batterie component."""
 
 from __future__ import annotations
 
@@ -26,10 +26,10 @@ from .const import (
     DOMAIN,
     PLATFORMS,
     DEFAULT_SCAN_INTERVAL,
+    CONFIG_SCHEMA,
     )
 
 SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
-
 
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 

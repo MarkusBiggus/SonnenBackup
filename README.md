@@ -16,7 +16,7 @@ Readonly API, use Sonnen Batterie portal or mobile app to set Backup Reseve perc
 (will require sonnen_api_v2 driver package)
 
 
-Then from within your project:
+Within your project:
 
 ```
 from sonnen_api_v2 import BatterieBackup, BatterieResponse,
@@ -24,7 +24,7 @@ import asyncio
 
 async def validate():
     _batterie = BatterieBackup(auth_token, ip_address, port)
-    return await _batterie.get_response()
+    return await _batterie.validate_token()
 
 async def update():
     _batterie = BatterieBackup(auth_token, ip_address, port)

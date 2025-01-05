@@ -1,4 +1,5 @@
 """Constants for the sonnenbackup integration."""
+
 import voluptuous as vol
 
 from sonnen_api_v2.units import Units

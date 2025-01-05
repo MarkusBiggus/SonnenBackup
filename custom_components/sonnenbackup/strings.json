@@ -27,7 +27,30 @@
           "api_token": "[%key:common::config_flow::data::api_token%]",
           "model": "[%key:component::config::setp::user::data::model%]",
           "device_id": "[%key:component::config::setp::user::data::device_id%]"
-        }
+        },
+        "data_description": {
+          "ip": "[%key:component::config::setp::user::data_description::model%]",
+          "port": "[%key:component::config::setp::user::data_description::port%]",
+          "api_token": "[%key:component::config::setp::user::data_description::api_token%]",
+          "model": "[%key:component::config::setp::user::data_description::model%]",
+          "device_id":"[%key:component::config::setp::user::data_description::device_id%]"
+          }
+      }
+    },
+    "reconfigure": {
+      "description": "Update configuration for {device_id}.",
+      "data": {
+        "ip": "[%key:common::config_flow::data::ip%]",
+        "port": "[%key:common::config_flow::data::port%]",
+        "api_token": "[%key:common::config_flow::data::api_token%]",
+        "model": "[%key:component::config::setp::reconfigure::data::model%]"
+      },
+      "data_description": {
+        "ip": "[%key:component::config::setp::reconfigure::data_description::model%]",
+        "port": "[%key:component::config::setp::reconfigure::data_description::port%]",
+        "api_token": "[%key:component::config::setp::reconfigure::data_description::api_token%]",
+        "model": "[%key:component::config::setp::reconfigure::data_description::model%]",
+        "device_id":"[%key:component::config::setp::reconfigure::data_description::device_id%]"
       }
     },
     "options": {
@@ -47,6 +70,10 @@
     }
   },
   "entity": {
+    "binary_sensor": {
+      "offgrid": { "name": "Off Grid" },
+      "critical_error": { "name": "Critical Error" }
+    },
     "sensor": {
       "sonnenbackup_state": {
         "name": "Batterie State",
@@ -54,7 +81,7 @@
           "standby": "Reserve Standby",
           "charging": "Charging",
           "discharging": "Discharging",
-          "dischargingReserve": "Discharging Reserve",
+          "discharging_reserve": "Discharging Reserve",
           "charged": "Fully Charged",
           "discharged" : "Fully Discharged"
         }
@@ -74,7 +101,7 @@
           "ongrid": "On Grid",
           "offgrid": "Off Grid",
           "config": "Config",
-          "critical error": "Critical Error"
+          "critical_error": "Critical Error"
         }
       },
       "status_timestamp": {
