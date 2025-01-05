@@ -1,6 +1,8 @@
 # SonnenBackup
 
-Read energy usage data from the real-time API on Sonnen Batterie.
+Read from the real-time API on Sonnen Batterie to manage Backup Reserve capacity.
+
+Readonly API, use Sonnen Batterie portal or mobile app to set Backup Reseve percent.
 
 * Real time power, current and voltage
 * Battery levels, Charge/Discharge rate, time to fully charged
@@ -10,6 +12,7 @@ Read energy usage data from the real-time API on Sonnen Batterie.
 ## Usage
 
 `pip install sonnenbackup`
+
 (will require sonnen_api_v2 driver package)
 
 
@@ -33,7 +36,7 @@ response = loop.run_until_complete(update())
 print(response)
 ```
 
-## Confirmed Supported Batterie
+## Confirmed Supported Batteries
 
 These batteries have been tested and confirmed to be working. If your batterie is not listed below, this library may still work provided your battery admin portal can generate an API read token and responds to Sonnen API V2 endpoints.
 
