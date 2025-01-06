@@ -72,7 +72,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    ):# -> ConfigFlowResult:
         """Handle the initial step."""
 
         _LOGGER.info(" config_flow user")
@@ -134,11 +134,11 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
         if match is not None:
             return
 
-        raise (SchemaFlowError, 'Invalid IP address: {ip}')
+        raise (SchemaFlowError, f'Invalid IP address: {ip}')
 
 
     async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    ): # -> ConfigFlowResult:
         """Handle the reconfiguration step."""
 
         _LOGGER.info(" config_flow reconfigure")
@@ -265,7 +265,7 @@ class CannotConnect(HomeAssistantError):
     """Error to indicate we cannot connect."""
 
 class DeviceAPIError(HomeAssistantError):
-    """Error to indicate device API error."""
+    """Error to indicate device API HTTP error."""
 
 class InvalidAuth(HomeAssistantError):
     """Error to indicate invalid authorisation."""
