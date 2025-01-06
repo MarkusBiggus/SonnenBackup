@@ -39,9 +39,6 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup(hass: HomeAssistant, config_entry: dict):
     """Set up SonnenBackup component."""
 
-# !!!!!!!!!!!!!! config_entry is empty !!!!!!!!!!!!!
-    # entity_id = f'{DOMAIN}.{'987789'}' #data[CONF_DEVICE_ID]}'
-    # hass.states.async_set(entity_id, {})
     hass.data.setdefault(DOMAIN, {})
 
     # Return boolean to indicate that initialization was successful.
@@ -52,9 +49,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 
 #    _LOGGER.info("SonnenBackupConfigEntry: " + json.dumps(dict(config_entry.data)))
     _LOGGER.info("SonnenBackupConfigEntry setup")
-
-    #entity_id = f'{DOMAIN}.{config_entry.data['details'][CONF_DEVICE_ID]}'
-    #hass.states.async_set(entity_id, 'on')
 
     try:
         _batterie = BatterieBackup(
