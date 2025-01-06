@@ -45,14 +45,16 @@ CONFIG_SCHEMA = vol.Schema(
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
         vol.Required(CONF_API_TOKEN): cv.string,
         "details": section(
-            vol.Schema(
-                {
-                    vol.Required(CONF_MODEL): cv.string,
-                    vol.Required(CONF_DEVICE_ID): cv.string,
-                }
-            ),
+            {'fields':
+                vol.Schema(
+                    {
+                        vol.Required(CONF_MODEL): cv.string,
+                        vol.Required(CONF_DEVICE_ID): cv.string,
+                    }
+                )
+            },
         # Whether or not the section is initially collapsed (default = False)
-        {"collapsed": False},
+            {"collapsed": False},
         )
     }
 )

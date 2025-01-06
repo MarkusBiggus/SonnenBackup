@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 import voluptuous as vol
+import re
 
 from sonnen_api_v2 import Batterie, BatterieAuthError, BatterieHTTPError, BatterieError
 
@@ -19,6 +20,7 @@ from homeassistant.config_entries import (
 )
 from homeassistant.core import HomeAssistant, callback
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.schema_config_entry_flow import SchemaFlowError
 from homeassistant.data_entry_flow import section
 from homeassistant.const import (
         CONF_IP_ADDRESS,
@@ -115,6 +117,26 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             description_placeholders=placeholders
         )
 
+    async def validate_user_input(self, SchemaCommonFlowHandler , user_input: dict[str, Any] | None = None
+    ) -> None:
+        """Validate user input."""
+
+        _LOGGER.info(" config_flow validate input")
+    #    ValidIpAddressRegex = r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+        ValidIpAddressRegex = r"^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$"
+        ValidHostnameRegex = r"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
+        ip = user_input[CONF_IP_ADDRESS]
+        match = re.match(ValidIpAddressRegex, ip)
+        if match is not None:
+            return
+
+        match = re.match(ValidHostnameRegex, ip)
+        if match is not None:
+            return
+
+        raise (SchemaFlowError, 'Invalid IP address: {ip}')
+
+
     async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle the reconfiguration step."""
@@ -139,11 +161,13 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                         vol.Required(CONF_PORT, default=placeholders['port']): cv.port,
                         vol.Required(CONF_API_TOKEN, default=placeholders['token']): cv.string,
                         "details": section(
-                            vol.Schema(
-                                {
-                                    vol.Required(CONF_MODEL, default=placeholders['model']): cv.string,
-                                }
-                            ),
+                            {'fields':
+                                vol.Schema(
+                                    {
+                                        vol.Required(CONF_MODEL, default=placeholders['model']): cv.string,
+                                    }
+                                )
+                            },
                             {"collapsed": False},
                         )
                     }
