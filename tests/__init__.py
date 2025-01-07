@@ -1,1 +1,1 @@
-"""sonnenbackup HA custom_component using sonnen batterie V2 API."""
+"""Tests for the SonnenBackup integration."""
