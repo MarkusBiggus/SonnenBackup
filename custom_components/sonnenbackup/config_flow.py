@@ -213,16 +213,17 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: SonnenBackupConfigEntry):
-        return SonnenBackupOptionsFlow()
+        return SonnenBackupOptionsFlow(config_entry)
 
 class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
 
-    def __init__(self):
+    def __init__(self, config_entry):
         """Initialize options flow."""
 
         _LOGGER.info(' config_options')
-        self.options = dict(self.config_entry.options)
+#Docs are WRONG!        self.options = dict(self.config_entry.options)
+        self.options = dict(config_entry.options)
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -234,15 +235,17 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         if user_input is None:
             return self.async_show_form(
                 step_id="init",
-                data_schema = self.add_suggested_values_to_schema(
-                    OPTIONS_SCHEMA,
-                    self.options
-                ),
+                data_schema = OPTIONS_SCHEMA,
+                #     self.add_suggested_values_to_schema(
+                #     OPTIONS_SCHEMA,
+                #     self.options
+                # ),
                 errors=errors
             )
 
 #       return self.async_create_entry(title=f'SonnenBackup {self.options[CONF_MODEL]} ({self.options[CONF_DEVICE_ID]})', data=user_input)
         if user_input[CONF_SCAN_INTERVAL] > 2 and user_input[CONF_SCAN_INTERVAL] < 121:
+            print(f'options input: {dict(user_input)}')
             return self.async_create_entry(
                 title='',
                 data=user_input
@@ -255,7 +258,8 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema = self.add_suggested_values_to_schema(
-                OPTIONS_SCHEMA, user_input
+                OPTIONS_SCHEMA,
+                user_input
             ),
             errors=errors,
             description_placeholders=placeholders

@@ -13,6 +13,7 @@ import urllib3
 from sonnen_api_v2 import Batterie, BatterieBackup, BatterieResponse
 from .mock_sonnenbatterie_v2_charging import __mock_configurations
 from .mock_batterieresponse import __mock_batterieresponse
+from .mock_battery_configurations import __battery_configurations_auth200
 
 from homeassistant import config_entries
 # from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth
@@ -48,19 +49,7 @@ CONFIG_OPTIONS = {
 }
 
 
-def __battery_configurations(self, _method, _url, _body, _headers, _retries):
-    """Mock configurations to validate Auth naturally."""
-    resp = Response(
-        method=_method, #'GET',
-        url=_url, #(f'http://fakeHost:80/api/v2/configurations'),
-        json=__mock_configurations(),
-        status=200,
-        headers=_headers,
-    )
-    return resp
-
-
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
 async def test_form(hass: HomeAssistant) -> None:
     """Test we get the form."""
 
@@ -87,7 +76,7 @@ async def test_form(hass: HomeAssistant) -> None:
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
 async def test_form_invalid_auth(
     hass: HomeAssistant
 ) -> None:
@@ -129,7 +118,7 @@ async def test_form_invalid_auth(
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
 async def test_form_cannot_connect(
     hass: HomeAssistant
 ) -> None:
@@ -171,7 +160,7 @@ async def test_form_cannot_connect(
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
 async def test_form_device_error(
     hass: HomeAssistant
 ) -> None:
@@ -215,7 +204,7 @@ async def test_form_device_error(
 
 @pytest.mark.asyncio
 #@patch.object(Batterie, 'fetch_configurations', __mock_configurations)
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
 async def test_form_mocked(hass: HomeAssistant) -> None:
     """Test we get the form."""
     result = await hass.config_entries.flow.async_init(
@@ -243,7 +232,7 @@ async def test_form_mocked(hass: HomeAssistant) -> None:
 @pytest.mark.asyncio
 #@patch.object(BatterieBackup, "refresh_response", __mock_batterieresponse)
 #@patch.object(BatterieBackup, "validate_token", __mock_batterieresponse)
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
 async def test_options_flow(
         hass: HomeAssistant
 ) -> None:
@@ -294,7 +283,7 @@ async def test_options_flow(
     #         CONF_SCAN_INTERVAL: 2,
     #         "sonnen_debug": True,
     #         } == result["data"]
-    print(f'result: {dict(result)}')
+    #print(f'result: {dict(result)}')
 
     # submit form with invalid options
     result = await hass.config_entries.options.async_configure(
@@ -334,7 +323,7 @@ async def test_options_flow(
     assert config_entry.data == CONFIG_DATA
 
 @pytest.mark.asyncio
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
 async def test_config_flow_fail_non_unique(
     hass: HomeAssistant
 ) -> None:
@@ -379,7 +368,7 @@ async def test_config_flow_fail_non_unique(
 
 
 @pytest.mark.asyncio
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
 async def test_options_flow_works(
         hass: HomeAssistant
 ) -> None:

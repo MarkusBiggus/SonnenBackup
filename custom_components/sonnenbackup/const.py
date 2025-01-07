@@ -45,14 +45,14 @@ CONFIG_SCHEMA = vol.Schema(
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
         vol.Required(CONF_API_TOKEN): cv.string,
         "details": section(
-            {'fields':
+#            {'fields':
                 vol.Schema(
                     {
                         vol.Required(CONF_MODEL): cv.string,
                         vol.Required(CONF_DEVICE_ID): cv.string,
                     }
-                )
-            },
+                ),
+#            },
         # Whether or not the section is initially collapsed (default = False)
             {"collapsed": False},
         )
@@ -61,9 +61,8 @@ CONFIG_SCHEMA = vol.Schema(
 
 OPTIONS_SCHEMA = vol.Schema(
     {
-    #    vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.Number,
-        vol.Required("sonnen_debug", default=False): bool
+        vol.Required("sonnen_debug", default=False): cv.boolean
     }
 )
 
