@@ -23,11 +23,14 @@ from homeassistant.helpers.update_coordinator import UpdateFailed
 from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupAPI
 
 from .const import (
-    DOMAIN,
+    _DOMAIN,
+    _CONFIG_SCHEMA,
     PLATFORMS,
     DEFAULT_SCAN_INTERVAL,
-    CONFIG_SCHEMA,
     )
+
+DOMAIN = "sonnenbackup"
+CONFIG_SCHEMA = _CONFIG_SCHEMA
 
 SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 

@@ -31,7 +31,7 @@ from homeassistant.const import (
     CONF_DEVICE_ID,
     CONF_SCAN_INTERVAL,
 )
-DOMAIN = "sonnenbackup"
+_DOMAIN = "sonnenbackup"
 MANUFACTURER = "Sonnen GmbH"
 DEFAULT_SCAN_INTERVAL = 10
 ATTR_SONNEN_DEBUG = "sonnenbackup_debug"
@@ -39,7 +39,7 @@ DEFAULT_PORT = 80
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
-CONFIG_SCHEMA = vol.Schema(
+_CONFIG_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_IP_ADDRESS): cv.string,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
@@ -59,7 +59,7 @@ CONFIG_SCHEMA = vol.Schema(
     }
 )
 
-OPTIONS_SCHEMA = vol.Schema(
+_OPTIONS_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.Number,
         vol.Required("sonnen_debug", default=False): cv.boolean

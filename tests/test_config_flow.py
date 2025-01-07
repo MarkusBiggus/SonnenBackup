@@ -32,7 +32,9 @@ from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.sonnenbackup.config_flow import CannotConnect, InvalidAuth, DeviceAPIError
-from custom_components.sonnenbackup.const import DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
+from custom_components.sonnenbackup.const import _DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
+
+DOMAIN = _DOMAIN
 
 CONFIG_DATA = {
     CONF_IP_ADDRESS: "1.1.1.1",

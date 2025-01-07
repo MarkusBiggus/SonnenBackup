@@ -34,7 +34,34 @@ from homeassistant.const import (
 from homeassistant.exceptions import HomeAssistantError
 
 from .coordinator import SonnenBackupAPI
-from .const import DOMAIN, CONFIG_SCHEMA, OPTIONS_SCHEMA
+from .const import (
+    _DOMAIN,
+    _CONFIG_SCHEMA,
+    _OPTIONS_SCHEMA,
+    DEFAULT_PORT,
+    )
+
+DOMAIN = _DOMAIN
+CONFIG_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_IP_ADDRESS): cv.string,
+        vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
+        vol.Required(CONF_API_TOKEN): cv.string,
+        "details": section(
+#            {'fields':
+                vol.Schema(
+                    {
+                        vol.Required(CONF_MODEL): cv.string,
+                        vol.Required(CONF_DEVICE_ID): cv.string,
+                    }
+                ),
+#            },
+        # Whether or not the section is initially collapsed (default = False)
+            {"collapsed": False},
+        )
+    }
+)
+OPTIONS_SCHEMA = _OPTIONS_SCHEMA
 
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
@@ -108,7 +135,10 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
         else:
             await self.async_set_unique_id(serial_number)
             self._abort_if_unique_id_configured()
-            return self.async_create_entry(title=f'SonnenBackup {batterie_model} ({serial_number})', data=user_input)
+            return self.async_create_entry(
+                title=f'SonnenBackup {batterie_model} ({serial_number})',
+                data=user_input
+            )
 
         return self.async_show_form(
             step_id="user",
@@ -235,22 +265,22 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         if user_input is None:
             return self.async_show_form(
                 step_id="init",
-                data_schema = OPTIONS_SCHEMA,
+                data_schema = _OPTIONS_SCHEMA,
                 #     self.add_suggested_values_to_schema(
-                #     OPTIONS_SCHEMA,
+                #     _OPTIONS_SCHEMA,
                 #     self.options
                 # ),
                 errors=errors
             )
 
-#       return self.async_create_entry(title=f'SonnenBackup {self.options[CONF_MODEL]} ({self.options[CONF_DEVICE_ID]})', data=user_input)
         if user_input[CONF_SCAN_INTERVAL] > 2 and user_input[CONF_SCAN_INTERVAL] < 121:
-            print(f'options input: {dict(user_input)}')
+        #    print(f'options input: {dict(user_input)}')
             return self.async_create_entry(
                 title='',
                 data=user_input
             )
 
+        """Invalid scan_interval"""
         errors["base"] = 'invalid_interval'
         placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least 3 seconds and no more than 120.'
         user_input[CONF_SCAN_INTERVAL] = 3 if user_input[CONF_SCAN_INTERVAL] < 3 else 120
@@ -258,7 +288,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema = self.add_suggested_values_to_schema(
-                OPTIONS_SCHEMA,
+                _OPTIONS_SCHEMA,
                 user_input
             ),
             errors=errors,

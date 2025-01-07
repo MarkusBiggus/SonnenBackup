@@ -14,8 +14,8 @@ class SonnenBackupUpdateCoordinator(DataUpdateCoordinator[BatterieResponse]):
 class SonnenBackupAPI:
     """SonnenBackup Batterie API context."""
 
-    _attr_icon = "mdi:battery-outline"
-    
+#    _attr_icon = "mdi:battery-outline"
+
     api: BatterieBackup
     coordinator: SonnenBackupUpdateCoordinator
     serial_number: str
