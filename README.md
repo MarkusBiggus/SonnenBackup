@@ -4,6 +4,7 @@ Read from the real-time API on Sonnen Batterie to manage Backup Reserve capacity
 
 Readonly API, use Sonnen Batterie portal or mobile app to set Backup Reseve percent.
 
+* System state On Grid, Off Grid or Critical Error.
 * Real time power, current and voltage
 * Battery levels, Charge/Discharge rate, time to fully charged
 * Backup reserve, time to reserve, time to fully discharged

@@ -41,7 +41,7 @@ from .const import (
     DEFAULT_PORT,
     )
 
-DOMAIN = _DOMAIN
+DOMAIN = "sonnenbackup"
 CONFIG_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_IP_ADDRESS): cv.string,
