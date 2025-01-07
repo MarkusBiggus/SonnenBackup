@@ -56,20 +56,11 @@
     "options": {
       "step": {
         "init": {
-          "title": "SonnenBackup Component Behaviours",
-          "description": "Change scan interval or toggle debug mode.",
           "data": {
             "scan_interval": "Poll Interval",
             "sonnenbackup_debug": "Debug"
-          },
-          "data_description": {
-            "scan_interval": "Scan interval must be at least 3 seconds and no more than 120.",
-            "sonnenbackup_debug": "Debug mode will log more information."
           }
         }
-      },
-      "error": {
-        "invalid_interval": "Invalid Interval. {error_detail}"
       }
     }
   },

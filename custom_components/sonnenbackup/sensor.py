@@ -24,13 +24,14 @@ from homeassistant.helpers.typing import (
     ConfigType,
     DiscoveryInfoType,
 )
-from .const import DOMAIN, MANUFACTURER, SENSOR_DESCRIPTIONS
+from .const import _DOMAIN, MANUFACTURER, SENSOR_DESCRIPTIONS
 from .coordinator import SonnenBackupAPI
 from .PowerUnitEVO import PowerUnitEVO
 
 #from . import SonnenConfigEntry
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
+DOMAIN = _DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
@@ -59,9 +60,10 @@ async def async_setup_entry(
 
     entities: list[BatterieSensorEntity] = []
     for sensor, (idx, measurement) in battery_sensors.sensor_map().items():
-#        print(f'sensor: {sensor}  idx:{idx}  measurement: {measurement}')
+        _LOGGER.debug(f'sensor: {sensor}  idx:{idx}  measurement: {measurement}')
         description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
         uid = f"SB{serial_number}-{idx}"
+        _LOGGER.debug(f'sensor: {sensor}  uid:{uid}  description: {description}')
         entities.append(
             BatterieSensorEntity(
                 config_entry,
@@ -89,10 +91,6 @@ async def async_setup_platform(
     """Set up the sensor platform."""
 
     _LOGGER.info('Setup sensor platform')
-
-    # github = GitHubAPI(session, "requester", oauth_token=config[CONF_ACCESS_TOKEN])
-    # sensors = [GitHubRepoSensor(github, repo) for repo in config[CONF_REPOS]]
-    # async_add_entities(sensors, update_before_add=True)
 
 
 class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
