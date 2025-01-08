@@ -12,8 +12,7 @@ import urllib3
 
 from sonnen_api_v2 import Batterie, BatterieBackup, BatterieResponse
 from .mock_sonnenbatterie_v2_charging import __mock_configurations
-from .mock_batterieresponse import __mock_batterieresponse
-from .mock_battery_configurations import __battery_configurations_auth200
+from .mock_battery_responses import __battery_configurations_auth200
 
 from homeassistant import config_entries
 # from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth

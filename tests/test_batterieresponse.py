@@ -15,7 +15,12 @@ from unittest.mock import patch
 from sonnen_api_v2 import Batterie, BatterieBackup, BatterieResponse, BatterieAuthError, BatterieHTTPError, BatterieError
 
 from .battery_charging_asyncio import fixture_battery_charging
-from .mock_battery_configurations import __battery_configurations_auth200, __battery_configurations_auth401
+from .mock_battery_responses import (
+    __battery_configurations_auth200,
+    __battery_configurations_auth401,
+    __battery_configurations_auth500,
+)
+from .mock_sonnenbatterie_v2_charging import __mock_configurations
 
 LOGGER_NAME = None # "sonnenapiv2" #
 
@@ -52,14 +57,22 @@ async def test_batterieresponse_works(battery_charging: Batterie) -> None:
     response = await _batterie.validate_token()
 
     assert isinstance(response, BatterieResponse) is True
-    assert response == BatterieResponse(version='1.14.5', last_updated=datetime.datetime(2023, 11, 20, 17, 0), configurations={'EM_RE_ENABLE_MICROGRID': 'False', 'NVM_PfcIsFixedCosPhiActive': 0, 'NVM_PfcFixedCosPhi': 0.8, 'IC_BatteryModules': 4, 'EM_ToU_Schedule': [], 'DE_Software': '1.14.5', 'EM_USER_INPUT_TIME_ONE': 0, 'NVM_PfcIsFixedCosPhiLagging': 0, 'EM_Prognosis_Charging': 1, 'EM_USOC': 20, 'EM_USER_INPUT_TIME_TWO': 0, 'EM_OperatingMode': '2', 'SH_HeaterTemperatureMax': 80, 'SH_HeaterOperatingMode': 0, 'IC_InverterMaxPower_w': 5000, 'SH_HeaterTemperatureMin': 0, 'CM_MarketingModuleCapacity': 5000, 'EM_USER_INPUT_TIME_THREE': 0, 'CN_CascadingRole': 'none', 'EM_US_GEN_POWER_SET_POINT': 0, 'DepthOfDischargeLimit': 93})
+    assert response == BatterieResponse(
+        version='1.14.5',
+        last_updated=datetime.datetime(2023, 11, 20, 17, 0),
+        configurations=__mock_configurations()
+    )
 
     response = await _batterie.refresh_response()
 
     #print(f'response: {response}')
 
     assert isinstance(response, BatterieResponse) is True
-    assert response == BatterieResponse(version='1.14.5', last_updated=datetime.datetime(2023, 11, 20, 17, 0), configurations={'EM_RE_ENABLE_MICROGRID': 'False', 'NVM_PfcIsFixedCosPhiActive': 0, 'NVM_PfcFixedCosPhi': 0.8, 'IC_BatteryModules': 4, 'EM_ToU_Schedule': [], 'DE_Software': '1.14.5', 'EM_USER_INPUT_TIME_ONE': 0, 'NVM_PfcIsFixedCosPhiLagging': 0, 'EM_Prognosis_Charging': 1, 'EM_USOC': 20, 'EM_USER_INPUT_TIME_TWO': 0, 'EM_OperatingMode': '2', 'SH_HeaterTemperatureMax': 80, 'SH_HeaterOperatingMode': 0, 'IC_InverterMaxPower_w': 5000, 'SH_HeaterTemperatureMin': 0, 'CM_MarketingModuleCapacity': 5000, 'EM_USER_INPUT_TIME_THREE': 0, 'CN_CascadingRole': 'none', 'EM_US_GEN_POWER_SET_POINT': 0, 'DepthOfDischargeLimit': 93})
+    assert response == BatterieResponse(
+        version='1.14.5',
+        last_updated=datetime.datetime(2023, 11, 20, 17, 0),
+        configurations=__mock_configurations()
+    )
 
     sensor_value = _batterie.get_sensor_value('configuration_de_software')
     assert sensor_value == '1.14.5'
@@ -71,12 +84,23 @@ async def __mock_async_validate_token(self):
 
 @pytest.mark.asyncio
 @patch.object(Batterie, 'async_validate_token', __mock_async_validate_token)
-async def test_batterieresponse_BatterieAuthError(battery_charging: Batterie) -> None:
-    """Batterie Response using mock data"""
+async def test_batterieresponse_AuthError(battery_charging: Batterie) -> None:
+    """Batterie Response using mock coroutine"""
 
     _batterie = BatterieBackup('fakeToken', 'fakeHost')
 
     with pytest.raises(BatterieAuthError, match='BatterieBackup: Error validating API token!'):
+        await _batterie.validate_token()
+
+@pytest.mark.asyncio
+@pytest.mark.usefixtures("battery_charging")
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth401)
+async def test_batterieresponse_AuthError401(battery_charging: Batterie) -> None:
+    """Batterie 401 Response using mock data"""
+
+    _batterie = BatterieBackup('fakeToken', 'fakeHost')
+
+    with pytest.raises(BatterieAuthError, match='Invalid token "fakeToken" status: 401'):
         await _batterie.validate_token()
 
 
@@ -86,7 +110,7 @@ async def __mock_async_update(self):
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("battery_charging")
-#@freeze_time("20-11-2023 17:00:00")
+@freeze_time("20-11-2023 17:00:00")
 @patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
 @patch.object(Batterie, 'async_update', __mock_async_update)
 async def test_batterieresponse_BatterieError(battery_charging: Batterie) -> None:
@@ -97,7 +121,11 @@ async def test_batterieresponse_BatterieError(battery_charging: Batterie) -> Non
     response = await _batterie.validate_token()
 
     assert isinstance(response, BatterieResponse) is True
-    assert response == BatterieResponse(version='1.14.5', last_updated=datetime.datetime(2023, 11, 20, 17, 0), configurations={'EM_RE_ENABLE_MICROGRID': 'False', 'NVM_PfcIsFixedCosPhiActive': 0, 'NVM_PfcFixedCosPhi': 0.8, 'IC_BatteryModules': 4, 'EM_ToU_Schedule': [], 'DE_Software': '1.14.5', 'EM_USER_INPUT_TIME_ONE': 0, 'NVM_PfcIsFixedCosPhiLagging': 0, 'EM_Prognosis_Charging': 1, 'EM_USOC': 20, 'EM_USER_INPUT_TIME_TWO': 0, 'EM_OperatingMode': '2', 'SH_HeaterTemperatureMax': 80, 'SH_HeaterOperatingMode': 0, 'IC_InverterMaxPower_w': 5000, 'SH_HeaterTemperatureMin': 0, 'CM_MarketingModuleCapacity': 5000, 'EM_USER_INPUT_TIME_THREE': 0, 'CN_CascadingRole': 'none', 'EM_US_GEN_POWER_SET_POINT': 0, 'DepthOfDischargeLimit': 93})
+    assert response == BatterieResponse(
+        version='1.14.5',
+        last_updated=datetime.datetime(2023, 11, 20, 17, 0),
+        configurations=__mock_configurations()
+    )
 
     with pytest.raises(BatterieError, match='BatterieBackup: Error updating batterie data!'):
         await _batterie.refresh_response()
@@ -105,11 +133,11 @@ async def test_batterieresponse_BatterieError(battery_charging: Batterie) -> Non
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("battery_charging")
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth401)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth500)
 async def test_batterieresponse_BatterieHTTPError(battery_charging: Batterie) -> None:
-    """Batterie 401 Response using mock data"""
+    """Batterie 500 Response using mock data"""
 
     _batterie = BatterieBackup('fakeToken', 'fakeHost')
 
-    with pytest.raises(BatterieHTTPError, match='BatterieBackup: Error updating batterie data!'):
+    with pytest.raises(BatterieHTTPError, match='HTTP Error fetching endpoint "http://fakeHost:80/api/v2/configurations" status: 500'):
         await _batterie.validate_token()
