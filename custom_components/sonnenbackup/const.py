@@ -36,6 +36,8 @@ MANUFACTURER = "Sonnen GmbH"
 DEFAULT_SCAN_INTERVAL = 10
 ATTR_SONNEN_DEBUG = "sonnenbackup_debug"
 DEFAULT_PORT = 80
+MIN_PORT = 1
+MAX_PORT = 49151 # below ephemeral range
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 

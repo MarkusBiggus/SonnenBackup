@@ -39,28 +39,31 @@ from .const import (
     _CONFIG_SCHEMA,
     _OPTIONS_SCHEMA,
     DEFAULT_PORT,
+    MIN_PORT,
+    MAX_PORT,
     )
 
-DOMAIN = "sonnenbackup"
-CONFIG_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_IP_ADDRESS): cv.string,
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
-        vol.Required(CONF_API_TOKEN): cv.string,
-        "details": section(
-#            {'fields':
-                vol.Schema(
-                    {
-                        vol.Required(CONF_MODEL): cv.string,
-                        vol.Required(CONF_DEVICE_ID): cv.string,
-                    }
-                ),
-#            },
-        # Whether or not the section is initially collapsed (default = False)
-            {"collapsed": False},
-        )
-    }
-)
+DOMAIN = _DOMAIN #"sonnenbackup"
+CONFIG_SCHEMA = _CONFIG_SCHEMA
+# CONFIG_SCHEMA = vol.Schema(
+#     {
+#         vol.Required(CONF_IP_ADDRESS): cv.string,
+#         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
+#         vol.Required(CONF_API_TOKEN): cv.string,
+#         "details": section(
+# #            {'fields':
+#                 vol.Schema(
+#                     {
+#                         vol.Required(CONF_MODEL): cv.string,
+#                         vol.Required(CONF_DEVICE_ID): cv.string,
+#                     }
+#                 ),
+# #            },
+#         # Whether or not the section is initially collapsed (default = False)
+#             {"collapsed": False},
+#         )
+#     }
+# )
 OPTIONS_SCHEMA = _OPTIONS_SCHEMA
 
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
@@ -74,7 +77,7 @@ async def _validate_api(user_input) -> bool:
     _batterie = Batterie(
         user_input[CONF_API_TOKEN],
         user_input[CONF_IP_ADDRESS],
-        user_input[CONF_PORT],
+        int(user_input[CONF_PORT]),
     )
     try:
         success = await _batterie.async_validate_token()
@@ -113,32 +116,47 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors=errors
             )
 
-        serial_number = user_input['details'][CONF_DEVICE_ID]
-        batterie_model = user_input['details'][CONF_MODEL]
-    #    _LOGGER.info(f'user_input: {user_input}')
+        # Check if the IP address is a valid IPv4 address.
+        # try:
+        #     IPv4Address(user_input[CONF_IP_ADDRESS])
+        # except AddressValueError:
+        #     errors["base"] = "invalid_ip"
 
+        # Check if is a valid port number
         try:
-            await _validate_api(user_input)
-        except InvalidAuth as error:
-            errors["base"] = 'invalid_auth'
+            input_port = int(user_input[CONF_PORT])
+            if not (MIN_PORT <= input_port <= MAX_PORT):
+                errors["base"] = "invalid_port"
+                placeholders["error_detail"] = f'Port must be at least {MIN_PORT} and no more than {MAX_PORT}, below the ephemeral port range.'
+        except ValueError as error:
+            errors["base"] = "invalid_port"
             placeholders["error_detail"] = f'{str(error)}'
-        except DeviceAPIError as error:
-            errors["base"] = 'device_api_error'
-            placeholders["error_detail"] = f'{str(error)}'
-        except (ConnectionError, CannotConnect) as error:
-            errors["base"] = 'cannot_connect'
-            placeholders["error_detail"] = f'{str(error)}'
-        except Exception as error:
-            _LOGGER.exception('Unexpected exception')
-            errors["base"] = "unknown"
-            placeholders["error_detail"] = f'{str(error)}'
-        else:
-            await self.async_set_unique_id(serial_number)
-            self._abort_if_unique_id_configured()
-            return self.async_create_entry(
-                title=f'SonnenBackup {batterie_model} ({serial_number})',
-                data=user_input
-            )
+
+        if errors == {}:
+            try:
+                await _validate_api(user_input)
+            except InvalidAuth as error:
+                errors["base"] = 'invalid_auth'
+                placeholders["error_detail"] = f'{str(error)}'
+            except DeviceAPIError as error:
+                errors["base"] = 'device_api_error'
+                placeholders["error_detail"] = f'{str(error)}'
+            except (ConnectionError, CannotConnect) as error:
+                errors["base"] = 'cannot_connect'
+                placeholders["error_detail"] = f'{str(error)}'
+            except Exception as error:
+                _LOGGER.exception('Unexpected exception')
+                errors["base"] = "unknown"
+                placeholders["error_detail"] = f'{str(error)}'
+            else:
+                serial_number = user_input['details'][CONF_DEVICE_ID]
+                batterie_model = user_input['details'][CONF_MODEL]
+                await self.async_set_unique_id(serial_number)
+                self._abort_if_unique_id_configured()
+                return self.async_create_entry(
+                    title=f'SonnenBackup {batterie_model} ({serial_number})',
+                    data=user_input
+                )
 
         return self.async_show_form(
             step_id="user",
@@ -147,11 +165,12 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             description_placeholders=placeholders
         )
 
-    async def validate_user_input(self, SchemaCommonFlowHandler , user_input: dict[str, Any] | None = None
+    async def async_validate_user_input(self, SchemaCommonFlowHandler , user_input: dict[str, Any] | None = None
     ) -> None:
         """Validate user input."""
 
         _LOGGER.info(" config_flow validate input")
+
     #    ValidIpAddressRegex = r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
         ValidIpAddressRegex = r"^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$"
         ValidHostnameRegex = r"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
@@ -167,78 +186,78 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
         raise (SchemaFlowError, f'Invalid IP address: {ip}')
 
 
-    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None
-    ): # -> ConfigFlowResult:
-        """Handle the reconfiguration step."""
+    # async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None
+    # ): # -> ConfigFlowResult:
+    #     """Handle the reconfiguration step."""
 
-        _LOGGER.info(" config_flow reconfigure")
-        errors: dict[str, Any] = {}
-        placeholders: dict[str, Any] = {}
-        if user_input is None:
-            config = self._get_reconfigure_entry().data
-            placeholders = {
-                'ip':config[CONF_IP_ADDRESS],
-                'port':config[CONF_IP_ADDRESS],
-                'token': config[CONF_API_TOKEN],
-                'model': config[CONF_MODEL],
-                'device_id': config[CONF_DEVICE_ID],
-            }
-            return self.async_show_form(
-                step_id="reconfigure",
-                data_schema=vol.Schema(
-                    {
-                        vol.Required(CONF_IP_ADDRESS, default=placeholders['ip']): cv.string,
-                        vol.Required(CONF_PORT, default=placeholders['port']): cv.port,
-                        vol.Required(CONF_API_TOKEN, default=placeholders['token']): cv.string,
-                        "details": section(
-                            {'fields':
-                                vol.Schema(
-                                    {
-                                        vol.Required(CONF_MODEL, default=placeholders['model']): cv.string,
-                                    }
-                                )
-                            },
-                            {"collapsed": False},
-                        )
-                    }
-                ),
-                description_placeholders=placeholders,
-                errors=errors
-            )
+    #     _LOGGER.info(" config_flow reconfigure")
+    #     errors: dict[str, Any] = {}
+    #     placeholders: dict[str, Any] = {}
+    #     if user_input is None:
+    #         config = self._get_reconfigure_entry().data
+    #         placeholders = {
+    #             'ip':config[CONF_IP_ADDRESS],
+    #             'port':config[CONF_PORT],
+    #             'token': config[CONF_API_TOKEN],
+    #             'model': config[CONF_MODEL],
+    #             'device_id': config[CONF_DEVICE_ID],
+    #         }
+    #         return self.async_show_form(
+    #             step_id="reconfigure",
+    #             data_schema=vol.Schema(
+    #                 {
+    #                     vol.Required(CONF_IP_ADDRESS, default=placeholders['ip']): cv.string,
+    #                     vol.Required(CONF_PORT, default=placeholders['port']): cv.port,
+    #                     vol.Required(CONF_API_TOKEN, default=placeholders['token']): cv.string,
+    #                     "details": section(
+    #                         {'fields':
+    #                             vol.Schema(
+    #                                 {
+    #                                     vol.Required(CONF_MODEL, default=placeholders['model']): cv.string,
+    #                                 }
+    #                             )
+    #                         },
+    #                         {"collapsed": False},
+    #                     )
+    #                 }
+    #             ),
+    #             description_placeholders=placeholders,
+    #             errors=errors
+    #         )
 
-        serial_number = user_input[CONF_DEVICE_ID] # can't be changed!
-        batterie_model = user_input[CONF_MODEL]
+    #     serial_number = user_input[CONF_DEVICE_ID] # can't be changed!
+    #     batterie_model = user_input[CONF_MODEL]
 
-        try:
-            await _validate_api(user_input)
-        except InvalidAuth as error:
-            errors["base"] = 'invalid_auth'
-            placeholders["error_detail"] = f'{str(error)}'
-        except DeviceAPIError as error:
-            errors["base"] = 'device_api_error'
-            placeholders["error_detail"] = f'{str(error)}'
-        except (ConnectionError, CannotConnect) as error:
-            errors["base"] = 'cannot_connect'
-            placeholders["error_detail"] = f'{str(error)}'
-        except Exception as error:
-            _LOGGER.exception(f'Unexpected exception: {str(error)}')
-            errors["base"] = "unknown"
-            placeholders["error_detail"] = f'{str(error)}'
-        else:
-            self.async_set_unique_id(serial_number)
-            self._abort_if_unique_id_mismatch()
-            return self.async_update_reload_and_abort(
-                self._get_reconfigure_entry(),
-                title=f'SonnenBackup {batterie_model} ({serial_number})',
-                data_updates=user_input,
-            )
+    #     try:
+    #         await _validate_api(user_input)
+    #     except InvalidAuth as error:
+    #         errors["base"] = 'invalid_auth'
+    #         placeholders["error_detail"] = f'{str(error)}'
+    #     except DeviceAPIError as error:
+    #         errors["base"] = 'device_api_error'
+    #         placeholders["error_detail"] = f'{str(error)}'
+    #     except (ConnectionError, CannotConnect) as error:
+    #         errors["base"] = 'cannot_connect'
+    #         placeholders["error_detail"] = f'{str(error)}'
+    #     except Exception as error:
+    #         _LOGGER.exception(f'Unexpected exception: {str(error)}')
+    #         errors["base"] = "unknown"
+    #         placeholders["error_detail"] = f'{str(error)}'
+    #     else:
+    #         self.async_set_unique_id(serial_number)
+    #         self._abort_if_unique_id_mismatch()
+    #         return self.async_update_reload_and_abort(
+    #             self._get_reconfigure_entry(),
+    #             title=f'SonnenBackup {batterie_model} ({serial_number})',
+    #             data_updates=user_input,
+    #         )
 
-        return self.async_show_form(
-            step_id="reconfigure",
-            data_schema=CONFIG_SCHEMA,
-            errors=errors,
-            description_placeholders=placeholders
-        )
+    #     return self.async_show_form(
+    #         step_id="reconfigure",
+    #         data_schema=CONFIG_SCHEMA,
+    #         errors=errors,
+    #         description_placeholders=placeholders
+    #     )
 
     @staticmethod
     @callback
@@ -259,6 +278,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
 
+        _LOGGER.info(" config_options step_init")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 

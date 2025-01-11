@@ -4,33 +4,53 @@ from __future__ import annotations
 
 from datetime import timedelta
 import logging
-#import json
+import voluptuous as vol
 
 from sonnen_api_v2 import BatterieResponse, BatterieBackup, BatterieAuthError, BatterieHTTPError, BatterieError
 
+from homeassistant.data_entry_flow import section
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_IP_ADDRESS,
     CONF_API_TOKEN,
     CONF_PORT,
+    CONF_MODEL,
     CONF_DEVICE_ID,
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed
+import homeassistant.helpers.config_validation as cv
 
 from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupAPI
 
 from .const import (
-    _DOMAIN,
-    _CONFIG_SCHEMA,
     PLATFORMS,
     DEFAULT_SCAN_INTERVAL,
-    )
+    DEFAULT_PORT
+)
 
 DOMAIN = "sonnenbackup"
-CONFIG_SCHEMA = _CONFIG_SCHEMA
+CONFIG_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_IP_ADDRESS): cv.string,
+        vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
+        vol.Required(CONF_API_TOKEN): cv.string,
+        "details": section(
+#            {'fields':
+                vol.Schema(
+                    {
+                        vol.Required(CONF_MODEL): cv.string,
+                        vol.Required(CONF_DEVICE_ID): cv.string,
+                    }
+                ),
+#            },
+        # Whether or not the section is initially collapsed (default = False)
+            {"collapsed": False},
+        )
+    }
+)
 
 SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 

@@ -5,16 +5,17 @@
 
 import pytest
 from unittest.mock import patch, AsyncMock
-from responses import Response
-
+#from responses import Response
+import logging
 import datetime
 import urllib3
+from  voluptuous.error import MultipleInvalid
 
 from sonnen_api_v2 import Batterie, BatterieBackup, BatterieResponse
 from .mock_sonnenbatterie_v2_charging import __mock_configurations
 from .mock_battery_responses import __battery_configurations_auth200
 
-from homeassistant import config_entries
+from homeassistant import config_entries, data_entry_flow
 # from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth
 # from homeassistant.components.sonnenbackup.const import DOMAIN
 from homeassistant.const import (
@@ -26,12 +27,16 @@ from homeassistant.const import (
         CONF_SCAN_INTERVAL,
         )
 from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.data_entry_flow import FlowResultType, InvalidData
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.sonnenbackup.config_flow import CannotConnect, InvalidAuth, DeviceAPIError
-from custom_components.sonnenbackup.const import _DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
+from custom_components.sonnenbackup.const import (
+    _DOMAIN,
+    DEFAULT_SCAN_INTERVAL,
+    DEFAULT_PORT,
+)
 
 DOMAIN = _DOMAIN
 
@@ -49,9 +54,10 @@ CONFIG_OPTIONS = {
     "sonnen_debug": True,
 }
 
+logging.getLogger('asyncio').setLevel(logging.ERROR)
 
 @patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
-async def test_form(hass: HomeAssistant) -> None:
+async def test_form_works(hass: HomeAssistant) -> None:
     """Test we get the form."""
 
     result = await hass.config_entries.flow.async_init(
@@ -366,6 +372,74 @@ async def test_config_flow_fail_non_unique(
 #    print(f'result: {dict(result)}')
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "already_configured"
+
+@pytest.mark.asyncio
+async def test_form_invalid_port(hass: HomeAssistant) -> None:
+    """Various kinds of invalid port numbers."""
+
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+
+#     with patch(
+# #        "custom_components.sonnenbackup.config_flow",
+# #        "homeassistant.data_entry_flow",
+#         "homeassistant.config_entries.ConfigEntriesFlowManager._async_configure",
+# #        "voluptuous.error",
+#         side_effect=InvalidData,
+# #        side_effect=MultipleInvalid,
+#     ):
+#         result = await hass.config_entries.flow.async_configure(
+#             result["flow_id"],
+#             {
+#                 CONF_IP_ADDRESS: "1.1.1.1",
+#                 CONF_PORT: 99999, # above 65535
+#                 CONF_API_TOKEN: "fakeToken-111-222-4444-3333",
+#                 "details": {
+#                     CONF_MODEL: 'Power unit Evo IP56',
+#                     CONF_DEVICE_ID: "321123"
+#                 }
+#             }
+#         )
+
+#     assert result["errors"] == {"base": "invalid_port"}
+
+    # with patch(
+    #     "custom_components.sonnenbackup.config_flow",
+    #     side_effect=InvalidData,
+    # ):
+    #     result = await hass.config_entries.flow.async_configure(
+    #         result["flow_id"],
+    #         {
+    #             CONF_IP_ADDRESS: "1.1.1.1",
+    #             CONF_PORT: '9ABC8', # hexadecimal
+    #             CONF_API_TOKEN: "fakeToken-111-222-4444-3333",
+    #             "details": {
+    #                 CONF_MODEL: 'Power unit Evo IP56',
+    #                 CONF_DEVICE_ID: "321123"
+    #             }
+    #         }
+    #     )
+
+    # assert result["errors"] == {"base": "invalid_port"}
+
+    # if result.get("errors", {}) != {"base": "invalid_port"}:
+    #     msg = "Expected invalid port error."
+    #     raise ValueError(msg)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            CONF_IP_ADDRESS: "1.1.1.1",
+            CONF_PORT: 59999,# above 49151 (ephemeral port)
+            CONF_API_TOKEN: "fakeToken-111-222-4444-3333",
+            "details": {
+                CONF_MODEL: 'Power unit Evo IP56',
+                CONF_DEVICE_ID: "321123"
+            }
+        }
+    )
+    assert result["errors"] == {"base": "invalid_port"}
+
 
 
 @pytest.mark.asyncio
