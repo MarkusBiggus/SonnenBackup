@@ -51,7 +51,7 @@ CONFIG_DATA = {
 }
 CONFIG_OPTIONS = {
     CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
-    "sonnen_debug": True,
+    "sonnenbackup_debug": True,
 }
 
 logging.getLogger('asyncio').setLevel(logging.ERROR)
@@ -76,6 +76,8 @@ async def test_form_works(hass: HomeAssistant) -> None:
         CONFIG_DATA,
     )
     await hass.async_block_till_done()
+
+    print(f'result: {dict(result)}')
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
@@ -279,7 +281,7 @@ async def test_options_flow(
         result["flow_id"],
         user_input={
             CONF_SCAN_INTERVAL: 2,
-            "sonnen_debug": True,
+            "sonnenbackup_debug": True,
         }
     )
     assert FlowResultType.FORM == result["type"]
@@ -288,7 +290,7 @@ async def test_options_flow(
     assert result["description_placeholders"]["error_detail"] == 'Scan interval "2" must be at least 3 seconds and no more than 120.'
     # assert {
     #         CONF_SCAN_INTERVAL: 2,
-    #         "sonnen_debug": True,
+    #         "sonnenbackup_debug": True,
     #         } == result["data"]
     #print(f'result: {dict(result)}')
 
@@ -297,7 +299,7 @@ async def test_options_flow(
         result["flow_id"],
         user_input={
             CONF_SCAN_INTERVAL: 200,
-            "sonnen_debug": True,
+            "sonnenbackup_debug": True,
         }
     )
     assert FlowResultType.FORM == result["type"]
@@ -306,7 +308,7 @@ async def test_options_flow(
     assert result["description_placeholders"]["error_detail"] == 'Scan interval "200" must be at least 3 seconds and no more than 120.'
     # assert {
     #         CONF_SCAN_INTERVAL: 2,
-    #         "sonnen_debug": True,
+    #         "sonnenbackup_debug": True,
     #         } == result["data"]
     #print(f'result: {dict(result)}')
 
@@ -369,7 +371,7 @@ async def test_config_flow_fail_non_unique(
         result["flow_id"], CONFIG_DATA
     )
 
-#    print(f'result: {dict(result)}')
+    #print(f'result: {dict(result)}')
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "already_configured"
 
@@ -458,6 +460,8 @@ async def test_options_flow_works(
     )
     await hass.async_block_till_done()
 
+    print(f'result: {dict(result)}')
+
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == CONFIG_DATA
@@ -465,6 +469,7 @@ async def test_options_flow_works(
     # show initial form
     config_entry:config_entries.ConfigEntry = result["result"]
     result = await hass.config_entries.options.async_init(config_entry.entry_id)
+
     assert FlowResultType.FORM == result["type"]
     assert "init" == result["step_id"]
     assert {} == result["errors"]
@@ -474,6 +479,9 @@ async def test_options_flow_works(
         result["flow_id"],
         user_input=CONFIG_OPTIONS
     )
+
+    print(f'result: {dict(result)}')
+
     assert FlowResultType.CREATE_ENTRY == result["type"]
     assert "" == result["title"]
     assert result["result"] is True
@@ -485,6 +493,6 @@ async def test_options_flow_works(
         config_entry,
         options=result["data"]
     )
-    #print(f'config: {config_entry.as_dict()}')
+    print(f'config: {config_entry.as_dict()}')
     assert config_entry.options == result["data"]
     assert config_entry.data == CONFIG_DATA

@@ -34,6 +34,9 @@ from homeassistant.const import (
 _DOMAIN = "sonnenbackup"
 MANUFACTURER = "Sonnen GmbH"
 DEFAULT_SCAN_INTERVAL = 10
+MIN_SCAN_INTERVAL = 2
+MAX_SCAN_INTERVAL = 120
+
 ATTR_SONNEN_DEBUG = "sonnenbackup_debug"
 DEFAULT_PORT = 80
 MIN_PORT = 1
@@ -63,8 +66,11 @@ _CONFIG_SCHEMA = vol.Schema(
 
 _OPTIONS_SCHEMA = vol.Schema(
     {
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.Number,
-        vol.Required("sonnen_debug", default=False): cv.boolean
+        vol.Optional(CONF_SCAN_INTERVAL,
+                     vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),
+                     default=DEFAULT_SCAN_INTERVAL,
+                    ): cv.Number,
+        vol.Required("sonnenbackup_debug", default=False): cv.boolean
     }
 )
 

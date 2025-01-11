@@ -41,9 +41,12 @@ from .const import (
     DEFAULT_PORT,
     MIN_PORT,
     MAX_PORT,
+    MIN_SCAN_INTERVAL,
+    MAX_SCAN_INTERVAL,
     )
 
 DOMAIN = _DOMAIN #"sonnenbackup"
+OPTIONS_SCHEMA = _OPTIONS_SCHEMA
 CONFIG_SCHEMA = _CONFIG_SCHEMA
 # CONFIG_SCHEMA = vol.Schema(
 #     {
@@ -64,7 +67,6 @@ CONFIG_SCHEMA = _CONFIG_SCHEMA
 #         )
 #     }
 # )
-OPTIONS_SCHEMA = _OPTIONS_SCHEMA
 
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
@@ -102,7 +104,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ):# -> ConfigFlowResult:
+    ) -> ConfigFlowResult:
         """Handle the initial step."""
 
         _LOGGER.info(" config_flow user")
@@ -155,7 +157,15 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
                     title=f'SonnenBackup {batterie_model} ({serial_number})',
-                    data=user_input
+                    data={
+                        CONF_IP_ADDRESS: user_input[CONF_IP_ADDRESS],
+                        CONF_PORT: user_input[CONF_PORT],
+                        CONF_API_TOKEN: user_input[CONF_API_TOKEN],
+                        "details": {
+                            CONF_MODEL: user_input["details"][CONF_MODEL],
+                            CONF_DEVICE_ID: user_input["details"][CONF_DEVICE_ID]
+                        }
+                    }
                 )
 
         return self.async_show_form(
@@ -187,7 +197,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
     # async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None
-    # ): # -> ConfigFlowResult:
+    # ) -> ConfigFlowResult:
     #     """Handle the reconfiguration step."""
 
     #     _LOGGER.info(" config_flow reconfigure")
@@ -261,13 +271,16 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: SonnenBackupConfigEntry):
+    def async_get_options_flow(config_entry: SonnenBackupConfigEntry
+    ) -> OptionsFlow:
+        """Create the options flow."""
+
         return SonnenBackupOptionsFlow(config_entry)
 
 class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
 
-    def __init__(self, config_entry):
+    def __init__(self, config_entry) -> None:
         """Initialize options flow."""
 
         _LOGGER.info(' config_options')
@@ -277,6 +290,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        """Handle options flow."""
 
         _LOGGER.info(" config_options step_init")
         errors: dict[str, Any] = {}
@@ -285,30 +299,32 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         if user_input is None:
             return self.async_show_form(
                 step_id="init",
-                data_schema = _OPTIONS_SCHEMA,
-                #     self.add_suggested_values_to_schema(
-                #     _OPTIONS_SCHEMA,
-                #     self.options
-                # ),
+                data_schema = #OPTIONS_SCHEMA,
+                    self.add_suggested_values_to_schema(
+                    OPTIONS_SCHEMA,
+                    self.options
+                ),
                 errors=errors
             )
 
-        if user_input[CONF_SCAN_INTERVAL] > 2 and user_input[CONF_SCAN_INTERVAL] < 121:
-        #    print(f'options input: {dict(user_input)}')
+        if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL or user_input[CONF_SCAN_INTERVAL] > MAX_SCAN_INTERVAL:
             return self.async_create_entry(
                 title='',
-                data=user_input
+                data={
+                    CONF_SCAN_INTERVAL: user_input[CONF_SCAN_INTERVAL],
+                    "sonnenbackup_debug": user_input["sonnenbackup_debug"]
+                }
             )
 
         """Invalid scan_interval"""
         errors["base"] = 'invalid_interval'
-        placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least 3 seconds and no more than 120.'
-        user_input[CONF_SCAN_INTERVAL] = 3 if user_input[CONF_SCAN_INTERVAL] < 3 else 120
+        placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least {MIN_SCAN_INTERVAL} seconds and no more than {MAX_SCAN_INTERVAL}.'
+        user_input[CONF_SCAN_INTERVAL] = MIN_SCAN_INTERVAL if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL else MAX_SCAN_INTERVAL
 
         return self.async_show_form(
             step_id="init",
             data_schema = self.add_suggested_values_to_schema(
-                _OPTIONS_SCHEMA,
+                OPTIONS_SCHEMA,
                 user_input
             ),
             errors=errors,

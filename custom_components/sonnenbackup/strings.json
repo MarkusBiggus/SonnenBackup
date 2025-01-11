@@ -38,7 +38,7 @@
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
       "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
       "device_api_error": "Device HTTP error. {error_detail}",
-      "invalid_port": "Invalid port number. Must be between 0 and 65535.",
+      "invalid_port": "Invalid port number. Must be between 1 and 49151.",
       "unknown": "[%key:common::config_flow::error::unknown%]"
     }
   }

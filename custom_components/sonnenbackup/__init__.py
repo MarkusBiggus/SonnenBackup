@@ -21,12 +21,16 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity import Entity
 import homeassistant.helpers.config_validation as cv
 
 from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupAPI
 
 from .const import (
     PLATFORMS,
+    MANUFACTURER,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_PORT
 )
@@ -113,7 +117,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     )
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
 
-    hass_data = dict(config_entry.data)
+    hass_data = dict(config_entry.data[DOMAIN][config_entry.entry_id])
     # Registers update listener to update config entry when options are updated.
     unsub_options_update_listener = config_entry.add_update_listener(options_update_listener)
     # Store a reference to the unsubscribe function to cleanup if an entry is unloaded.
@@ -144,3 +148,30 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConf
             config_data["unsub_options_update_listener"]()
 
     return unload_ok
+
+# class SonnenBackupUpdatableEntity(Entity):
+#     """Base entity for SonnenBackup."""
+
+#     _attr_should_poll = False
+
+#     def __init__(self, device: BatterieBackup) -> None:
+#         """Initialize a SonnenBackup entity."""
+#         self._device = device
+#         self._attr_name = config_entry.model
+#         self._attr_available = device.available
+#         self._attr_unique_id = config_entry.serial_number
+#         self._device_name = config_entry.model
+#         self._device_manufacturer = MANUFACTURER
+#         self._device_id = config_entry.serial_number
+#         info = DeviceInfo(
+#             identifiers={(DOMAIN, str(device.unique_id))},
+#             manufacturer=MANUFACTURER,
+#             name=self._attr_name,
+# #            suggested_area=device.zone,
+#         )
+#         self._attr_device_info = info
+
+#     @property
+#     def available(self) -> bool:
+#         """Check availability of the device."""
+#         return self._attr_available
