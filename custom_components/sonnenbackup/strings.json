@@ -8,9 +8,15 @@
           "ip_address": "[%key:common::config_flow::data::ip%]",
           "port": "[%key:common::config_flow::data::port%]",
           "api_token": "[%key:common::config_flow::data::api_token%]",
-          "details": {
-            "model":"Model",
-            "device_id": "Serial Number"
+          "section": {
+             "details": {
+               "name": "Device Details",
+               "data": {
+                 "model":"Model",
+                 "device_id": "Serial Number"
+                }
+              }
+
           }
         }
       }
