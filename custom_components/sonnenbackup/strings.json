@@ -8,8 +8,8 @@
           "ip_address": "[%key:common::config_flow::data::ip%]",
           "port": "[%key:common::config_flow::data::port%]",
           "api_token": "[%key:common::config_flow::data::api_token%]",
-          "section": {
-             "details": {
+          "sections": {
+             "detail": {
                "name": "Device Details",
                "data": {
                  "model":"Model",

@@ -16,6 +16,7 @@ from .mock_sonnenbatterie_v2_charging import __mock_configurations
 from .mock_battery_responses import __battery_configurations_auth200
 
 from homeassistant import config_entries, data_entry_flow
+from homeassistant.config_entries import ConfigEntryState
 # from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth
 # from homeassistant.components.sonnenbackup.const import DOMAIN
 from homeassistant.const import (
@@ -80,6 +81,7 @@ async def test_form_works(hass: HomeAssistant) -> None:
     print(f'result: {dict(result)}')
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["state"] == ConfigEntryState.LOADED
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == CONFIG_DATA
 #    assert len(mock_setup_entry.mock_calls) == 1
