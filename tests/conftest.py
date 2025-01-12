@@ -1,4 +1,4 @@
-"""Common fixtures for the SonnenBackup tests."""
+"""Common fixtures for SonnenBackup tests."""
 
 from sonnen_api_v2 import Batterie
 
@@ -7,7 +7,8 @@ from collections.abc import Generator
 from unittest.mock import AsyncMock, patch
 
 import pytest
-# from tests.common import MockConfigEntry
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
 # from homeassistant.const import (
 #         CONF_IP_ADDRESS,
 #         CONF_API_TOKEN,
@@ -17,9 +18,10 @@ import pytest
 #         CONF_SCAN_INTERVAL,
 #         )
 
-# from custom_components.sonnenbackup.const import DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
-from . mock_sonnenbatterie_v2_charging import __mock_status_charging, __mock_latest_charging, __mock_configurations, __mock_battery, __mock_powermeter, __mock_inverter
+from custom_components.sonnenbackup.const import _DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
+from .mock_sonnenbatterie_v2_charging import __mock_status_charging, __mock_latest_charging, __mock_configurations, __mock_battery, __mock_powermeter, __mock_inverter
 
+DOMAIN = _DOMAIN
 
 @pytest.fixture
 def mock_setup_entry() -> Generator[AsyncMock]:
@@ -29,6 +31,23 @@ def mock_setup_entry() -> Generator[AsyncMock]:
         "custom_components.sonnenbackup.async_setup_entry", return_value=True
     ) as mock_setup_entry:
         yield mock_setup_entry
+
+@pytest.fixture
+def mock_config_entry() -> MockConfigEntry:
+    """Set standard MockConfigEntry with an existing unique_id."""
+    return MockConfigEntry(
+        domain=DOMAIN,
+        title="sonnenbackup Test Entry",
+        data={
+            "host": "127.0.0.1",
+            "port": 80,
+            "protocol": "TCP",
+        },
+        options={},
+        entry_id="test_entry_id",
+        unique_id="already_has_id",
+    )
+
 
 @pytest.fixture(autouse=True)
 def auto_enable_custom_integrations(enable_custom_integrations):

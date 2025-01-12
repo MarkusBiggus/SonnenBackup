@@ -15,6 +15,7 @@ from .mock_sonnenbatterie_v2_charging import __mock_configurations
 from .mock_batterieresponse import __mock_batterieresponse
 
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntryState
 # from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth
 # from homeassistant.components.sonnenbackup.const import DOMAIN
 from homeassistant.const import (
@@ -31,8 +32,15 @@ from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.sonnenbackup.config_flow import CannotConnect, InvalidAuth, DeviceAPIError
-from custom_components.sonnenbackup.const import DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
+from custom_components.sonnenbackup.const import _DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
+from .mock_battery_responses import (
+    __battery_auth200,
+    # __battery_AuthError_401,
+    # __battery_AuthError_403,
+    # __battery_HTTPError_301,
+)
 
+DOMAIN = _DOMAIN
 CONFIG_DATA = {
     CONF_IP_ADDRESS: "1.1.1.1",
     CONF_PORT: DEFAULT_PORT,
@@ -48,25 +56,15 @@ CONFIG_OPTIONS = {
 }
 
 
-def __battery_configurations(self, _method, _url, _body, _headers, _retries):
-    """Mock configurations to validate Auth naturally."""
-    resp = Response(
-        method=_method, #'GET',
-        url=_url, #(f'http://fakeHost:80/api/v2/configurations'),
-        json=__mock_configurations(),
-        status=200,
-        headers=_headers,
-    )
-    return resp
-
-
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
 async def test_form(hass: HomeAssistant) -> None:
-    """Test we get the form."""
+    """Test the form works."""
 
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
+
+    print(f'result: {result}')
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
     assert result["errors"] == {}
@@ -81,17 +79,21 @@ async def test_form(hass: HomeAssistant) -> None:
     )
     await hass.async_block_till_done()
 
+#    print(f'result: {result}')
+#    config_entry = getattr(hass.config_entries, self.domain)
+#    assert config_entry.state == ConfigEntryState.LOADED
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == CONFIG_DATA
+    config_entry = result["result"]
+    assert config_entry.state == ConfigEntryState.LOADED
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
-async def test_form_invalid_auth(
-    hass: HomeAssistant
-) -> None:
-    """Test we handle invalid auth."""
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
+async def test_form_invalid_auth(hass: HomeAssistant) -> None:
+    """Test invalid auth."""
+
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
@@ -126,14 +128,16 @@ async def test_form_invalid_auth(
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == CONFIG_DATA
+
+    config_entry = result["result"]
+    assert config_entry.state == ConfigEntryState.LOADED
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
-async def test_form_cannot_connect(
-    hass: HomeAssistant
-) -> None:
-    """Test we handle cannot connect error."""
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
+async def test_form_cannot_connect(hass: HomeAssistant) -> None:
+    """Test cannot connect error."""
+
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
@@ -168,14 +172,16 @@ async def test_form_cannot_connect(
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == CONFIG_DATA
+
+    config_entry = result["result"]
+    assert config_entry.state == ConfigEntryState.LOADED
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
-async def test_form_device_error(
-    hass: HomeAssistant
-) -> None:
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
+async def test_form_device_error(hass: HomeAssistant) -> None:
     """Test we handle device API HTTP error."""
+
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
@@ -210,14 +216,18 @@ async def test_form_device_error(
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == CONFIG_DATA
+
+    config_entry = result["result"]
+    assert config_entry.state == ConfigEntryState.LOADED
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
 @pytest.mark.asyncio
 #@patch.object(Batterie, 'fetch_configurations', __mock_configurations)
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
 async def test_form_mocked(hass: HomeAssistant) -> None:
-    """Test we get the form."""
+    """Test the form with mock validaton."""
+
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
@@ -237,16 +247,18 @@ async def test_form_mocked(hass: HomeAssistant) -> None:
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == CONFIG_DATA
+
+    config_entry = result["result"]
+    assert config_entry.state == ConfigEntryState.LOADED
+
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
 @pytest.mark.asyncio
 #@patch.object(BatterieBackup, "refresh_response", __mock_batterieresponse)
 #@patch.object(BatterieBackup, "validate_token", __mock_batterieresponse)
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
-async def test_options_flow(
-        hass: HomeAssistant
-) -> None:
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
+async def test_options_flow(hass: HomeAssistant) -> None:
     """Test config flow options."""
 
     # config_entry = MockConfigEntry(
@@ -273,6 +285,8 @@ async def test_options_flow(
 
     # show initial form
     config_entry:config_entries.ConfigEntry = result["result"]
+    assert config_entry.state == ConfigEntryState.LOADED
+
     result = await hass.config_entries.options.async_init(config_entry.entry_id)
     assert FlowResultType.FORM == result["type"]
     assert "init" == result["step_id"]
@@ -334,11 +348,9 @@ async def test_options_flow(
     assert config_entry.data == CONFIG_DATA
 
 @pytest.mark.asyncio
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
-async def test_config_flow_fail_non_unique(
-    hass: HomeAssistant
-) -> None:
-    """Test that the config flow fails when user tries to add duplicate batterie."""
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
+async def test_config_flow_fail_non_unique(hass: HomeAssistant) -> None:
+    """Test config flow fails adding duplicate batterie."""
 
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -379,11 +391,9 @@ async def test_config_flow_fail_non_unique(
 
 
 @pytest.mark.asyncio
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations)
-async def test_options_flow_works(
-        hass: HomeAssistant
-) -> None:
-    """Test config flow options."""
+@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
+async def test_options_flow_works(hass: HomeAssistant) -> None:
+    """Test config flow options work."""
 
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}

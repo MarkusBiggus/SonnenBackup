@@ -24,13 +24,14 @@ from homeassistant.helpers.typing import (
     ConfigType,
     DiscoveryInfoType,
 )
-from .const import DOMAIN, MANUFACTURER, SENSOR_DESCRIPTIONS
+from .const import _DOMAIN, MANUFACTURER, SENSOR_DESCRIPTIONS
 from .coordinator import SonnenBackupAPI
 from .PowerUnitEVO import PowerUnitEVO
 
 #from . import SonnenConfigEntry
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
+DOMAIN = _DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(

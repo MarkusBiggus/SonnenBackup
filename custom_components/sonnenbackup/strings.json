@@ -8,41 +8,41 @@
       "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
     },
     "error": {
-      "cannot_connect": "[%key:component::config:::error::cannot_connect%]",
-      "invalid_api_key": "[%key:component::config:::error::invalid_api_key%]",
-      "device_api_error": "[%key:component::config::error::device_api_error%]",
+      "cannot_connect": "[%key:common::config:::error::cannot_connect%]",
+      "invalid_api_key": "[%key:common::config:::error::invalid_api_key%]",
+      "device_api_error": "Device API Error",
       "timeout_connect":  "[%key:common::config_flow::error::timeout_connect%]",
-      "unknown": "[%key:component::config:::error::unknown%]"
+      "unknown": "[%key:common::config:::error::unknown%]"
     },
     "create_entry": {
       "authenticated": "[%key:common::config_flow::create_entry::authenticated%]"
     },
     "step": {
       "user": {
-        "title": "[%key:component::config::step::user::title%]",
-        "description": "[%key:component::config::step::user::description%]",
+        "title": "backupBatterie Network Configuration",
+        "description": "Network address & API Token",
         "data": {
-          "ip": "[%key:common::config_flow::data::ip%]",
+          "ip_address": "[%key:common::config_flow::data::ip%]",
           "port": "[%key:common::config_flow::data::port%]",
           "api_token": "[%key:common::config_flow::data::api_token%]",
-          "model": "[%key:component::config::setp::user::data::model%]",
-          "device_id": "[%key:component::config::setp::user::data::device_id%]"
+          "model": "Model",
+          "device_id": "Serial Number"
         }
       }
     },
     "options": {
       "step": {
         "init": {
-          "title": "[%key:component::config::options::step::init::title%]",
-          "description": "[%key:component::config::options::step::init::description%]",
+          "title": "BackupBatterie Behaviour Options",
+          "description": "BackupBatterie scan interval & debug mode",
           "data": {
-            "scan_interval": "[%key:component::config::options::step::init::data::scan_interval%]",
-            "sonnenbackup_debug": "[%key:component::config::options::step::init::data::sonnenbackup_debug%]"
+            "scan_interval": "Scan Interval",
+            "sonnenbackup_debug": "Debug"
           }
         }
       },
       "error": {
-        "invalid_interval": "[%key:common::config_flow::error::invalid_interval%]"
+        "invalid_interval": "Invalid Scan Interval. {error_details}"
       }
     }
   },

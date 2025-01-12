@@ -29,7 +29,9 @@ from homeassistant.const import (
 from homeassistant.exceptions import HomeAssistantError
 
 from .coordinator import SonnenBackupAPI
-from .const import DOMAIN, CONFIG_SCHEMA, OPTIONS_SCHEMA
+from .const import _DOMAIN, CONFIG_SCHEMA, OPTIONS_SCHEMA
+
+DOMAIN = _DOMAIN
 
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
@@ -61,8 +63,8 @@ async def _validate_api(user_input) -> bool:
 
 class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for SonnenBackup."""
-    VERSION = 1
 
+    VERSION = 1
     CONNECTION_CLASS = CONN_CLASS_LOCAL_POLL
 
     async def async_step_user(
@@ -162,6 +164,8 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: SonnenBackupConfigEntry):
+        """SonnenBackup options."""
+
         return SonnenBackupOptionsFlow()
 
 class SonnenBackupOptionsFlow(OptionsFlow):
@@ -204,7 +208,8 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema = self.add_suggested_values_to_schema(
-                OPTIONS_SCHEMA, user_input
+                OPTIONS_SCHEMA,
+                user_input
             ),
             errors=errors,
             description_placeholders=placeholders

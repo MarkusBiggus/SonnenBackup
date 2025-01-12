@@ -1,4 +1,4 @@
-"""Mock batterie data also used in package sonnenbatterie_api_v2 & ha component sonnenenbatterie."""
+"""Mock batterie data also used in package sonnenbatterie_api_v2 & ha component sonnenenbatterie"""
 import json
 def __mock_status_charging(*args)-> json:
     return {
@@ -14,7 +14,7 @@ def __mock_status_charging(*args)-> json:
         'FlowConsumptionProduction': True,
         'FlowGridBattery': False,
         'FlowProductionBattery': True,
-        'FlowProductionGrid': True,
+        'FlowProductionGrid': False,
         'GridFeedIn_W': 0,
         'IsSystemInstalled': 1,
         'OperatingMode': '2',
@@ -27,7 +27,7 @@ def __mock_status_charging(*args)-> json:
         'Sac3': None,
         'SystemStatus': 'OnGrid',
         'Timestamp': '2023-11-20 17:00:55',
-        'USOC': 88,
+        'USOC': 81,
         'Uac': 235,
         'Ubat': 212,
         'dischargeNotAllowed': False,
@@ -44,7 +44,7 @@ def __mock_latest_charging(*args)-> json:
         'RSOC': 88,
         'SetPoint_W': -145,
         'Timestamp': '2023-11-20 17:00:55',
-        'USOC': 88,
+        'USOC': 81,
         'UTC_Offet': 2,
         'ic_status': {
             'DC Shutdown Reason': {
@@ -155,7 +155,6 @@ def __mock_configurations(*args)-> json:
         "CN_CascadingRole": "none",
         "EM_US_GEN_POWER_SET_POINT": 0,
         "DepthOfDischargeLimit": 93
-
     }
 
 def __mock_battery(*args)-> json:
@@ -193,7 +192,7 @@ def __mock_battery(*args)-> json:
 def __mock_powermeter(*args)-> json:
     return [
         {
-            'a_l1': 2.4730000495910645, 
+            'a_l1': 2.4730000495910645,
             'a_l2': 0,
             'a_l3': 0,
             'channel': 1,

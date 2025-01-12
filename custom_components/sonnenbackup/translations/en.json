@@ -2,24 +2,24 @@
     "config": {
         "flow_title": "SonnenBackup Batterie",
         "abort": {
-            "cannot_connect": "Failed to connect.<br>{error_detail}",
+            "cannot_connect": "Failed to connect. {error_detail}",
             "already_configured_device": "Batterie is already configured.",
             "reauth_successful": "Re-authentication was successful",
             "reconfigure_successful": "Re-configuration was successful"
         },
         "error": {
-            "cannot_connect": "Failed to connect.<br>{error_detail}",
-            "invalid_api_key": "Invalid API Token.<br>{error_detail}",
-            "device_api_error": "Device HTTP error.<br>{error_detail}",
+            "cannot_connect": "Failed to connect. {error_detail}",
+            "invalid_api_key": "Invalid API Token. {error_detail}",
+            "device_api_error": "Device HTTP error. {error_detail}",
             "timeout_connect": "Timeout establishing connection",
-            "unknown": "Unexpected error.<br>{error_detail}"
+            "unknown": "Unexpected error. {error_detail}"
         },
         "step": {
             "user": {
                 "title": "Sonnen Backup Batterie",
                 "description": "Batterie IP Address & API Token",
                 "data": {
-                    "ip": "IP address",
+                    "ip_address": "IP address",
                     "port": "Port",
                     "api_token": "API Token",
                     "model": "Model",
@@ -39,7 +39,7 @@
                 }
             },
             "error": {
-                "invalid_interval": "Invalid Interval.<br>{error_detail}"
+                "invalid_interval": "Invalid Interval. {error_detail}"
             }
         }
     },
