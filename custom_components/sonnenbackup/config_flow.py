@@ -30,7 +30,7 @@ from homeassistant.exceptions import HomeAssistantError
 
 from .coordinator import SonnenBackupAPI
 from .const import (
-    _DOMAIN,
+    DOMAIN,
     CONFIG_SCHEMA,
     OPTIONS_SCHEMA,
     DEFAULT_PORT,
@@ -40,7 +40,6 @@ from .const import (
     MAX_SCAN_INTERVAL,
     )
 
-DOMAIN = _DOMAIN #"sonnenbackup"
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
 _LOGGER = logging.getLogger(__name__)

@@ -18,10 +18,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 #         CONF_SCAN_INTERVAL,
 #         )
 
-from custom_components.sonnenbackup.const import _DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
+from custom_components.sonnenbackup.const import DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
 from .mock_sonnenbatterie_v2_charging import __mock_status_charging, __mock_latest_charging, __mock_configurations, __mock_battery, __mock_powermeter, __mock_inverter
-
-DOMAIN = _DOMAIN
 
 @pytest.fixture
 def mock_setup_entry() -> Generator[AsyncMock]:

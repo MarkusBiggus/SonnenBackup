@@ -32,7 +32,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 
 )
-_DOMAIN = "sonnenbackup"
+DOMAIN = "sonnenbackup"
 MANUFACTURER = "Sonnen GmbH"
 DEFAULT_SCAN_INTERVAL = 10
 MIN_SCAN_INTERVAL = 2
