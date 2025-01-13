@@ -6,6 +6,7 @@
 import pytest
 from unittest.mock import patch, AsyncMock
 from responses import Response
+import logging
 
 import datetime
 import urllib3
@@ -45,26 +46,29 @@ CONFIG_DATA = {
     CONF_IP_ADDRESS: "1.1.1.1",
     CONF_PORT: DEFAULT_PORT,
     CONF_API_TOKEN: "fakeToken-111-222-4444-3333",
-    "details": {
-        CONF_MODEL: 'Power unit Evo IP56',
-        CONF_DEVICE_ID: "321123"
-    }
+#    "details": {
+    CONF_MODEL: 'Power unit Evo IP56',
+    CONF_DEVICE_ID: "321123"
+#    }
 }
 CONFIG_OPTIONS = {
     CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
-    "sonnen_debug": True,
+    "sonnenbackup_debug": True,
 }
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
 async def test_form(hass: HomeAssistant) -> None:
     """Test the form works."""
 
+    logging.basicConfig(level=logging.DEBUG)
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
 
-    print(f'result: {result}')
+#    print(f'result: {result}')
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
     assert result["errors"] == {}
@@ -87,6 +91,11 @@ async def test_form(hass: HomeAssistant) -> None:
     assert result["data"] == CONFIG_DATA
     config_entry = result["result"]
     assert config_entry.state == ConfigEntryState.LOADED
+    hass_data = hass.data.setdefault(DOMAIN, {})
+#    print(f'hass_data: {hass_data}')
+#    print(f'hass_data_entry: {hass_data[config_entry.entry_id]}')
+    hass_data_entry = hass_data[config_entry.entry_id]
+    assert hass_data_entry['model'] == CONFIG_DATA['model']
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 

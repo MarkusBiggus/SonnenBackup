@@ -49,9 +49,16 @@ async def async_setup_entry(
     coordinator = config_entry.runtime_data.coordinator
     batterie_response = coordinator.data
     version = batterie_response.version
+#    hass_data = hass.data[DOMAIN][config_entry.entry_id]
+    # hass_data = hass.data[DOMAIN] # setdefault(DOMAIN, {})
+    # _LOGGER.info(f'hass_data: {hass_data}')
+    # hass_data_entry = hass_data.get(config_entry.entry_id)
+    # _LOGGER.debug(f'hass_data_entry: {hass_data_entry}')
+    # _LOGGER.debug(f'config rtd: {config_entry.runtime_data}')
     device_info = DeviceInfo(
         identifiers={(DOMAIN, serial_number)},
         manufacturer=MANUFACTURER,
+        model=config_entry.runtime_data.model,
         name=f"{MANUFACTURER} {serial_number}",
         sw_version=version,
     )
@@ -59,10 +66,11 @@ async def async_setup_entry(
     sensor_values = battery_sensors.map_response()
 
     entities: list[BatterieSensorEntity] = []
-    for sensor, (idx, measurement) in battery_sensors.sensor_map().items():
-#        print(f'sensor: {sensor}  idx:{idx}  measurement: {measurement}')
+    for sensor, (idx, measurement, alias) in battery_sensors.sensor_map().items():
+    #    _LOGGER.debug(f'sensor: {sensor}  idx:{idx}  measurement: {measurement}')
         description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
         uid = f"SB{serial_number}-{idx}"
+    #    _LOGGER.debug(f'sensor: {sensor}  uid:{uid}  description: {description}')
         entities.append(
             BatterieSensorEntity(
                 config_entry,
@@ -74,6 +82,8 @@ async def async_setup_entry(
                 device_info,
                 uid,
                 sensor,
+                idx,
+                alias,
                 description.native_unit_of_measurement,
                 description.state_class,
                 description.device_class,
@@ -91,10 +101,6 @@ async def async_setup_platform(
 
     _LOGGER.info('Setup sensor platform')
 
-    # github = GitHubAPI(session, "requester", oauth_token=config[CONF_ACCESS_TOKEN])
-    # sensors = [GitHubRepoSensor(github, repo) for repo in config[CONF_REPOS]]
-    # async_add_entities(sensors, update_before_add=True)
-
 
 class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
     """Class for a sensor."""
@@ -108,6 +114,8 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         device_info: DeviceInfo,
         uid: str,
         sensor: str,
+        sensor_idx: int,
+        alias: str,
         unit: str | None,
         state_class: SensorStateClass | str | None,
         device_class: SensorDeviceClass | None,
@@ -118,7 +126,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         serial_number = config_entry.runtime_data.serial_number
         self._batterybackup = config_entry.runtime_data.api
         self._unique_id = uid
-        self._name = f"{DOMAIN} {sensor} {serial_number}"
+        self._name = f"{DOMAIN} {alias} {serial_number}"
         self._has_entity_name = True
         self._native_unit_of_measurement = unit
         self._state_class = state_class
@@ -126,9 +134,11 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         self._device_info = device_info
         self._available = True
         self.key = sensor
+        self._idx = sensor_idx
+        self.alias = alias
         self._state = 'on'
 
-    #    _LOGGER.info(f'Setup sensor: {sensor} value: {self.native_value}')
+    #    _LOGGER.debug(f'Setup sensor: {sensor} value: {self.native_value}')
 
     @property
     def device_info(self):
@@ -138,7 +148,9 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Value of this sensor from mapped battery property."""
-        return self.coordinator.data[self.key] # ??????????????????
+        _LOGGER.debug(f'Native sensor: {self.key} value: {self.coordinator.data[self._unique_id]}')
+#        return self.coordinator.data[self._unique_id] # ??????????????????
+        return self._batterybackup.get_sensor_value(self.key)
 
     @property
     def name(self) -> str:
@@ -158,7 +170,10 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
     @property
     def state(self) -> str | None:
         """Return entity state."""
+    #    print(f'Sensor: {self.key}: {self.coordinator.data[self._unique_id]}')
         return self._state
+    #    _LOGGER.debug(f'State sensor: {self.key} value: {self.coordinator.data[self._unique_id]}')
+    #    return self.coordinator.data[self._unique_id] # ??????????????????
 
     # async def async_update(self) -> None:
     #     """Update all sensors."""

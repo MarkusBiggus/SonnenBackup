@@ -29,10 +29,18 @@ from homeassistant.const import (
 from homeassistant.exceptions import HomeAssistantError
 
 from .coordinator import SonnenBackupAPI
-from .const import _DOMAIN, CONFIG_SCHEMA, OPTIONS_SCHEMA
+from .const import (
+    _DOMAIN,
+    CONFIG_SCHEMA,
+    OPTIONS_SCHEMA,
+    DEFAULT_PORT,
+    MIN_PORT,
+    MAX_PORT,
+    MIN_SCAN_INTERVAL,
+    MAX_SCAN_INTERVAL,
+    )
 
-DOMAIN = _DOMAIN
-
+DOMAIN = _DOMAIN #"sonnenbackup"
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,7 +52,7 @@ async def _validate_api(user_input) -> bool:
     _batterie = Batterie(
         user_input[CONF_API_TOKEN],
         user_input[CONF_IP_ADDRESS],
-        user_input[CONF_PORT],
+        int(user_input[CONF_PORT]),
     )
     try:
         success = await _batterie.async_validate_token()
@@ -83,29 +91,43 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors=errors
             )
 
-        serial_number = user_input['details'][CONF_DEVICE_ID]
-        batterie_model = user_input['details'][CONF_MODEL]
     #    _LOGGER.info(f'user_input: {user_input}')
 
+        # Check if is a valid port number
         try:
-            await _validate_api(user_input)
-        except InvalidAuth as error:
-            errors["base"] = 'invalid_auth'
+            input_port = int(user_input[CONF_PORT])
+            if not (MIN_PORT <= input_port <= MAX_PORT):
+                errors["base"] = "invalid_port"
+                placeholders["error_detail"] = f'Port must be at least {MIN_PORT} and no more than {MAX_PORT}, below the ephemeral port range.'
+        except ValueError as error:
+            errors["base"] = "invalid_port"
             placeholders["error_detail"] = f'{str(error)}'
-        except DeviceAPIError as error:
-            errors["base"] = 'device_api_error'
-            placeholders["error_detail"] = f'{str(error)}'
-        except (ConnectionError, CannotConnect) as error:
-            errors["base"] = 'cannot_connect'
-            placeholders["error_detail"] = f'{str(error)}'
-        except Exception as error:
-            _LOGGER.exception('Unexpected exception')
-            errors["base"] = "unknown"
-            placeholders["error_detail"] = f'{str(error)}'
-        else:
-            await self.async_set_unique_id(serial_number)
-            self._abort_if_unique_id_configured()
-            return self.async_create_entry(title=f'SonnenBackup {batterie_model} ({serial_number})', data=user_input)
+
+        if errors == {}:
+            try:
+                await _validate_api(user_input)
+            except InvalidAuth as error:
+                errors["base"] = 'invalid_auth'
+                placeholders["error_detail"] = f'{str(error)}'
+            except DeviceAPIError as error:
+                errors["base"] = 'device_api_error'
+                placeholders["error_detail"] = f'{str(error)}'
+            except (ConnectionError, CannotConnect) as error:
+                errors["base"] = 'cannot_connect'
+                placeholders["error_detail"] = f'{str(error)}'
+            except Exception as error:
+                _LOGGER.exception('Unexpected exception')
+                errors["base"] = "unknown"
+                placeholders["error_detail"] = f'{str(error)}'
+            else:
+                serial_number = user_input[CONF_DEVICE_ID] #user_input['details'][CONF_DEVICE_ID]
+                batterie_model = user_input[CONF_MODEL]
+                await self.async_set_unique_id(serial_number)
+                self._abort_if_unique_id_configured()
+                return self.async_create_entry(
+                    title=f'SonnenBackup {batterie_model} ({serial_number})',
+                    data=user_input
+                )
 
         return self.async_show_form(
             step_id="user",
@@ -163,47 +185,51 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: SonnenBackupConfigEntry):
-        """SonnenBackup options."""
+    def async_get_options_flow(config_entry: SonnenBackupConfigEntry
+    ) -> OptionsFlow:
+        """Create the options flow."""
 
-        return SonnenBackupOptionsFlow()
+        return SonnenBackupOptionsFlow(config_entry)
 
 class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
 
-    def __init__(self):
+    def __init__(self, config_entry) -> None:
         """Initialize options flow."""
 
         _LOGGER.info(' config_options')
-        self.options = dict(self.config_entry.options)
+        self.options = dict(config_entry.options)
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        """Handle options flow."""
 
+        _LOGGER.info(" config_options step_init")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 
         if user_input is None:
             return self.async_show_form(
                 step_id="init",
-                data_schema = self.add_suggested_values_to_schema(
+                data_schema = #OPTIONS_SCHEMA,
+                    self.add_suggested_values_to_schema(
                     OPTIONS_SCHEMA,
                     self.options
                 ),
                 errors=errors
             )
 
-#       return self.async_create_entry(title=f'SonnenBackup {self.options[CONF_MODEL]} ({self.options[CONF_DEVICE_ID]})', data=user_input)
-        if user_input[CONF_SCAN_INTERVAL] > 2 and user_input[CONF_SCAN_INTERVAL] < 121:
+        if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL or user_input[CONF_SCAN_INTERVAL] > MAX_SCAN_INTERVAL:
             return self.async_create_entry(
                 title='',
                 data=user_input
             )
 
+        """Invalid scan_interval"""
         errors["base"] = 'invalid_interval'
-        placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least 3 seconds and no more than 120.'
-        user_input[CONF_SCAN_INTERVAL] = 3 if user_input[CONF_SCAN_INTERVAL] < 3 else 120
+        placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least {MIN_SCAN_INTERVAL} seconds and no more than {MAX_SCAN_INTERVAL}.'
+        user_input[CONF_SCAN_INTERVAL] = MIN_SCAN_INTERVAL if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL else MAX_SCAN_INTERVAL
 
         return self.async_show_form(
             step_id="init",
@@ -219,7 +245,7 @@ class CannotConnect(HomeAssistantError):
     """Error to indicate we cannot connect."""
 
 class DeviceAPIError(HomeAssistantError):
-    """Error to indicate device API error."""
+    """Error to indicate device API HTTP error."""
 
 class InvalidAuth(HomeAssistantError):
     """Error to indicate invalid authorisation."""

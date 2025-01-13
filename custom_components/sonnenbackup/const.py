@@ -1,4 +1,5 @@
 """Constants for the sonnenbackup integration."""
+
 import voluptuous as vol
 
 from sonnen_api_v2.units import Units
@@ -29,13 +30,18 @@ from homeassistant.const import (
     CONF_MODEL,
     CONF_DEVICE_ID,
     CONF_SCAN_INTERVAL,
-    
+
 )
 _DOMAIN = "sonnenbackup"
 MANUFACTURER = "Sonnen GmbH"
 DEFAULT_SCAN_INTERVAL = 10
+MIN_SCAN_INTERVAL = 2
+MAX_SCAN_INTERVAL = 120
+
 ATTR_SONNEN_DEBUG = "sonnenbackup_debug"
 DEFAULT_PORT = 80
+MIN_PORT = 1
+MAX_PORT = 49151 # below ephemeral range
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
@@ -44,24 +50,26 @@ CONFIG_SCHEMA = vol.Schema(
         vol.Required(CONF_IP_ADDRESS): cv.string,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
         vol.Required(CONF_API_TOKEN): cv.string,
-        "details": section(
-            vol.Schema(
-                {
-                    vol.Required(CONF_MODEL): cv.string,
-                    vol.Required(CONF_DEVICE_ID): cv.string,
-                }
-            ),
+        # "details": section(
+        #     vol.Schema(
+        #         {
+        vol.Required(CONF_MODEL): cv.string,
+        vol.Required(CONF_DEVICE_ID): cv.string,
+                # }
+            # ),
         # Whether or not the section is initially collapsed (default = False)
-        {"collapsed": False},
-        )
+        # {"collapsed": False},
+        # )
     }
 )
 
 OPTIONS_SCHEMA = vol.Schema(
     {
-    #    vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.Number,
-        vol.Required(ATTR_SONNEN_DEBUG, default=False): bool
+        vol.Optional(CONF_SCAN_INTERVAL,
+                     vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),
+                     default=DEFAULT_SCAN_INTERVAL,
+                    ): cv.Number,
+        vol.Required("sonnenbackup_debug", default=False): cv.boolean
     }
 )
 
@@ -74,7 +82,7 @@ SENSOR_DESCRIPTIONS: dict[tuple[Units, bool], SensorEntityDescription] = {
     ),
     (Units.KWH, False): SensorEntityDescription(
         key=f"{Units.KWH}_{False}",
-        device_class=SensorDeviceClass.ENERGY,
+        device_class=SensorDeviceClass.ENERGY_STORAGE,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         state_class=SensorStateClass.MEASUREMENT,
     ),
@@ -82,7 +90,7 @@ SENSOR_DESCRIPTIONS: dict[tuple[Units, bool], SensorEntityDescription] = {
         key=f"{Units.KWH}_{True}",
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        state_class=SensorStateClass.TOTAL_INCREASING,
+        state_class=SensorStateClass.TOTAL,
     ),
     (Units.V, False): SensorEntityDescription(
         key=f"{Units.V}_{False}",
@@ -123,5 +131,12 @@ SENSOR_TIMESTAMP: dict[tuple[Units, bool], SensorEntityDescription] = {
     (Units.NONE, False): SensorEntityDescription(
         key=f"{Units.NONE}_{False}",
         device_class=SensorDeviceClass.TIMESTAMP,
+    ),
+}
+
+SENSOR_ENUMS: dict[tuple[Units, bool], SensorEntityDescription] = {
+    (Units.NONE, False): SensorEntityDescription(
+        key=f"{Units.NONE}_{False}",
+        device_class=SensorDeviceClass.ENUM,
     ),
 }

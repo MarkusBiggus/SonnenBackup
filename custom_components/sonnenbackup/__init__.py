@@ -13,6 +13,7 @@ from homeassistant.const import (
     CONF_IP_ADDRESS,
     CONF_API_TOKEN,
     CONF_PORT,
+    CONF_MODEL,
     CONF_DEVICE_ID,
     CONF_SCAN_INTERVAL,
 )
@@ -92,7 +93,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     config_entry.runtime_data = SonnenBackupAPI(
         api=_batterie,
         coordinator=coordinator,
-        serial_number=config_entry.data['details'][CONF_DEVICE_ID],
+        serial_number=config_entry.data[CONF_DEVICE_ID],
+        model=config_entry.data[CONF_MODEL],
         version=coordinator.data.version,
         last_updated=coordinator.data.last_updated
     )
@@ -104,7 +106,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     # Store a reference to the unsubscribe function to cleanup if an entry is unloaded.
     hass_data["unsub_options_update_listener"] = unsub_options_update_listener
     hass.data[DOMAIN][config_entry.entry_id] = hass_data
-#    print(f'hass.data: {hass.data[DOMAIN]}  {config_entry}')
+#    _LOGGER.info(f'hass.data: {hass.data[DOMAIN]}  {config_entry}')
 
     return True
 

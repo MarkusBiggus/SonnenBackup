@@ -105,7 +105,7 @@ class BatterieSensors:
             #     sensor_indexes = idx[0]
             #     first_sensor_index = sensor_indexes[0]
             #     idx = first_sensor_index
-            sensors[alias] = (idx, unit)
+            sensors[name] = (idx, unit, alias)
         return sensors
 
     # @classmethod
