@@ -8,7 +8,7 @@ import voluptuous as vol
 from sonnen_api_v2 import BatterieBackup
 
 from .utils import PackerBuilderResult
-from .units import Measurement, Units, SensorUnit
+from .units import Measurement, Units, BatteryCapacity, SensorUnit
 
 
 ProcessorTuple = Tuple[Callable[[Any], Any], ...]
@@ -100,7 +100,7 @@ class BatterieSensors:
         """
 
         sensors: Dict[str, Tuple[int, Measurement]] = {}
-        for sensor_group, sensor_map in cls._response_decoder().items():
+        for sensor_group, sensor_map in cls.response_decoder().items():
             for name, mapping in sensor_map.items(): #cls.response_decoder().items():
                 option = None
                 if len(mapping) > 2:
@@ -116,7 +116,7 @@ class BatterieSensors:
                 if sensor_group == 'UNITS':
                     if isinstance(unit_or_measurement, Units):
                         unit = Measurement(unit_or_measurement)
-                    elif isinstance(unit_or_measurement, Measurement):
+                    elif issubclass(unit_or_measurement, SensorUnit):
                         unit = unit_or_measurement
                     else:
                         raise ValueError(f'UNITS sensor {name} wrong type: {type(unit_or_measurement)}')
@@ -125,9 +125,13 @@ class BatterieSensors:
                     #     first_sensor_index = sensor_indexes[0]
                     #     idx = first_sensor_index
                 else:
-                    unit = Measurement(Units.NONE)
+        #            unit = Measurement(Units.NONE, is_monotonic = option)
                     if type(option) is bool:
-                        unit.is_monotonic = option
+                        unit = Measurement(Units.NONE, is_monotonic = option)
+                    else:
+                        unit = Measurement(Units.NONE,)
+
+        #                unit = unit._replace(is_monotonic = option)
 
                 sensors[alias] = (idx, unit, name, sensor_group, option)
         return sensors

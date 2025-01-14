@@ -6,7 +6,7 @@ from datetime import timedelta
 import logging
 #import json
 
-from sonnen_api_v2 import BatterieResponse, BatterieBackup, BatterieAuthError, BatterieHTTPError, BatterieError
+from sonnen_api_v2 import BatterieResponse, BatterieBackup, BatterieSensorError
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -73,14 +73,18 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         _LOGGER.info("SonnenBackup component async_update")
         try:
             _batterie_response = await _batterie.refresh_response() # returned into coordinator.data
-            _batterie_response['sensor_values'] = _battery_sensors.map_response()
-            return _batterie_response
-        except (BatterieAuthError, BatterieHTTPError, BatterieError) as error:
+            _batterie_response = _batterie_response._replace(sensor_values = _battery_sensors.map_response())
+        #    _LOGGER.debug(f"response: {_batterie_response.sensor_values} ")
+        except (BatterieSensorError) as error:
+            _LOGGER.info(f"SonnenBackup async_update unknown Sensor: {repr(error)}")
+        #    raise UpdateFailed from error
+        except Exception as error:
+            _LOGGER.error(f"SonnenBackup async_update failed: {repr(error)}")
             raise UpdateFailed from error
-        # except Exception as error:
-        #     raise UpdateFailed from error
-        # UPDATE EACH SENSOR VALUE
+        finally:
+            return _batterie_response
 
+    # Could be a different response_decoder defined for each model
     _battery_sensors = PowerUnitEVO(_batterie)
 
 

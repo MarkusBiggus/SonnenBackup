@@ -21,13 +21,15 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.typing import StateType
 
-from sonnen_api_v2.units import DailyTotal, Total, Units, BatteryCapacity
-#from sonnen_api_v2.utils import div10, div100 #, pack_u16, to_signed, to_signed32, twoway_div10
+#from .utils import div10, div100 #, pack_u16, to_signed, to_signed32, twoway_div10
 
+from .units import Units, BatteryCapacity #, DailyTotal, Total
 from .batterie_sensors import BatterieSensors
 
 class PowerUnitEVO(BatterieSensors):
-    """Sonnen Power Unit EVO v1.14.x"""
+    """Sonnen Power Unit EVO.
+        Could be a differnce response_decoder for each model with varying sensors.
+    """
 
     def __init__(self, *args, **kwargs):
         """At least 1 param expected for batterieAPI:BatterieBackup"""
@@ -65,6 +67,8 @@ class PowerUnitEVO(BatterieSensors):
 #                "status_battery_discharging": (19, Units.NONE, "discharging"),
                 "status_rsoc": (20, Units.PERCENT, "relative_state_of_charge"),
                 "status_usoc": (21, Units.PERCENT, "usable_state_of_charge"),
+#                "last_time_full": (22, Units.NONE),
+
                 # "Total Yield": (pack_u16(22, 23), Total(Units.KWH), div10),
                 # "Daily Yield": (24, DailyTotal(Units.KWH), div10),
                 # "Feed-in Power ": (pack_u16(72, 73), Units.W, to_signed32),
@@ -78,6 +82,8 @@ class PowerUnitEVO(BatterieSensors):
                 "fully_charged_at": (6, Units.NONE),
                 "fully_discharged_at": (7, Units.NONE),
                 "backup_reserve_at": (12, Units.NONE),
+                "last_time_full": (22, Units.NONE),
+                "last_updated": (23, Units.NONE),
             },
 
             'ENUM': {

@@ -31,7 +31,7 @@ from homeassistant.const import (
 
 )
 
-import custom_components.sonnenbackup.Units as Units
+from custom_components.sonnenbackup.units import Units
 
 DOMAIN = "sonnenbackup"
 MANUFACTURER = "Sonnen GmbH"

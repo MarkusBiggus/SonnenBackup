@@ -66,7 +66,7 @@ async def async_setup_entry(
         manufacturer=MANUFACTURER,
         model=config_entry.runtime_data.model,
 #        name=f"{MANUFACTURER} {serial_number}",
-        name=f"BatterieBackup {serial_number}",
+        name=f"SonnenBB {serial_number}",
         sw_version=version,
     )
 
@@ -84,12 +84,19 @@ async def async_setup_entry(
             description = SENSOR_TIMESTAMP[(measurement.unit, measurement.is_monotonic)] # only (Units.NONE, False)
         elif group == 'ENUM':
             description = SENSOR_ENUM[(measurement.unit, measurement.is_monotonic)]
-            description.options = options if description.options is None else description.options
+            if description.options is None:
+                description = SensorEntityDescription(
+                    description.key,
+                    description.device_class,
+                    options=options
+                )
+
+    #        description.options = options if description.options is None else description.options
         else:
             raise ValueError(f'Sensor {sensor} unknown group: {type(group)}')
 
         uid = f"SB{serial_number}-{idx}"
-    #    _LOGGER.debug(f'sensor: {sensor}  uid:{uid}  description: {description}')
+    #    _LOGGER.info(f'sensor: {sensor}  uid:{uid}  description: {description}')
         entities.append(
             BatterieSensorEntity(
                 config_entry,
@@ -173,8 +180,8 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
     def native_value(self):
         """Value of this sensor from mapped battery property."""
         # self.coordinator.data is last BatterieResponse from async_setup_entry._async_update
-        self._attr_native_value = self.coordinator.data.sensor_values.get(self.key) #self._batterybackup.get_sensor_value(self.key)
-        _LOGGER.debug(f'Native: {self.key} value: {self._attr_native_value}')
+        self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) #self._batterybackup.get_sensor_value(self.key)
+        _LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
         return self._attr_native_value
 #        return self._batterybackup.get_sensor_value(self.key)
 

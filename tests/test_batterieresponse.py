@@ -44,9 +44,9 @@ if LOGGER_NAME is not None:
 async def test_batterieresponse(battery_charging: Batterie) -> None:
     """BatterieBackup Response using mock data."""
 
-    _batterie: BatterieBackup = BatterieBackup('fakeToken', 'fakeHost')
+    _batterie = BatterieBackup('fakeToken', 'fakeHost')
 
-    response = await _batterie.get_response()
+    response = await _batterie.refresh_response()
 
     #print(f'response: {response}')
 
