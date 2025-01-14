@@ -27,7 +27,8 @@ from .const import (
     DOMAIN,
     PLATFORMS,
     DEFAULT_SCAN_INTERVAL,
-    )
+)
+from .PowerUnitEVO import PowerUnitEVO
 
 SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 
@@ -71,11 +72,16 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 
         _LOGGER.info("SonnenBackup component async_update")
         try:
-            return await _batterie.refresh_response() # returned into coordinator.data
+            _batterie_response = await _batterie.refresh_response() # returned into coordinator.data
+            _batterie_response['sensor_values'] = _battery_sensors.map_response()
+            return _batterie_response
         except (BatterieAuthError, BatterieHTTPError, BatterieError) as error:
             raise UpdateFailed from error
         # except Exception as error:
         #     raise UpdateFailed from error
+        # UPDATE EACH SENSOR VALUE
+
+    _battery_sensors = PowerUnitEVO(_batterie)
 
 
     # coordinator.data is BatterieResponse from update_method

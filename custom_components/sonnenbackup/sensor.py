@@ -6,12 +6,11 @@ import logging
 from collections.abc import Callable
 #from typing import Any
 
-from sonnen_api_v2 import BatterieBackup
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
-#    SensorEntityDescription,
+    SensorEntityDescription,
     SensorStateClass,
 )
 #from homeassistant import config_entries, core
@@ -28,9 +27,12 @@ from .const import (
     DOMAIN,
     MANUFACTURER,
     SENSOR_DESCRIPTIONS,
+    SENSOR_TIMESTAMP,
+    SENSOR_ENUM,
 )
+from . import BatterieBackup
 from .coordinator import SonnenBackupAPI
-from .PowerUnitEVO import PowerUnitEVO
+from .PowerUnitEVO import PowerUnitEVO, SonnenBackupSensorEntityDescription
 
 #from . import SonnenConfigEntry
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
@@ -63,16 +65,29 @@ async def async_setup_entry(
         identifiers={(DOMAIN, serial_number)},
         manufacturer=MANUFACTURER,
         model=config_entry.runtime_data.model,
-        name=f"{MANUFACTURER} {serial_number}",
+#        name=f"{MANUFACTURER} {serial_number}",
+        name=f"BatterieBackup {serial_number}",
         sw_version=version,
     )
+
+
     battery_sensors = PowerUnitEVO(api)
-    sensor_values = battery_sensors.map_response()
+    # BREAK ANYTHING?
+    # sensor_values = battery_sensors.map_response()
 
     entities: list[BatterieSensorEntity] = []
-    for sensor, (idx, measurement, alias) in battery_sensors.sensor_map().items():
-    #    _LOGGER.debug(f'sensor: {sensor}  idx:{idx}  measurement: {measurement}')
-        description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
+    for alias, (idx, measurement, sensor, group, options) in battery_sensors.sensor_map().items():
+        if group == 'UNITS':
+    #       _LOGGER.debug(f'UNITS: {sensor}  idx:{idx}  measurement: {measurement}')
+            description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
+        elif group == 'TIMESTAMP':
+            description = SENSOR_TIMESTAMP[(measurement.unit, measurement.is_monotonic)] # only (Units.NONE, False)
+        elif group == 'ENUM':
+            description = SENSOR_ENUM[(measurement.unit, measurement.is_monotonic)]
+            description.options = options if description.options is None else description.options
+        else:
+            raise ValueError(f'Sensor {sensor} unknown group: {type(group)}')
+
         uid = f"SB{serial_number}-{idx}"
     #    _LOGGER.debug(f'sensor: {sensor}  uid:{uid}  description: {description}')
         entities.append(
@@ -88,9 +103,7 @@ async def async_setup_entry(
                 sensor,
                 idx,
                 alias,
-                description.native_unit_of_measurement,
-                description.state_class,
-                description.device_class,
+                description
             )
         )
     async_add_entities(entities)
@@ -107,10 +120,12 @@ async def async_setup_platform(
 
 
 class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
-    """Class for a sensor."""
+    """Class for a battery sensor."""
 
     _attr_should_poll = False
     _attr_icon = "mdi:battery-outline"
+    _attr_has_entity_name = True
+    entity_description: SonnenBackupSensorEntityDescription
 
     def __init__(
         self,
@@ -120,27 +135,32 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         sensor: str,
         sensor_idx: int,
         alias: str,
-        unit: str | None,
-        state_class: SensorStateClass | str | None,
-        device_class: SensorDeviceClass | None,
+        description: SensorEntityDescription,
+        # unit: str | None,
+        # state_class: SensorStateClass | str | None,
+        # device_class: SensorDeviceClass | None,
     ) -> None:
         """Initialize a battery sensor."""
         super().__init__(config_entry.runtime_data.coordinator)
 
-        serial_number = config_entry.runtime_data.serial_number
+        self.entity_description = description
+#        serial_number = config_entry.runtime_data.serial_number
         self._batterybackup = config_entry.runtime_data.api
         self._unique_id = uid
-        self._name = f"{DOMAIN} {alias} {serial_number}"
+#        self._name = f"{DOMAIN} {alias} {serial_number}"
+        self._name = f"{DOMAIN} {alias}"
         self._has_entity_name = True
-        self._native_unit_of_measurement = unit
-        self._state_class = state_class
-        self._device_class = device_class
+        self._native_unit_of_measurement = description.native_unit_of_measurement
+        self._suggested_display_precision = 1
+        self._state_class = description.state_class
+        self._device_class = description.device_class
+        self._options = description.options
         self._device_info = device_info
         self._available = True
         self.key = sensor
         self._idx = sensor_idx
         self.alias = alias
-        self._state = 'on'
+        self._state = ''
 
     #    _LOGGER.debug(f'Setup sensor: {sensor} value: {self.native_value}')
 
@@ -152,9 +172,11 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Value of this sensor from mapped battery property."""
-        _LOGGER.debug(f'Native sensor: {self.key} value: {self.coordinator.data[self._unique_id]}')
-#        return self.coordinator.data[self._unique_id] # ??????????????????
-        return self._batterybackup.get_sensor_value(self.key)
+        # self.coordinator.data is last BatterieResponse from async_setup_entry._async_update
+        self._attr_native_value = self.coordinator.data.sensor_values.get(self.key) #self._batterybackup.get_sensor_value(self.key)
+        _LOGGER.debug(f'Native: {self.key} value: {self._attr_native_value}')
+        return self._attr_native_value
+#        return self._batterybackup.get_sensor_value(self.key)
 
     @property
     def name(self) -> str:
@@ -171,11 +193,11 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         """Return True if entity is available."""
         return self._available
 
-    @property
-    def state(self) -> str | None:
-        """Return entity state."""
-    #    print(f'Sensor: {self.key}: {self.coordinator.data[self._unique_id]}')
-        return self._state
+    # @property
+    # def state(self) -> str | None:
+    #     """Return entity state."""
+    # #    print(f'Sensor: {self.key}: {self.coordinator.data[self._unique_id]}')
+    #     return self._state
     #    _LOGGER.debug(f'State sensor: {self.key} value: {self.coordinator.data[self._unique_id]}')
     #    return self.coordinator.data[self._unique_id] # ??????????????????
 

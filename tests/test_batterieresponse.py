@@ -44,7 +44,7 @@ if LOGGER_NAME is not None:
 async def test_batterieresponse(battery_charging: Batterie) -> None:
     """BatterieBackup Response using mock data."""
 
-    _batterie = BatterieBackup('fakeToken', 'fakeHost')
+    _batterie: BatterieBackup = BatterieBackup('fakeToken', 'fakeHost')
 
     response = await _batterie.get_response()
 
@@ -54,5 +54,5 @@ async def test_batterieresponse(battery_charging: Batterie) -> None:
     assert response == BatterieResponse(
         version='1.14.5',
         last_updated=datetime.datetime(2023, 11, 20, 17, 0),
-        configurations=__mock_configurations
+        sensor_values={}
     )
