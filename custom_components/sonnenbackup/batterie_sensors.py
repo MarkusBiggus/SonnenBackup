@@ -111,7 +111,6 @@ class BatterieSensors:
 
                 if sensor_group == 'UNITS':
     #                print(f'{unit_or_measurement}: type: {type(unit_or_measurement)}')
-                    fieldtypes = SensorUnit.__args__
     #                print(f'mapping : {mapping}')
                     if isinstance(unit_or_measurement, Units):
                         unit = Measurement(unit_or_measurement)
