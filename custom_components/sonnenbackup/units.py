@@ -45,4 +45,4 @@ class BatteryCapacity(Measurement):
     is_monotonic: bool = False
     storage: bool = True
 
-SensorUnit = Union[Measurement, Total, BatteryCapacity]
+SensorUnit = Union[Measurement, Total, DailyTotal, BatteryCapacity]

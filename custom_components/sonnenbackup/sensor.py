@@ -143,9 +143,6 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         sensor_idx: int,
         alias: str,
         description: SensorEntityDescription,
-        # unit: str | None,
-        # state_class: SensorStateClass | str | None,
-        # device_class: SensorDeviceClass | None,
     ) -> None:
         """Initialize a battery sensor."""
         super().__init__(config_entry.runtime_data.coordinator)

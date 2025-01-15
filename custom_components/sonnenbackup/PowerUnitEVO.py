@@ -23,7 +23,7 @@ from homeassistant.helpers.typing import StateType
 
 #from .utils import div10, div100 #, pack_u16, to_signed, to_signed32, twoway_div10
 
-from .units import Units, BatteryCapacity #, DailyTotal, Total
+from .units import Units, BatteryCapacity, DailyTotal, Total
 from .batterie_sensors import BatterieSensors
 
 class PowerUnitEVO(BatterieSensors):
@@ -47,6 +47,7 @@ class PowerUnitEVO(BatterieSensors):
             'UNITS': {
 #                "configuration_em_operatingmode": (0, Units.NONE, "operating_mode", cls._decode_operating_mode),
                 "status_backup_buffer": (1, Units.PERCENT),
+                "led_state": (2, Units.NONE),
 #                "last_configurations": (2, Units.NONE, None, cls._format_datetime),
                 "system_status": (3, Units.NONE),
 #                "system_status_timestamp": (4, Units.NONE, "status_timestamp", cls._format_datetime),
@@ -55,19 +56,29 @@ class PowerUnitEVO(BatterieSensors):
 #                "fully_discharged_at": (7, Units.NONE, None, cls._format_datetime),
                 "battery_cycle_count": (8, Units.NONE),
                 "battery_full_charge_capacity_wh":(9, BatteryCapacity, "full_charge_capacity"),
-                "battery_remaining_capacity_wh":(10, BatteryCapacity, "remaining_capacity"),
+    #            "battery_remaining_capacity_wh":(10, BatteryCapacity, "remaining_capacity"),
+                "status_remaining_capacity_wh":(10, BatteryCapacity, "remaining_capacity"),
                 "capacity_until_reserve":(11, BatteryCapacity),
 #                "backup_reserve_at": (12, Units.NONE),
                 "backup_buffer_capacity_wh":(13, BatteryCapacity, "backup_reserve_capacity"),
-                "kwh_consumed": (14, Units.KWH),
-                "kwh_produced": (15, Units.KWH),
-                "consumption_average" : (16, Units.W),
+                "kwh_consumed": (14, Total(Units.KWH)),
+                "kwh_produced": (15, Total(Units.KWH)),
+                "consumption_average" : (16, DailyTotal(Units.W)),
                 "status_frequency": (17, Units.HZ, "frequency"),
 #                "status_battery_charging": (18, Units.NONE, "charging"),
 #                "status_battery_discharging": (19, Units.NONE, "discharging"),
                 "status_rsoc": (20, Units.PERCENT, "relative_state_of_charge"),
                 "status_usoc": (21, Units.PERCENT, "usable_state_of_charge"),
+                "status_usable_capacity_wh": (24, BatteryCapacity, "usable_remaining_capacity"),
 #                "last_time_full": (22, Units.NONE),
+                "consumption_total_w": (25, DailyTotal(Units.W), "daily_consumption"),
+                "production_total_w": (26, DailyTotal(Units.W), "daily_production"),
+                "consumption": (27, Units.W, "consumption_now"),
+                "production": (28, Units.W, "production_now"),
+                "inverter_pac_total": (29, Units.W, "ongrid_pac"),
+                "inverter_pac_microgrid": (30, Units.W, "offgrid_pac"),
+                "battery_min_cell_temp": (31, Units.C, "min_battery_temp"),
+                "battery_max_cell_temp": (32, Units.C, "max_battery_temp"),
 
                 # "Total Yield": (pack_u16(22, 23), Total(Units.KWH), div10),
                 # "Daily Yield": (24, DailyTotal(Units.KWH), div10),
@@ -77,7 +88,6 @@ class PowerUnitEVO(BatterieSensors):
             },
 
             'TIMESTAMP': {
-                "last_configurations": (2, Units.NONE),
                 "system_status_timestamp": (4, Units.NONE, "status_timestamp"),
                 "fully_charged_at": (6, Units.NONE),
                 "fully_discharged_at": (7, Units.NONE),

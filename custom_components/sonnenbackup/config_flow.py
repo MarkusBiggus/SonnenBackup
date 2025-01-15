@@ -77,7 +77,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle the initial step."""
+        """Handle user initial step."""
 
         _LOGGER.info(" config_flow user")
         errors: dict[str, Any] = {}
@@ -135,21 +135,27 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             description_placeholders=placeholders
         )
 
-    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
-        """Handle the reconfiguration step."""
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle reconfiguration step."""
 
         _LOGGER.info(" config_flow reconfigure")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
+
         if user_input is None:
             return self.async_show_form(
                 step_id="reconfigure",
-                data_schema=CONFIG_SCHEMA,
+    #            data_schema=CONFIG_SCHEMA,
+                data_schema =
+                    self.add_suggested_values_to_schema(
+                    CONFIG_SCHEMA,
+                    self.data
+                ),
                 errors=errors
             )
 
-        serial_number = user_input[CONF_DEVICE_ID] # can't be changed!
-        batterie_model = user_input[CONF_MODEL]
 
         try:
             await _validate_api(user_input)
@@ -167,17 +173,24 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             errors["base"] = "unknown"
             placeholders["error_detail"] = f'{str(error)}'
         else:
-            self.async_set_unique_id(serial_number)
+            serial_number = user_input[CONF_DEVICE_ID] # can't be changed!
+            batterie_model = user_input[CONF_MODEL]
+            await self.async_set_unique_id(serial_number)
             self._abort_if_unique_id_mismatch()
             return self.async_update_reload_and_abort(
-                self._get_reconfigure_entry(),
+                entry=self._get_reconfigure_entry(),
                 title=f'SonnenBackup {batterie_model} ({serial_number})',
                 data_updates=user_input,
             )
 
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=CONFIG_SCHEMA,
+#            data_schema=CONFIG_SCHEMA,
+            data_schema =
+                self.add_suggested_values_to_schema(
+                CONFIG_SCHEMA,
+                self.data
+            ),
             errors=errors,
             description_placeholders=placeholders
         )
@@ -225,10 +238,10 @@ class SonnenBackupOptionsFlow(OptionsFlow):
                 data=user_input
             )
 
-        """Invalid scan_interval"""
-        errors["base"] = 'invalid_interval'
-        placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least {MIN_SCAN_INTERVAL} seconds and no more than {MAX_SCAN_INTERVAL}.'
-        user_input[CONF_SCAN_INTERVAL] = MIN_SCAN_INTERVAL if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL else MAX_SCAN_INTERVAL
+        # """Invalid scan_interval"""
+        # errors["base"] = 'invalid_interval'
+        # placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least {MIN_SCAN_INTERVAL} seconds and no more than {MAX_SCAN_INTERVAL}.'
+        # user_input[CONF_SCAN_INTERVAL] = MIN_SCAN_INTERVAL if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL else MAX_SCAN_INTERVAL
 
         return self.async_show_form(
             step_id="init",
