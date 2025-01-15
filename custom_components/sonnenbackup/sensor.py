@@ -90,8 +90,6 @@ async def async_setup_entry(
                     description.device_class,
                     options=options
                 )
-
-    #        description.options = options if description.options is None else description.options
         else:
             raise ValueError(f'Sensor {sensor} unknown group: {type(group)}')
 

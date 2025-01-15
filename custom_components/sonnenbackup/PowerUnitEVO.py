@@ -23,7 +23,7 @@ from homeassistant.helpers.typing import StateType
 
 #from .utils import div10, div100 #, pack_u16, to_signed, to_signed32, twoway_div10
 
-from .units import Units, BatteryCapacity, DailyTotal, Total
+from .units import Units, BatteryCapacity, DailyTotal, TotalKWH, DailyTotalW #Total
 from .batterie_sensors import BatterieSensors
 
 class PowerUnitEVO(BatterieSensors):
@@ -61,9 +61,9 @@ class PowerUnitEVO(BatterieSensors):
                 "capacity_until_reserve":(11, BatteryCapacity),
 #                "backup_reserve_at": (12, Units.NONE),
                 "backup_buffer_capacity_wh":(13, BatteryCapacity, "backup_reserve_capacity"),
-                "kwh_consumed": (14, Total(Units.KWH)),
-                "kwh_produced": (15, Total(Units.KWH)),
-                "consumption_average" : (16, DailyTotal(Units.W)),
+                "kwh_consumed": (14, TotalKWH), #Total(Units.KWH)),
+                "kwh_produced": (15, TotalKWH), #Total(Units.KWH)),
+                "consumption_average" : (16, DailyTotalW), #DailyTotal(Units.W)),
                 "status_frequency": (17, Units.HZ, "frequency"),
 #                "status_battery_charging": (18, Units.NONE, "charging"),
 #                "status_battery_discharging": (19, Units.NONE, "discharging"),

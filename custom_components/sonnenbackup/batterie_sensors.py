@@ -34,6 +34,7 @@ class BatterieSensors:
         # self.manufacturer = MANUFACTURER
         # self._serial_number = serial_number
         self.batterieAPI = batterieAPI
+        self.decoded_map = self._decode_map() #None
 
     def map_response(self) -> Dict[str, Any]:
         """Called by sensor.async_setup_entry to prepare sensor definitions
@@ -43,16 +44,11 @@ class BatterieSensors:
             TIMESTAMPS: All timestamps
             ENUM: All that have a set of possible values. Bool is a special case here.
         """
+#        if self.decoded_map is None:
+#            self.decoded_map = self._decode_map()
 
         result = {}
-        for sensor_name, (sensor_group, decode_info) in self._decode_map().items():
-            # if isinstance(decode_info, (tuple, list)):
-            #     indexes = decode_info[0]
-            #     packer = decode_info[1]
-            #     values = tuple(resp_data[i] for i in indexes)
-            #     val = packer(*values)
-            # else:
-            #val = resp_data[decode_info]
+        for sensor_name, (sensor_group, decode_info) in self.decoded_map.items():
             alias = decode_info[2] if len(decode_info) >2 and decode_info[2] is not None else sensor_name
     #        print(f'sensor name: {sensor_name}  alias: {alias}  decode_info: {decode_info}')
             result[alias] = self.batterieAPI.get_sensor_value(sensor_name)
@@ -67,7 +63,7 @@ class BatterieSensors:
 
     def _decode_map(self) -> Dict[str, SensorIndexSpec]:
         """Decode the map creating a single list of mappings used
-            to setup sensors.
+            to hydrate sensors.
         """
         sensors: Dict[str, SensorIndexSpec] = {}
         for sensor_group, sensor_map in self._response_decoder.items():
@@ -101,7 +97,7 @@ class BatterieSensors:
 
         sensors: Dict[str, Tuple[int, Measurement]] = {}
         for sensor_group, sensor_map in cls.response_decoder().items():
-            for name, mapping in sensor_map.items(): #cls.response_decoder().items():
+            for name, mapping in sensor_map.items():
                 option = None
                 if len(mapping) > 2:
                     if len(mapping) > 3:
@@ -114,25 +110,23 @@ class BatterieSensors:
                     alias = name
 
                 if sensor_group == 'UNITS':
-                    print(f'type: {type(unit_or_measurement)}')
+    #                print(f'{unit_or_measurement}: type: {type(unit_or_measurement)}')
+                    fieldtypes = SensorUnit.__args__
+    #                print(f'mapping : {mapping}')
                     if isinstance(unit_or_measurement, Units):
                         unit = Measurement(unit_or_measurement)
-        #            elif issubclass(unit_or_measurement, SensorUnit):
+                    elif issubclass(unit_or_measurement, SensorUnit):
     #                elif type(unit_or_measurement) in SensorUnit:
-                    else: # Assumed valid!
+                #    elif type(unit_or_measurement) in fieldtypes:
+            #        else: # Assumed valid!
                         unit = unit_or_measurement
-    #                else:
-    #                    raise ValueError(f'UNITS sensor {name} wrong type: {type(unit_or_measurement)}')
-
+                    else:
+                        raise ValueError(f'UNITS sensor {name} wrong type: {type(unit_or_measurement)}')
                 else:
-        #            unit = Measurement(Units.NONE, is_monotonic = option)
                     if type(option) is bool:
                         unit = Measurement(Units.NONE, is_monotonic = option)
                     else:
                         unit = Measurement(Units.NONE, False)
-
-        #                unit = unit._replace(is_monotonic = option)
-
                 sensors[alias] = (idx, unit, name, sensor_group, option)
         return sensors
 
