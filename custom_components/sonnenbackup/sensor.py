@@ -162,7 +162,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         self.key = sensor
         self._idx = sensor_idx
         self.alias = alias
-        self._state = ''
+        self._state = 'on'
 
     #    _LOGGER.debug(f'Setup sensor: {sensor} value: {self.native_value}')
 
