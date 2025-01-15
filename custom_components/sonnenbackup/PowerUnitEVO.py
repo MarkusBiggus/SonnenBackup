@@ -79,7 +79,7 @@ class PowerUnitEVO(BatterieSensors):
                 "inverter_pac_microgrid": (30, Units.W, "offgrid_pac"),
                 "battery_min_cell_temp": (31, Units.C, "min_battery_temp"),
                 "battery_max_cell_temp": (32, Units.C, "max_battery_temp"),
-                "state_bms": (33, Units.NONE, ""),
+                "state_bms": (33, Units.NONE),
                 "state_inverter": (34, Units.NONE),
 
                 # "Total Yield": (pack_u16(22, 23), Total(Units.KWH), div10),
