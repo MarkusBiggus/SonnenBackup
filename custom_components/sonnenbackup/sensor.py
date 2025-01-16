@@ -185,8 +185,8 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
     def native_value(self):
         """Value of this sensor from mapped battery property."""
         # self.coordinator.data is last BatterieResponse from async_setup_entry._async_update
-        # self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) #self._batterybackup.get_sensor_value(self.key)
-        # _LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
+        self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) #self._batterybackup.get_sensor_value(self.key)
+        _LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
         return self._attr_native_value
 
     @property
@@ -204,21 +204,23 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         """Return True if entity is available."""
         return self._available
 
-    def update(self) -> None:
-            """Update entity state."""
-            # try:
-    #            self._attr_native_value self._batterybackup.get_sensor_value(self.key)
-            # except BatterieSensorError:
-            #     if self.available:  # Read current state, no need to prefix with _attr_
-            #         LOGGER.warning(f'Sensor {self.key} update failed! ID: {entity_id}')
-            #     self._attr_available = False  # Set property value
-            #     return
-            # self._attr_available = Ture
+### Was never called!
+### https://developers.home-assistant.io/docs/core/entity/#property-implementation
+    # def update(self) -> None:
+    #         """Update entity state."""
+    #         # try:
+    # #            self._attr_native_value self._batterybackup.get_sensor_value(self.key)
+    #         # except BatterieSensorError:
+    #         #     if self.available:  # Read current state, no need to prefix with _attr_
+    #         #         LOGGER.warning(f'Sensor {self.key} update failed! ID: {entity_id}')
+    #         #     self._attr_available = False  # Set property value
+    #         #     return
+    #         # self._attr_available = Ture
 
-            #self._attr_available = True
-            # We don't need to check if device available here
-            _LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
-            self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) # data coordinator gets sensor_values from device
-            # self._attr_native_value = self.entity_description.value_fn(
-            #     self._device
-            # )
+    #         #self._attr_available = True
+    #         # We don't need to check if device available here
+    #         _LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
+    #         self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) # data coordinator gets sensor_values from device
+    #         # self._attr_native_value = self.entity_description.value_fn(
+    #         #     self._device
+    #         # )
