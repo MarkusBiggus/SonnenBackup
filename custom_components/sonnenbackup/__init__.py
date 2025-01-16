@@ -53,7 +53,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     """Set up SonnenBackup from a config entry."""
 
 #    _LOGGER.info("SonnenBackupConfigEntry: " + json.dumps(dict(config_entry.data)))
-    _LOGGER.info("SonnenBackupConfigEntry setup")
+    _LOGGER.info("SonnenBackup setup by ConfigEntry")
 
     #entity_id = f'{DOMAIN}.{config_entry.data['details'][CONF_DEVICE_ID]}'
     #hass.states.async_set(entity_id, 'on')
@@ -68,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         raise ConfigEntryNotReady from error
 
     async def _async_update() -> BatterieResponse:
-        """Update Batterie data caches"""
+        """Update Batterie data caches & map sensor values."""
 
     #    _LOGGER.debug("SonnenBackup component async_update")
         try:
@@ -121,7 +121,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry):
     """Handle options update."""
 
-    _LOGGER.info("SonnenBackupConfigEntry reload")
+    _LOGGER.info("SonnenBackup options update: reload ConfigEntry")
     coordinator: SonnenBackupUpdateCoordinator = config_entry.runtime_data.coordinator
     coordinator.update_interval = timedelta(seconds=config_entry.options[CONF_SCAN_INTERVAL])
     await hass.config_entries.async_reload(config_entry.entry_id)
@@ -129,7 +129,7 @@ async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBacku
 async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:
     """Unload a config entry."""
 
-    _LOGGER.info("SonnenBackupConfigEntry unload")
+    _LOGGER.info("SonnenBackup unload ConfigEntry")
     if unload_ok := await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS):
         # Remove config entry from domain.
         if config_entry.entry_id in hass.data[DOMAIN]:
