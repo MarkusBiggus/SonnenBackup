@@ -17,3 +17,5 @@ requests~=2.32
 responses
 urllib3_mock
 load_dotenv>=0.1.0
+
+tzlocal

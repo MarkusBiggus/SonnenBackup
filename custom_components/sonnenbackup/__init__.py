@@ -6,7 +6,7 @@ from datetime import timedelta
 import logging
 import voluptuous as vol
 
-from sonnen_api_v2 import BatterieResponse, BatterieBackup, BatterieAuthError, BatterieHTTPError, BatterieError
+from sonnen_api_v2 import BatterieResponse, BatterieBackup, BatterieSensorError
 
 from homeassistant.data_entry_flow import section
 from homeassistant.config_entries import ConfigEntry
@@ -14,6 +14,7 @@ from homeassistant.const import (
     CONF_IP_ADDRESS,
     CONF_API_TOKEN,
     CONF_PORT,
+    CONF_MODEL,
     CONF_MODEL,
     CONF_DEVICE_ID,
     CONF_SCAN_INTERVAL,
@@ -32,29 +33,8 @@ from .const import (
     PLATFORMS,
     MANUFACTURER,
     DEFAULT_SCAN_INTERVAL,
-    DEFAULT_PORT
 )
-
-DOMAIN = "sonnenbackup"
-CONFIG_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_IP_ADDRESS): cv.string,
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
-        vol.Required(CONF_API_TOKEN): cv.string,
-        "details": section(
-#            {'fields':
-                vol.Schema(
-                    {
-                        vol.Required(CONF_MODEL): cv.string,
-                        vol.Required(CONF_DEVICE_ID): cv.string,
-                    }
-                ),
-#            },
-        # Whether or not the section is initially collapsed (default = False)
-            {"collapsed": False},
-        )
-    }
-)
+from .PowerUnitEVO import PowerUnitEVO
 
 SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 
@@ -75,7 +55,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     """Set up SonnenBackup from a config entry."""
 
 #    _LOGGER.info("SonnenBackupConfigEntry: " + json.dumps(dict(config_entry.data)))
-    _LOGGER.info("SonnenBackupConfigEntry setup")
+    _LOGGER.info("SonnenBackup setup by ConfigEntry")
+
+    #entity_id = f'{DOMAIN}.{config_entry.data['details'][CONF_DEVICE_ID]}'
+    #hass.states.async_set(entity_id, 'on')
 
     try:
         _batterie = BatterieBackup(
@@ -87,15 +70,24 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         raise ConfigEntryNotReady from error
 
     async def _async_update() -> BatterieResponse:
-        """Update Batterie data caches"""
+        """Update Batterie data caches & map sensor values."""
 
-        _LOGGER.info("SonnenBackup component async_update")
+    #    _LOGGER.debug("SonnenBackup component async_update")
         try:
-            return await _batterie.refresh_response() # returned into coordinator.data
-        except (BatterieAuthError, BatterieHTTPError, BatterieError) as error:
+            _batterie_response = await _batterie.refresh_response() # returned into coordinator.data
+            _batterie_response = _batterie_response._replace(sensor_values = _battery_sensors.map_response())
+        #    _LOGGER.debug(f"response: {_batterie_response.sensor_values} ")
+        except (BatterieSensorError) as error:
+            _LOGGER.error(f"SonnenBackup async_update unknown Sensor: {repr(error)}")
             raise UpdateFailed from error
-        # except Exception as error:
-        #     raise UpdateFailed from error
+        except Exception as error:
+            _LOGGER.error(f"SonnenBackup async_update failed: {repr(error)}")
+            raise UpdateFailed from error
+        finally:
+            return _batterie_response
+
+    # Could be a different response_decoder defined for each model
+    _battery_sensors = PowerUnitEVO(_batterie)
 
 
     # coordinator.data is BatterieResponse from update_method
@@ -111,7 +103,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     config_entry.runtime_data = SonnenBackupAPI(
         api=_batterie,
         coordinator=coordinator,
-        serial_number=config_entry.data['details'][CONF_DEVICE_ID],
+        serial_number=config_entry.data[CONF_DEVICE_ID],
+        model=config_entry.data[CONF_MODEL],
         version=coordinator.data.version,
         last_updated=coordinator.data.last_updated
     )
@@ -123,14 +116,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     # Store a reference to the unsubscribe function to cleanup if an entry is unloaded.
     hass_data["unsub_options_update_listener"] = unsub_options_update_listener
     hass.data[DOMAIN][config_entry.entry_id] = hass_data
-#    print(f'hass.data: {hass.data[DOMAIN]}  {config_entry}')
+#    _LOGGER.info(f'hass.data: {hass.data[DOMAIN]}  {config_entry}')
 
     return True
 
 async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry):
     """Handle options update."""
 
-    _LOGGER.info("SonnenBackupConfigEntry reload")
+    _LOGGER.info("SonnenBackup options update: reload ConfigEntry")
     coordinator: SonnenBackupUpdateCoordinator = config_entry.runtime_data.coordinator
     coordinator.update_interval = timedelta(seconds=config_entry.options[CONF_SCAN_INTERVAL])
     await hass.config_entries.async_reload(config_entry.entry_id)
@@ -138,7 +131,7 @@ async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBacku
 async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:
     """Unload a config entry."""
 
-    _LOGGER.info("SonnenBackupConfigEntry unload")
+    _LOGGER.info("SonnenBackup unload ConfigEntry")
     if unload_ok := await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS):
         # Remove config entry from domain.
         if config_entry.entry_id in hass.data[DOMAIN]:
