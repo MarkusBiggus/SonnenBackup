@@ -77,7 +77,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         #    _LOGGER.debug(f"response: {_batterie_response.sensor_values} ")
         except (BatterieSensorError) as error:
             _LOGGER.info(f"SonnenBackup async_update unknown Sensor: {repr(error)}")
-        #    raise UpdateFailed from error
+            raise UpdateFailed from error
         except Exception as error:
             _LOGGER.error(f"SonnenBackup async_update failed: {repr(error)}")
             raise UpdateFailed from error
