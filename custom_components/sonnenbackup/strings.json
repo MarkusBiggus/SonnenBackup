@@ -23,6 +23,7 @@
         "description": "Network address & API Token",
         "data": {
           "ip_address": "[%key:common::config_flow::data::ip%]",
+          "ip_address": "[%key:common::config_flow::data::ip%]",
           "port": "[%key:common::config_flow::data::port%]",
           "api_token": "[%key:common::config_flow::data::api_token%]",
           "model": "Model",

@@ -1,18 +1,20 @@
-"""The SonnenBackup batterie backup component."""
+"""The SonnenBackup batterie component."""
 
 from __future__ import annotations
 
 from datetime import timedelta
 import logging
-#import json
+import voluptuous as vol
 
 from sonnen_api_v2 import BatterieResponse, BatterieBackup, BatterieSensorError
 
+from homeassistant.data_entry_flow import section
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_IP_ADDRESS,
     CONF_API_TOKEN,
     CONF_PORT,
+    CONF_MODEL,
     CONF_MODEL,
     CONF_DEVICE_ID,
     CONF_SCAN_INTERVAL,
@@ -20,18 +22,21 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity import Entity
+import homeassistant.helpers.config_validation as cv
 
 from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupAPI
 
 from .const import (
-    DOMAIN,
     PLATFORMS,
+    MANUFACTURER,
     DEFAULT_SCAN_INTERVAL,
 )
 from .PowerUnitEVO import PowerUnitEVO
 
 SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
-
 
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
@@ -41,9 +46,6 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup(hass: HomeAssistant, config_entry: dict):
     """Set up SonnenBackup component."""
 
-# !!!!!!!!!!!!!! config_entry is empty !!!!!!!!!!!!!
-    # entity_id = f'{DOMAIN}.{'987789'}' #data[CONF_DEVICE_ID]}'
-    # hass.states.async_set(entity_id, {})
     hass.data.setdefault(DOMAIN, {})
 
     # Return boolean to indicate that initialization was successful.
@@ -108,7 +110,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     )
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
 
-    hass_data = dict(config_entry.data)
+    hass_data = dict(config_entry.data[DOMAIN][config_entry.entry_id])
     # Registers update listener to update config entry when options are updated.
     unsub_options_update_listener = config_entry.add_update_listener(options_update_listener)
     # Store a reference to the unsubscribe function to cleanup if an entry is unloaded.
@@ -139,3 +141,30 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConf
             config_data["unsub_options_update_listener"]()
 
     return unload_ok
+
+# class SonnenBackupUpdatableEntity(Entity):
+#     """Base entity for SonnenBackup."""
+
+#     _attr_should_poll = False
+
+#     def __init__(self, device: BatterieBackup) -> None:
+#         """Initialize a SonnenBackup entity."""
+#         self._device = device
+#         self._attr_name = config_entry.model
+#         self._attr_available = device.available
+#         self._attr_unique_id = config_entry.serial_number
+#         self._device_name = config_entry.model
+#         self._device_manufacturer = MANUFACTURER
+#         self._device_id = config_entry.serial_number
+#         info = DeviceInfo(
+#             identifiers={(DOMAIN, str(device.unique_id))},
+#             manufacturer=MANUFACTURER,
+#             name=self._attr_name,
+# #            suggested_area=device.zone,
+#         )
+#         self._attr_device_info = info
+
+#     @property
+#     def available(self) -> bool:
+#         """Check availability of the device."""
+#         return self._attr_available

@@ -1,34 +1,43 @@
 # SonnenBackup
 
-Read energy usage data from the real-time API on Sonnen Batterie.
+Read from the real-time API on Sonnen Batterie to manage Backup Reserve capacity.
 
+Readonly API, use Sonnen Batterie portal or mobile app to set Backup Reseve percent.
+
+* System state On Grid, Off Grid or Critical Error.
 * Real time power, current and voltage
-* Grid power information
-* Battery level
+* Battery levels, Charge/Discharge rate, time to fully charged
+* Backup reserve, time to reserve, time to fully discharged
 * Temperature and batterie health
-* Daily/Total energy summaries
 
 ## Usage
 
 `pip install sonnenbackup`
 
-Then from within your project:
+(will require sonnen_api_v2 driver package)
+
+
+Within your project:
 
 ```
 from sonnen_api_v2 import BatterieBackup, BatterieResponse,
 import asyncio
 
-async def work():
-    _batterie = await BatterieBackup(auth_token, ip_address, port)
+async def validate():
+    _batterie = BatterieBackup(auth_token, ip_address, port)
+    return await _batterie.validate_token()
+
+async def update():
+    _batterie = BatterieBackup(auth_token, ip_address, port)
     return await _batterie.get_response()
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
-data = loop.run_until_complete(work())
-print(data)
+response = loop.run_until_complete(update())
+print(response)
 ```
 
-## Confirmed Supported Batterie
+## Confirmed Supported Batteries
 
 These batteries have been tested and confirmed to be working. If your batterie is not listed below, this library may still work provided your battery admin portal can generate an API read token and responds to Sonnen API V2 endpoints.
 

@@ -1,5 +1,6 @@
 """Constants for the sonnenbackup integration."""
 
+
 import voluptuous as vol
 
 import homeassistant.helpers.config_validation as cv
@@ -39,14 +40,19 @@ DEFAULT_SCAN_INTERVAL = 10
 MIN_SCAN_INTERVAL = 2
 MAX_SCAN_INTERVAL = 120
 
+MIN_SCAN_INTERVAL = 2
+MAX_SCAN_INTERVAL = 120
+
 ATTR_SONNEN_DEBUG = "sonnenbackup_debug"
 DEFAULT_PORT = 80
+MIN_PORT = 1
+MAX_PORT = 49151 # below ephemeral range
 MIN_PORT = 1
 MAX_PORT = 49151 # below ephemeral range
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
-CONFIG_SCHEMA = vol.Schema(
+_CONFIG_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_IP_ADDRESS): cv.string,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
@@ -64,7 +70,7 @@ CONFIG_SCHEMA = vol.Schema(
     }
 )
 
-OPTIONS_SCHEMA = vol.Schema(
+_OPTIONS_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_SCAN_INTERVAL,
                      vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),

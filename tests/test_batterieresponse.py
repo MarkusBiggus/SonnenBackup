@@ -1,12 +1,13 @@
 """pytest tests/test_batterieresponse.py -s -v -x
-
-    Async update called from an async method to
-    get BatterieResponse as used by HA component.
+1. Async update called from an async method.
 """
 import datetime
 import os
 import sys
 import logging
+import urllib3
+
+#for tests only
 import pytest
 from freezegun import freeze_time
 import tzlocal
@@ -15,10 +16,16 @@ from sonnen_api_v2 import Batterie, BatterieResponse, BatterieBackup
 from .mock_sonnenbatterie_v2_charging import __mock_configurations
 
 from .battery_charging_asyncio import fixture_battery_charging
+from .mock_battery_responses import (
+    __battery_configurations_auth200,
+    __battery_configurations_auth401,
+    __battery_configurations_auth500,
+)
+from .mock_sonnenbatterie_v2_charging import __mock_configurations
 
 LOGGER_NAME = None # "sonnenapiv2" #
 
-logging.getLogger("BatterieResponse").setLevel(logging.WARNING)
+logging.getLogger("batterieResponse").setLevel(logging.WARNING)
 
 if LOGGER_NAME is not None:
     filename=f'/tests/logs/{LOGGER_NAME}.log'
@@ -47,6 +54,7 @@ async def test_batterieresponse(battery_charging: Batterie) -> None:
 
     _batterie = BatterieBackup('fakeToken', 'fakeHost')
 
+    response = await _batterie.refresh_response()
     response = await _batterie.refresh_response()
 
     #print(f'response: {response}')

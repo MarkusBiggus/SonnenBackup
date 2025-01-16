@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+import voluptuous as vol
+import re
 
 from sonnen_api_v2 import Batterie, BatterieAuthError, BatterieHTTPError, BatterieError
 
@@ -17,6 +19,9 @@ from homeassistant.config_entries import (
     CONN_CLASS_LOCAL_POLL,
 )
 from homeassistant.core import HomeAssistant, callback
+import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.schema_config_entry_flow import SchemaFlowError
+from homeassistant.data_entry_flow import section
 from homeassistant.const import (
         CONF_IP_ADDRESS,
         CONF_API_TOKEN,
@@ -51,6 +56,7 @@ async def _validate_api(user_input) -> bool:
     _batterie = Batterie(
         user_input[CONF_API_TOKEN],
         user_input[CONF_IP_ADDRESS],
+        int(user_input[CONF_PORT]),
         int(user_input[CONF_PORT]),
     )
     try:
@@ -202,10 +208,16 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
         """Create the options flow."""
 
         return SonnenBackupOptionsFlow(config_entry)
+    def async_get_options_flow(config_entry: SonnenBackupConfigEntry
+    ) -> OptionsFlow:
+        """Create the options flow."""
+
+        return SonnenBackupOptionsFlow(config_entry)
 
 class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
 
+    def __init__(self, config_entry) -> None:
     def __init__(self, config_entry) -> None:
         """Initialize options flow."""
 
@@ -216,7 +228,9 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle options flow."""
+        """Handle options flow."""
 
+        _LOGGER.info(" config_options step_init")
         _LOGGER.info(" config_options step_init")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
@@ -226,6 +240,8 @@ class SonnenBackupOptionsFlow(OptionsFlow):
                 step_id="init",
                 data_schema = #OPTIONS_SCHEMA,
                     self.add_suggested_values_to_schema(
+                data_schema = #OPTIONS_SCHEMA,
+                    self.add_suggested_values_to_schema(
                     OPTIONS_SCHEMA,
                     self.options
                 ),
@@ -233,9 +249,13 @@ class SonnenBackupOptionsFlow(OptionsFlow):
             )
 
         if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL or user_input[CONF_SCAN_INTERVAL] > MAX_SCAN_INTERVAL:
+        if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL or user_input[CONF_SCAN_INTERVAL] > MAX_SCAN_INTERVAL:
             return self.async_create_entry(
                 title='',
-                data=user_input
+                data={
+                    CONF_SCAN_INTERVAL: user_input[CONF_SCAN_INTERVAL],
+                    "sonnenbackup_debug": user_input["sonnenbackup_debug"]
+                }
             )
 
         # """Invalid scan_interval"""
@@ -248,6 +268,8 @@ class SonnenBackupOptionsFlow(OptionsFlow):
             data_schema = self.add_suggested_values_to_schema(
                 OPTIONS_SCHEMA,
                 user_input
+                OPTIONS_SCHEMA,
+                user_input
             ),
             errors=errors,
             description_placeholders=placeholders
@@ -257,6 +279,7 @@ class CannotConnect(HomeAssistantError):
     """Error to indicate we cannot connect."""
 
 class DeviceAPIError(HomeAssistantError):
+    """Error to indicate device API HTTP error."""
     """Error to indicate device API HTTP error."""
 
 class InvalidAuth(HomeAssistantError):
