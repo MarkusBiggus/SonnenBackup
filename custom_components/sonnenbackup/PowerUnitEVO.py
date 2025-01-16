@@ -23,6 +23,11 @@ from homeassistant.helpers.typing import StateType
 
 #from .utils import div10, div100 #, pack_u16, to_signed, to_signed32, twoway_div10
 
+from .const import (
+    SENSOR_GROUP_UNITS,
+    SENSOR_GROUP_TIMESTAMP,
+    SENSOR_GROUP_ENUM,
+    )
 from .units import Units, BatteryCapacity, DailyTotal, TotalKWH, DailyTotalW #Total
 from .batterie_sensors import BatterieSensors
 
@@ -44,7 +49,7 @@ class PowerUnitEVO(BatterieSensors):
             index is unique across the three groups - they become one list of sensors, eventually
         """
         return {
-            'UNITS': {
+            SENSOR_GROUP_UNITS: {
 #                "configuration_em_operatingmode": (0, Units.NONE, "operating_mode", cls._decode_operating_mode),
                 "status_backup_buffer": (1, Units.PERCENT),
                 "led_state": (2, Units.NONE),
@@ -89,7 +94,7 @@ class PowerUnitEVO(BatterieSensors):
                 # "Total Consumption": (pack_u16(76, 77), Total(Units.KWH), div100),
             },
 
-            'TIMESTAMP': {
+            SENSOR_GROUP_TIMESTAMP: {
                 "system_status_timestamp": (4, Units.NONE, "status_timestamp"),
                 "fully_charged_at": (6, Units.NONE),
                 "fully_discharged_at": (7, Units.NONE),
@@ -98,7 +103,7 @@ class PowerUnitEVO(BatterieSensors):
                 "last_updated": (23, Units.NONE),
             },
 
-            'ENUM': {
+            SENSOR_GROUP_ENUM: {
                 "status_battery_charging": (18, Units.NONE, "charging", True),
                 "status_battery_discharging": (19, Units.NONE, "discharging", True),
                 "configuration_em_operatingmode": (0, Units.NONE, "operating_mode", {1: "Manual",2: "Automatic",6: "Extension module",10: "Time of Use"}),

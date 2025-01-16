@@ -9,6 +9,11 @@ from sonnen_api_v2 import BatterieBackup
 
 from .utils import PackerBuilderResult
 from .units import Measurement, Units, Total, DailyTotal, BatteryCapacity, SensorUnit
+from .const import (
+    SENSOR_GROUP_UNITS,
+    SENSOR_GROUP_TIMESTAMP,
+    SENSOR_GROUP_ENUM,
+    )
 
 
 ProcessorTuple = Tuple[Callable[[Any], Any], ...]
@@ -109,7 +114,7 @@ class BatterieSensors:
                     (idx, unit_or_measurement, *_) = mapping
                     alias = name
 
-                if sensor_group == 'UNITS':
+                if sensor_group == SENSOR_GROUP_UNITS:
     #                print(f'{unit_or_measurement}: type: {type(unit_or_measurement)}')
     #                print(f'mapping : {mapping}')
                     if isinstance(unit_or_measurement, Units):
@@ -120,7 +125,7 @@ class BatterieSensors:
             #        else: # Assumed valid!
                         unit = unit_or_measurement
                     else:
-                        raise ValueError(f'UNITS sensor {name} wrong type: {type(unit_or_measurement)}')
+                        raise ValueError(f'{SENSOR_GROUP_UNITS} sensor {name} wrong type: {type(unit_or_measurement)}')
                 else:
                     if type(option) is bool:
                         unit = Measurement(Units.NONE, is_monotonic = option)

@@ -9,6 +9,7 @@ import sys
 import logging
 import pytest
 from freezegun import freeze_time
+import tzlocal
 
 from sonnen_api_v2 import Batterie, BatterieResponse, BatterieBackup
 from .mock_sonnenbatterie_v2_charging import __mock_configurations
@@ -53,6 +54,6 @@ async def test_batterieresponse(battery_charging: Batterie) -> None:
     assert isinstance(response, BatterieResponse) is True
     assert response == BatterieResponse(
         version='1.14.5',
-        last_updated=datetime.datetime(2023, 11, 20, 17, 0),
+        last_updated=datetime.datetime(2023, 11, 20, 17, 0, tzinfo=tzlocal.get_localzone()),
         sensor_values={}
     )
