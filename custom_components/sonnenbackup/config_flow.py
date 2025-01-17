@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-import voluptuous as vol
-import re
+#import voluptuous as vol
+#import re
 
 from sonnen_api_v2 import Batterie, BatterieAuthError, BatterieHTTPError, BatterieError
 
@@ -18,10 +18,10 @@ from homeassistant.config_entries import (
     ConfigEntry,
     CONN_CLASS_LOCAL_POLL,
 )
-from homeassistant.core import HomeAssistant, callback
-import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.schema_config_entry_flow import SchemaFlowError
-from homeassistant.data_entry_flow import section
+from homeassistant.core import callback
+#import homeassistant.helpers.config_validation as cv
+#from homeassistant.helpers.schema_config_entry_flow import SchemaFlowError
+#from homeassistant.data_entry_flow import section
 from homeassistant.const import (
         CONF_IP_ADDRESS,
         CONF_API_TOKEN,
@@ -38,7 +38,6 @@ from .const import (
     DOMAIN,
     CONFIG_SCHEMA,
     OPTIONS_SCHEMA,
-    DEFAULT_PORT,
     MIN_PORT,
     MAX_PORT,
     MIN_SCAN_INTERVAL,
@@ -56,7 +55,6 @@ async def _validate_api(user_input) -> bool:
     _batterie = Batterie(
         user_input[CONF_API_TOKEN],
         user_input[CONF_IP_ADDRESS],
-        int(user_input[CONF_PORT]),
         int(user_input[CONF_PORT]),
     )
     try:
@@ -95,8 +93,6 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 data_schema=CONFIG_SCHEMA,
                 errors=errors
             )
-
-    #    _LOGGER.info(f'user_input: {user_input}')
 
         # Check if is a valid port number
         try:
@@ -162,7 +158,6 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors=errors
             )
 
-
         try:
             await _validate_api(user_input)
         except InvalidAuth as error:
@@ -208,16 +203,10 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
         """Create the options flow."""
 
         return SonnenBackupOptionsFlow(config_entry)
-    def async_get_options_flow(config_entry: SonnenBackupConfigEntry
-    ) -> OptionsFlow:
-        """Create the options flow."""
-
-        return SonnenBackupOptionsFlow(config_entry)
 
 class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
 
-    def __init__(self, config_entry) -> None:
     def __init__(self, config_entry) -> None:
         """Initialize options flow."""
 
@@ -228,9 +217,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle options flow."""
-        """Handle options flow."""
 
-        _LOGGER.info(" config_options step_init")
         _LOGGER.info(" config_options step_init")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
@@ -240,16 +227,13 @@ class SonnenBackupOptionsFlow(OptionsFlow):
                 step_id="init",
                 data_schema = #OPTIONS_SCHEMA,
                     self.add_suggested_values_to_schema(
-                data_schema = #OPTIONS_SCHEMA,
-                    self.add_suggested_values_to_schema(
                     OPTIONS_SCHEMA,
                     self.options
                 ),
                 errors=errors
             )
 
-        if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL or user_input[CONF_SCAN_INTERVAL] > MAX_SCAN_INTERVAL:
-        if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL or user_input[CONF_SCAN_INTERVAL] > MAX_SCAN_INTERVAL:
+        if MIN_SCAN_INTERVAL <= user_input[CONF_SCAN_INTERVAL] and user_input[CONF_SCAN_INTERVAL] <= MAX_SCAN_INTERVAL:
             return self.async_create_entry(
                 title='',
                 data={
@@ -258,16 +242,14 @@ class SonnenBackupOptionsFlow(OptionsFlow):
                 }
             )
 
-        # """Invalid scan_interval"""
-        # errors["base"] = 'invalid_interval'
-        # placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least {MIN_SCAN_INTERVAL} seconds and no more than {MAX_SCAN_INTERVAL}.'
-        # user_input[CONF_SCAN_INTERVAL] = MIN_SCAN_INTERVAL if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL else MAX_SCAN_INTERVAL
+        """Invalid scan_interval"""
+        errors["base"] = 'invalid_interval'
+        placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least {MIN_SCAN_INTERVAL} seconds and no more than {MAX_SCAN_INTERVAL}.'
+        user_input[CONF_SCAN_INTERVAL] = MIN_SCAN_INTERVAL if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL else MAX_SCAN_INTERVAL
 
         return self.async_show_form(
             step_id="init",
             data_schema = self.add_suggested_values_to_schema(
-                OPTIONS_SCHEMA,
-                user_input
                 OPTIONS_SCHEMA,
                 user_input
             ),
@@ -279,7 +261,6 @@ class CannotConnect(HomeAssistantError):
     """Error to indicate we cannot connect."""
 
 class DeviceAPIError(HomeAssistantError):
-    """Error to indicate device API HTTP error."""
     """Error to indicate device API HTTP error."""
 
 class InvalidAuth(HomeAssistantError):

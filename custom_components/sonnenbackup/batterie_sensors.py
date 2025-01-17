@@ -8,11 +8,11 @@ import voluptuous as vol
 from sonnen_api_v2 import BatterieBackup
 
 from .utils import PackerBuilderResult
-from .units import Measurement, Units, Total, DailyTotal, BatteryCapacity, SensorUnit
+from .units import Measurement, Units, SensorUnit
 from .const import (
     SENSOR_GROUP_UNITS,
-    SENSOR_GROUP_TIMESTAMP,
-    SENSOR_GROUP_ENUM,
+    # SENSOR_GROUP_TIMESTAMP,
+    # SENSOR_GROUP_ENUM,
     )
 
 
@@ -58,7 +58,7 @@ class BatterieSensors:
     #        print(f'sensor name: {sensor_name}  alias: {alias}  decode_info: {decode_info}')
             result[alias] = self.batterieAPI.get_sensor_value(sensor_name)
     #        print(f'sensor name: {alias}  result: {result[alias]}')
-            if sensor_group == 'UNITS':
+            if sensor_group == SENSOR_GROUP_UNITS:
                 for sensor_name, processor in self._postprocess_gen():
             #        print(f'{sensor_name}  processor: {processor}')
                     result[alias] = processor(result[sensor_name])
@@ -84,7 +84,7 @@ class BatterieSensors:
         Return map of functions to be applied to each UNITS sensor measurement.
         """
 
-        for name, mapping in self._response_decoder.get('UNITS').items():
+        for name, mapping in self._response_decoder.get(SENSOR_GROUP_UNITS).items():
             if len(mapping) > 3:
                 (_, _, alias, *processors) = mapping
                 alias = name if alias is None else alias
