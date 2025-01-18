@@ -62,7 +62,7 @@ CONFIG_SCHEMA = vol.Schema(
         # {"collapsed": False},
         # )
     }
-)
+) #: cv.config_entry_only_config_schema
 
 OPTIONS_SCHEMA = vol.Schema(
     {
