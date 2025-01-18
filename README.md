@@ -10,11 +10,15 @@ Readonly API, use Sonnen Batterie portal or mobile app to set Backup Reseve perc
 * Backup reserve, time to reserve, time to fully discharged
 * Temperature and batterie health
 
+## HACS
+
+Install SonnenBackup integration.
+
 ## Usage
 
 `pip install sonnenbackup`
 
-(will require sonnen_api_v2 driver package)
+(requires sonnen_api_v2 driver package)
 
 
 Within your project:
@@ -31,10 +35,10 @@ async def update():
     _batterie = BatterieBackup(auth_token, ip_address, port)
     return await _batterie.get_response()
 
+# hass will call from running event loop
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 response = loop.run_until_complete(update())
-print(response)
 ```
 
 ## Confirmed Supported Batteries
