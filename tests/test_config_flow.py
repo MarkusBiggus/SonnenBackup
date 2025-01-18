@@ -1,6 +1,6 @@
 """Test the SonnenBackup config flow.
 
-    pytest tests/test_config_flow.py -s -v -x  -k test_form
+    pytest tests/test_config_flow.py -s -v -x  -k test_form_works
 """
 
 import pytest
@@ -59,7 +59,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
-async def test_form(hass: HomeAssistant) -> None:
+async def test_form_works(hass: HomeAssistant) -> None:
     """Test the form works."""
 
     logging.basicConfig(level=logging.DEBUG)
@@ -229,7 +229,6 @@ async def test_form_device_error(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-#@patch.object(Batterie, 'fetch_configurations', __mock_configurations)
 @patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
 async def test_form_mocked(hass: HomeAssistant) -> None:
     """Test the form with mock validaton."""
@@ -306,29 +305,28 @@ async def test_options_flow(hass: HomeAssistant) -> None:
             "sonnenbackup_debug": True,
         }
     )
-    # assert FlowResultType.FORM == result["type"]
-    # assert "init" == result["step_id"]
-    # print(f'result: {result}')
-    # assert result["errors"]["base"] == 'invalid_interval'
-    # assert result["description_placeholders"]["error_detail"] == 'Scan interval "2" must be at least 3 seconds and no more than 120.'
-    # # assert {
-    # #         CONF_SCAN_INTERVAL: 2,
-    # #         "sonnenbackup_debug": True,
-    # #         } == result["data"]
-    # #print(f'result: {dict(result)}')
-
-    # # submit form with invalid options
-    # result = await hass.config_entries.options.async_configure(
-    #     result["flow_id"],
-    #     user_input={
-    #         CONF_SCAN_INTERVAL: 200,
+    assert FlowResultType.FORM == result["type"]
+    assert "init" == result["step_id"]
+#    print(f'result: {result}')
+    assert result["errors"]["base"] == 'invalid_interval'
+    assert result["description_placeholders"]["error_detail"] == 'Scan interval "2" must be at least 3 seconds and no more than 120.'
+    # assert {
+    #         CONF_SCAN_INTERVAL: 2,
     #         "sonnenbackup_debug": True,
-    #     }
-    # )
-    # assert FlowResultType.FORM == result["type"]
-    # assert "init" == result["step_id"]
-    # assert result["errors"]["base"] == 'invalid_interval'
-    # assert result["description_placeholders"]["error_detail"] == 'Scan interval "200" must be at least 3 seconds and no more than 120.'
+    #         } == result["data"]
+
+    # submit form with invalid options
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_SCAN_INTERVAL: 200,
+            "sonnenbackup_debug": True,
+        }
+    )
+    assert FlowResultType.FORM == result["type"]
+    assert "init" == result["step_id"]
+    assert result["errors"]["base"] == 'invalid_interval'
+    assert result["description_placeholders"]["error_detail"] == 'Scan interval "200" must be at least 3 seconds and no more than 120.'
     # # assert {
     # #         CONF_SCAN_INTERVAL: 2,
     # #         "sonnenbackup_debug": True,
@@ -336,10 +334,10 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     # #print(f'result: {dict(result)}')
 
     # # submit form with valid options
-    # result = await hass.config_entries.options.async_configure(
-    #     result["flow_id"],
-    #     user_input=CONFIG_OPTIONS
-    # )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input=CONFIG_OPTIONS
+    )
     assert FlowResultType.CREATE_ENTRY == result["type"]
     assert "" == result["title"]
     assert result["result"] is True
@@ -455,10 +453,10 @@ async def test_form_invalid_port(hass: HomeAssistant) -> None:
             CONF_IP_ADDRESS: "1.1.1.1",
             CONF_PORT: 59999,# above 49151 (ephemeral port)
             CONF_API_TOKEN: "fakeToken-111-222-4444-3333",
-            "details": {
-                CONF_MODEL: 'Power unit Evo IP56',
-                CONF_DEVICE_ID: "321123"
-            }
+            # "details": {
+            CONF_MODEL: 'Power unit Evo IP56',
+            CONF_DEVICE_ID: "321123"
+            # }
         }
     )
     assert result["errors"] == {"base": "invalid_port"}

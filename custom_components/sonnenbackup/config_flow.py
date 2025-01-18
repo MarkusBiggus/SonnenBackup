@@ -132,7 +132,12 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=CONFIG_SCHEMA,
+#            data_schema=CONFIG_SCHEMA,
+            data_schema =
+                self.add_suggested_values_to_schema(
+                CONFIG_SCHEMA,
+                user_input
+            ),
             errors=errors,
             description_placeholders=placeholders
         )
@@ -207,7 +212,8 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
 
-    def __init__(self, config_entry) -> None:
+    def __init__(self, config_entry:SonnenBackupConfigEntry
+    ) -> None:
         """Initialize options flow."""
 
         _LOGGER.info(' config_options')
@@ -258,7 +264,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         )
 
 class CannotConnect(HomeAssistantError):
-    """Error to indicate we cannot connect."""
+    """Error to indicate failed connection to device."""
 
 class DeviceAPIError(HomeAssistantError):
     """Error to indicate device API HTTP error."""
