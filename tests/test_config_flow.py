@@ -477,7 +477,7 @@ async def test_options_flow_works(hass: HomeAssistant) -> None:
     )
     await hass.async_block_till_done()
 
-    print(f'result: {dict(result)}')
+#    print(f'result: {dict(result)}')
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
@@ -497,19 +497,21 @@ async def test_options_flow_works(hass: HomeAssistant) -> None:
         user_input=CONFIG_OPTIONS
     )
 
-    print(f'result: {dict(result)}')
+#    print(f'result: {dict(result)}')
 
-    assert FlowResultType.CREATE_ENTRY == result["type"]
-    assert "" == result["title"]
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["title"] == ''
     assert result["result"] is True
-    #print(f'result: {dict(result)}')
+#    print(f'result: {dict(result)}')
     assert CONFIG_OPTIONS == result["data"]
 
     # update entry with options
-    hass.config_entries.async_update_entry(
+    success = hass.config_entries.async_update_entry(
         config_entry,
         options=result["data"]
     )
-    print(f'config: {config_entry.as_dict()}')
+
+    assert success is True
+#    print(f'config: {config_entry.as_dict()}')
     assert config_entry.options == result["data"]
     assert config_entry.data == CONFIG_DATA

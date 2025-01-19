@@ -142,7 +142,7 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConf
 
     return unload_ok
 
-# class SonnenBackupUpdatableEntity(Entity):
+# class SonnenBackupEntity(Entity):
 #     """Base entity for SonnenBackup."""
 
 #     _attr_should_poll = False
@@ -166,5 +166,5 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConf
 
 #     @property
 #     def available(self) -> bool:
-#         """Check availability of the device."""
+#         """Availability of the device."""
 #         return self._attr_available

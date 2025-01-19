@@ -8,9 +8,17 @@ from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_DELAY
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from homeassistant.const import (
+        CONF_IP_ADDRESS,
+        CONF_API_TOKEN,
+        CONF_PORT,
+        CONF_MODEL,
+        CONF_DEVICE_ID,
+        CONF_SCAN_INTERVAL,
+        )
 
 from custom_components.sonnenbackup import (
-    sonnenbackupUpdatableEntity,
+    SonnenBackupEntity,
 )
 from custom_components.sonnenbackup.const import (
     CONTROLLER_ENTRY,
@@ -48,9 +56,9 @@ def mock_config_entry_missing_id() -> MockConfigEntry:
         domain=DOMAIN,
         title="sonnenbackup Test Entry",
         data={
-            "host": "127.0.0.1",
-            "port": 1234,
-            "protocol": "TCP",
+            CONF_IP_ADDRESS: "127.0.0.1",
+            CONF_PORT: 1234,
+            CONF_API_TOKEN: "TCP",
         },
         options={},
         entry_id="test_entry_id",

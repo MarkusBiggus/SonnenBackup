@@ -1,7 +1,7 @@
 """Mock battery configuration as response to validate Auth"""
 
 from urllib3 import HTTPResponse
-from . mock_sonnenbatterie_v2_charging import __mock_configurations
+from .mock_sonnenbatterie_v2_charging import __mock_configurations
 import json
 
 def __battery_auth200(self, _method:str, _url:str, _body, _headers:str, _retries, **kwargs):
