@@ -16,30 +16,10 @@ Install SonnenBackup integration.
 
 ## Usage
 
-`pip install sonnenbackup`
+# install sonnenbackup with hacs
 
 (requires sonnen_api_v2 driver package)
 
-
-Within your project:
-
-```
-from sonnen_api_v2 import BatterieBackup, BatterieResponse,
-import asyncio
-
-async def validate():
-    _batterie = BatterieBackup(auth_token, ip_address, port)
-    return await _batterie.validate_token()
-
-async def update():
-    _batterie = BatterieBackup(auth_token, ip_address, port)
-    return await _batterie.get_response()
-
-# hass will call from running event loop
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
-response = loop.run_until_complete(update())
-```
 
 ## Confirmed Supported Batteries
 
