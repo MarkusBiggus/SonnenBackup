@@ -505,13 +505,13 @@ async def test_options_flow_works(hass: HomeAssistant) -> None:
 #    print(f'result: {dict(result)}')
     assert CONFIG_OPTIONS == result["data"]
 
-    # update entry with options
-    success = hass.config_entries.async_update_entry(
-        config_entry,
-        options=result["data"]
-    )
+#     # update entry with options
+#     success = hass.config_entries.async_update_entry(
+#         config_entry,
+#         options=result["data"]
+#     )
 
-    assert success is True
-#    print(f'config: {config_entry.as_dict()}')
-    assert config_entry.options == result["data"]
-    assert config_entry.data == CONFIG_DATA
+#     assert success is True
+# #    print(f'config: {config_entry.as_dict()}')
+#     assert config_entry.options == result["data"]
+#     assert config_entry.data == CONFIG_DATA

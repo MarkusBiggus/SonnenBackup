@@ -47,7 +47,6 @@ async def async_setup(hass: HomeAssistant, config_entry: dict):
     """Set up SonnenBackup component."""
 
     hass.data.setdefault(DOMAIN, {})
-
     return True
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:
@@ -110,13 +109,13 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     hass_data = hass.data[DOMAIN].get(config_entry.entry_id)
     if hass_data is None:
         hass_data = {}
-    _LOGGER.info(f'ID: {config_entry.entry_id} data: {hass.data[DOMAIN]}  hass_data: {hass_data}')
+#    _LOGGER.info(f'ID: {config_entry.entry_id} data: {hass.data[DOMAIN]}  hass_data: {hass_data}')
     # Registers update listener to update config entry when options are updated.
     unsub_options_update_listener = config_entry.add_update_listener(options_update_listener)
     # Store a reference to the unsubscribe function to cleanup if an entry is unloaded.
     hass_data["unsub_options_update_listener"] = unsub_options_update_listener
     hass.data[DOMAIN][config_entry.entry_id] = hass_data
-    _LOGGER.info(f'hass.data: {hass.data[DOMAIN]}  {config_entry}')
+#    _LOGGER.info(f'hass.data: {hass.data[DOMAIN]}  {config_entry}')
 
     return True
 
@@ -126,6 +125,12 @@ async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBacku
     _LOGGER.info("SonnenBackup options update: reload ConfigEntry")
     coordinator: SonnenBackupUpdateCoordinator = config_entry.runtime_data.coordinator
     coordinator.update_interval = timedelta(seconds=config_entry.options[CONF_SCAN_INTERVAL])
+    _LOGGER.info(f'config: {config_entry.as_dict()} new interval: {coordinator.update_interval}')
+    # update entry with options
+    # success = hass.config_entries.async_update_entry(
+    #     config_entry,
+    #     options=result["data"]
+    # )
     await hass.config_entries.async_reload(config_entry.entry_id)
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:

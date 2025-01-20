@@ -67,7 +67,7 @@ async def _validate_api(user_input) -> bool:
         raise CannotConnect(f'Batterie connection fail. {str(error)}')
 
     if success is False:
-        raise InvalidAuth ('Invalid Token or IP address')
+        raise InvalidAuth (f'Invalid IP address, port or Token. {user_input[CONF_IP_ADDRESS]}:{user_input[CONF_PORT]}|{user_input[CONF_API_TOKEN]}')
 
     return success
 
