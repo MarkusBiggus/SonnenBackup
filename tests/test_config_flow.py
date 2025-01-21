@@ -4,21 +4,13 @@
 """
 
 import pytest
-from unittest.mock import patch, AsyncMock
-from responses import Response
+from unittest.mock import patch
 import logging
 
-import datetime
 import urllib3
-from  voluptuous.error import MultipleInvalid
-
-from sonnen_api_v2 import Batterie, BatterieBackup, BatterieResponse
-from .mock_sonnenbatterie_v2_charging import __mock_configurations
 
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntryState, ConfigEntry
-# from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth
-# from homeassistant.components.sonnenbackup.const import DOMAIN
 from homeassistant.const import (
         CONF_IP_ADDRESS,
         CONF_API_TOKEN,

@@ -4,12 +4,8 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-#import voluptuous as vol
-#import re
 
 from sonnen_api_v2 import Batterie, BatterieAuthError, BatterieHTTPError, BatterieError
-
-#from homeassistant import config_entries, core, exceptions
 
 from homeassistant.config_entries import (
     ConfigFlow,
@@ -19,9 +15,6 @@ from homeassistant.config_entries import (
     CONN_CLASS_LOCAL_POLL,
 )
 from homeassistant.core import callback
-#import homeassistant.helpers.config_validation as cv
-#from homeassistant.helpers.schema_config_entry_flow import SchemaFlowError
-#from homeassistant.data_entry_flow import section
 from homeassistant.const import (
         CONF_IP_ADDRESS,
         CONF_API_TOKEN,
@@ -30,7 +23,6 @@ from homeassistant.const import (
         CONF_DEVICE_ID,
         CONF_SCAN_INTERVAL,
         )
-#import homeassistant.helpers.config_validation as cv
 from homeassistant.exceptions import HomeAssistantError
 
 from .coordinator import SonnenBackupAPI
@@ -51,7 +43,7 @@ _LOGGER = logging.getLogger(__name__)
 async def _validate_api(user_input) -> bool:
     """Validate credentials."""
 
-    _LOGGER.info(" config_flow validate_api")
+#    _LOGGER.info(" config_flow validate_api")
     _batterie = Batterie(
         user_input[CONF_API_TOKEN],
         user_input[CONF_IP_ADDRESS],
@@ -83,7 +75,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle user initial step."""
 
-        _LOGGER.info(" config_flow user")
+#        _LOGGER.info(" config_flow user")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 
@@ -94,7 +86,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors=errors
             )
 
-        # Check if is a valid port number
+        # Check if valid port number
         try:
             input_port = int(user_input[CONF_PORT])
             if not (MIN_PORT <= input_port <= MAX_PORT):
@@ -121,7 +113,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "unknown"
                 placeholders["error_detail"] = f'{str(error)}'
             else:
-                serial_number = user_input[CONF_DEVICE_ID] #user_input['details'][CONF_DEVICE_ID]
+                serial_number = user_input[CONF_DEVICE_ID]
                 batterie_model = user_input[CONF_MODEL]
                 await self.async_set_unique_id(serial_number)
                 self._abort_if_unique_id_configured()
@@ -147,7 +139,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle reconfiguration step."""
 
-        _LOGGER.info(" config_flow reconfigure")
+#        _LOGGER.info(" config_flow reconfigure")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 
@@ -216,7 +208,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
     ) -> None:
         """Initialize options flow."""
 
-        _LOGGER.info(' config_options')
+#        _LOGGER.info(' config_options')
         self.options = dict(config_entry.options)
 
     async def async_step_init(
@@ -224,7 +216,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
     ) -> ConfigFlowResult:
         """Handle options flow."""
 
-        _LOGGER.info(" config_options step_init")
+#        _LOGGER.info(" config_options step_init")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 
