@@ -25,10 +25,11 @@ It does not support https (port 443) using a self-signed certificate.
 ## Usage
 
 install sonnenbackup with hacs
+HASS Sensor is the name used for Home Assistant from the driver package property call Package Sensor.
 
 ## Sensors
 
-| Package Sensor               | Unit  | hass sensor        |
+| Package Sensor               | Unit  | HASS Sensor        |
 |------------------------------|:------|-------------------:|
 |led_state|string|led_state|
 |system_status|string|system_status|
@@ -41,7 +42,7 @@ install sonnenbackup with hacs
 |kwh_consumed|kWh|kwh_consumed|
 |kwh_produced|kWh|kwh_produced|
 |status_frequency|hertz|frequency|
-|status_backup_buffer|percent|status_backup_buffer|
+|status_backup_buffer|percent|backup_reserve_percent|
 |status_rsoc|percent|relative_state_of_charge|
 |status_usoc|percent|usable_state_of_charge|
 |consumption_average |watts|consumption_average|
@@ -79,7 +80,7 @@ operating_mode: {1: "Manual", 2: "Automatic", 6: "Extension module", 10: "Time o
 ```
 
 ### sonnenbackup_state
-"standby" indicates the battery is neither charging or discharging.
+"standby" indicates the battery is neither charging nor discharging.
 The battery could be fully charged, fully discharged, at reserve limit or no production available to charge.
 Must be read in conjuction with "relative_state_of_charge" to determine the reason for "standby".
 
@@ -88,10 +89,10 @@ Sensors fully charged, fully discharged & backup reserve are calculated on curre
 When battery is in standby, these timestamp values are undefined, as will some when charging/discharging.
 Times are calculated relative to hass server time, which should match "system_status_timestamp".
 
-## led_state
+### led_state
 Sensor indicates the state of the status LED on the side of the battery.
-Only one element will be True, that element, with brightness, is returned.
-e.g "Pulsing White 100%"
+Only one element will be True, that element, with brightness, is returned as a string.
+e.g 'Pulsing White 100%'
 ```
 "Eclipse Led":{
     "Blinking Red":false,   # undocumented
@@ -104,8 +105,39 @@ e.g "Pulsing White 100%"
 ```
 All values False indicates Off Grid operation, the string 'off' is returned.
 
+## Recording
+Some sensor values do not change, some only change when configuration changes, some are of little value when not current. These sensors will waste space if recorded.
+
+Suggested recording exclusions in configuration.yaml:
+```
+# Recorder filter to exclude specified entities
+recorder:
+  exclude:
+    entities:
+      - sonnenbackup.led_state
+      - sonnenbackup.full_charge_capacity
+      - sonnenbackup.backup_reserve_capacity
+      - sonnenbackup.status_frequency
+      - sonnenbackup.backup_reserve_percent
+      - sonnenbackup.state_bms
+      - sonnenbackup.state_inverter
+      - sonnenbackup.seconds_since_full
+      - sonnenbackup.seconds_until_fully_charged
+      - sonnenbackup.seconds_until_fully_discharged
+      - sonnenbackup.seconds_until_reserve
+      - sonnenbackup.system_status_timestamp
+      - sonnenbackup.fully_charged_at
+      - sonnenbackup.fully_discharged_at
+      - sonnenbackup.backup_reserve_at
+      - sonnenbackup.last_time_full
+      - sonnenbackup.last_updated
+      - sonnenbackup.time_since_full
+      - sonnenbackup.operating_mode
+```
+
 ## Confirmed Supported Batteries
 
 These batteries have been tested and confirmed to be working. If your batterie is not listed below, this library may still work provided your battery admin portal can generate an API read token and responds to Sonnen API V2 endpoints.
+API token will return status 401 if used with V1 of the API. Use Weltmyer Sonnenbatterie package if user/password authentication is required.
 
 * Power unit Evo IP56

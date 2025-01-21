@@ -51,8 +51,7 @@ class PowerUnitEVO(BatterieSensors):
         return {
             SENSOR_GROUP_UNITS: {
 #                "configuration_em_operatingmode": (0, Units.NONE, "operating_mode", cls._decode_operating_mode),
-                "status_backup_buffer": (1, Units.PERCENT),
-#                "last_configurations": (2, Units.NONE, None, cls._format_datetime),
+                "led_state": (2, Units.NONE, "led_state"),
                 "system_status": (3, Units.NONE),
 #                "system_status_timestamp": (4, Units.NONE, "status_timestamp", cls._format_datetime),
                 "battery_activity_state": (5, Units.NONE, "sonnenbackup_state"),
@@ -70,6 +69,7 @@ class PowerUnitEVO(BatterieSensors):
                 "kwh_produced": (15, TotalKWH), #Total(Units.KWH)),
                 "consumption_average" : (16, DailyTotalW), #DailyTotal(Units.W)),
                 "status_frequency": (17, Units.HZ, "frequency"),
+                "status_backup_buffer": (1, Units.PERCENT, "backup_reserve_percent"),
 #                "status_battery_charging": (18, Units.NONE, "charging"),
 #                "status_battery_discharging": (19, Units.NONE, "discharging"),
                 "status_rsoc": (20, Units.PERCENT, "relative_state_of_charge"),
