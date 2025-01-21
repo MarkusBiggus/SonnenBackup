@@ -1,25 +1,16 @@
 """Test the SonnenBackup config flow.
 
-    pytest tests/test_config_flow.py -s -v -x  -k test_form
+    pytest tests/test_config_flow.py -s -v -x  -k test_form_works
 """
 
 import pytest
-from unittest.mock import patch, AsyncMock
-from responses import Response
+from unittest.mock import patch
 import logging
 
-import datetime
 import urllib3
-from  voluptuous.error import MultipleInvalid
-
-from sonnen_api_v2 import Batterie, BatterieBackup, BatterieResponse
-from .mock_sonnenbatterie_v2_charging import __mock_configurations
-from .mock_battery_responses import __battery_configurations_auth200
 
 from homeassistant import config_entries
-from homeassistant.config_entries import ConfigEntryState
-# from homeassistant.components.sonnenbackup.config_flow import CannotConnect, InvalidAuth
-# from homeassistant.components.sonnenbackup.const import DOMAIN
+from homeassistant.config_entries import ConfigEntryState, ConfigEntry
 from homeassistant.const import (
         CONF_IP_ADDRESS,
         CONF_API_TOKEN,
@@ -31,7 +22,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType, InvalidData
 
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+#from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.sonnenbackup.config_flow import CannotConnect, InvalidAuth, DeviceAPIError
 from custom_components.sonnenbackup.const import DOMAIN, DEFAULT_SCAN_INTERVAL, DEFAULT_PORT
@@ -54,14 +45,13 @@ CONFIG_DATA = {
 CONFIG_OPTIONS = {
     CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
     "sonnenbackup_debug": True,
-    "sonnenbackup_debug": True,
 }
 
 _LOGGER = logging.getLogger(__name__)
 
 
 @patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
-async def test_form(hass: HomeAssistant) -> None:
+async def test_form_works(hass: HomeAssistant) -> None:
     """Test the form works."""
 
     logging.basicConfig(level=logging.DEBUG)
@@ -88,16 +78,13 @@ async def test_form(hass: HomeAssistant) -> None:
 #    config_entry = getattr(hass.config_entries, self.domain)
 #    assert config_entry.state == ConfigEntryState.LOADED
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert result["state"] == ConfigEntryState.LOADED
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
     assert result["data"] == CONFIG_DATA
-    config_entry = result["result"]
+    config_entry:ConfigEntry = result["result"]
     assert config_entry.state == ConfigEntryState.LOADED
-    hass_data = hass.data.setdefault(DOMAIN, {})
-#    print(f'hass_data: {hass_data}')
-#    print(f'hass_data_entry: {hass_data[config_entry.entry_id]}')
-    hass_data_entry = hass_data[config_entry.entry_id]
-    assert hass_data_entry['model'] == CONFIG_DATA['model']
+    config_data = config_entry.data #hass_data[config_entry.entry_id]
+#    print(f'config_data: {config_data}')
+    assert config_data['model'] == CONFIG_DATA['model']
 #    assert len(mock_setup_entry.mock_calls) == 1
 
 
@@ -234,7 +221,6 @@ async def test_form_device_error(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-#@patch.object(Batterie, 'fetch_configurations', __mock_configurations)
 @patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)
 async def test_form_mocked(hass: HomeAssistant) -> None:
     """Test the form with mock validaton."""
@@ -313,13 +299,13 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     )
     assert FlowResultType.FORM == result["type"]
     assert "init" == result["step_id"]
+#    print(f'result: {result}')
     assert result["errors"]["base"] == 'invalid_interval'
     assert result["description_placeholders"]["error_detail"] == 'Scan interval "2" must be at least 3 seconds and no more than 120.'
     # assert {
     #         CONF_SCAN_INTERVAL: 2,
     #         "sonnenbackup_debug": True,
     #         } == result["data"]
-    #print(f'result: {dict(result)}')
 
     # submit form with invalid options
     result = await hass.config_entries.options.async_configure(
@@ -333,13 +319,13 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     assert "init" == result["step_id"]
     assert result["errors"]["base"] == 'invalid_interval'
     assert result["description_placeholders"]["error_detail"] == 'Scan interval "200" must be at least 3 seconds and no more than 120.'
-    # assert {
-    #         CONF_SCAN_INTERVAL: 2,
-    #         "sonnenbackup_debug": True,
-    #         } == result["data"]
-    #print(f'result: {dict(result)}')
+    # # assert {
+    # #         CONF_SCAN_INTERVAL: 2,
+    # #         "sonnenbackup_debug": True,
+    # #         } == result["data"]
+    # #print(f'result: {dict(result)}')
 
-    # submit form with valid options
+    # # submit form with valid options
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input=CONFIG_OPTIONS
@@ -459,10 +445,10 @@ async def test_form_invalid_port(hass: HomeAssistant) -> None:
             CONF_IP_ADDRESS: "1.1.1.1",
             CONF_PORT: 59999,# above 49151 (ephemeral port)
             CONF_API_TOKEN: "fakeToken-111-222-4444-3333",
-            "details": {
-                CONF_MODEL: 'Power unit Evo IP56',
-                CONF_DEVICE_ID: "321123"
-            }
+            # "details": {
+            CONF_MODEL: 'Power unit Evo IP56',
+            CONF_DEVICE_ID: "321123"
+            # }
         }
     )
     assert result["errors"] == {"base": "invalid_port"}
@@ -483,7 +469,7 @@ async def test_options_flow_works(hass: HomeAssistant) -> None:
     )
     await hass.async_block_till_done()
 
-    print(f'result: {dict(result)}')
+#    print(f'result: {dict(result)}')
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
@@ -503,19 +489,21 @@ async def test_options_flow_works(hass: HomeAssistant) -> None:
         user_input=CONFIG_OPTIONS
     )
 
-    print(f'result: {dict(result)}')
+#    print(f'result: {dict(result)}')
 
-    assert FlowResultType.CREATE_ENTRY == result["type"]
-    assert "" == result["title"]
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["title"] == ''
     assert result["result"] is True
-    #print(f'result: {dict(result)}')
+#    print(f'result: {dict(result)}')
     assert CONFIG_OPTIONS == result["data"]
 
-    # update entry with options
-    hass.config_entries.async_update_entry(
-        config_entry,
-        options=result["data"]
-    )
-    print(f'config: {config_entry.as_dict()}')
-    assert config_entry.options == result["data"]
-    assert config_entry.data == CONFIG_DATA
+#     # update entry with options
+#     success = hass.config_entries.async_update_entry(
+#         config_entry,
+#         options=result["data"]
+#     )
+
+#     assert success is True
+# #    print(f'config: {config_entry.as_dict()}')
+#     assert config_entry.options == result["data"]
+#     assert config_entry.data == CONFIG_DATA

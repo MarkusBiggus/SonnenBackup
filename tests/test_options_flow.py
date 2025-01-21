@@ -1,8 +1,9 @@
-"""Test the Scenario config flow."""
+"""Test the Scenario config flow.
+
+    pytest tests/test_options_flow.py -s -v -x  -k test_options_flow
+"""
 
 import pytest
-from homeassistant import config_entries
-from homeassistant.const import CONF_DELAY
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -16,25 +17,23 @@ from homeassistant.const import (
         )
 
 from custom_components.sonnenbackup.const import (
-    _DOMAIN,
+    DOMAIN,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_PORT,
 )
-
-DOMAIN = _DOMAIN
 
 CONFIG_DATA = {
     CONF_IP_ADDRESS: "1.1.1.1",
     CONF_PORT: DEFAULT_PORT,
     CONF_API_TOKEN: "fakeToken-111-222-4444-3333",
-    "details": {
-        CONF_MODEL: 'Power unit Evo IP56',
-        CONF_DEVICE_ID: "321123"
-    }
+    # "details": {
+    CONF_MODEL: 'Power unit Evo IP56',
+    CONF_DEVICE_ID: "321123"
+    # }
 }
 CONFIG_OPTIONS = {
     CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
-    "sonnen_debug": True,
+    "sonnenbackup_debug": True,
 }
 
 @pytest.mark.asyncio
@@ -51,41 +50,25 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     # Test options flow
     result = await hass.config_entries.options.async_init(config_entry.entry_id)
 
-    assert FlowResultType.FORM == result["type"]
-    assert "init" == result["step_id"]
-    assert {} == result["errors"]
-
-    # if result.get("type", {}) != FlowResultType.FORM:
-    #     msg = "Expected form."
-    #     raise ValueError(msg)
-
-    # if result.get("step_id", {}) != "init":
-    #     msg = "Expected init step."
-    #     raise ValueError(msg)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+    assert result["errors"] == {}
+#    print(f'result: {result}')
 
     # Test updating options flow
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input={
             CONF_SCAN_INTERVAL: 15,
-            "sonnen_debug": True,
+            "sonnenbackup_debug": True,
         },
     )
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert result["title"] == "SonnenBackup Power unit Evo IP56 (321123)"
+    assert result["title"] == '' # "SonnenBackup Power unit Evo IP56 (321123)"
     assert config_entry.options == {
             CONF_SCAN_INTERVAL: 15,
-            "sonnen_debug": True,
+            "sonnenbackup_debug": True,
     }
-
-    # if result.get("type", {}) != FlowResultType.CREATE_ENTRY:
-    #     msg = "Expected create entry."
-    #     raise ValueError(msg)
-
-    # if config_entry.options != {
-    #         CONF_SCAN_INTERVAL: 15,
-    #         "sonnen_debug": True,
-    # }:
-    #     msg = "Expected options updated."
-    #     raise ValueError(msg)
+    assert result["result"] is True # is config_entry when config_flow
+#    print(f'result: {result}')

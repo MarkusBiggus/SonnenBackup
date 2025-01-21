@@ -4,12 +4,8 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-import voluptuous as vol
-import re
 
 from sonnen_api_v2 import Batterie, BatterieAuthError, BatterieHTTPError, BatterieError
-
-#from homeassistant import config_entries, core, exceptions
 
 from homeassistant.config_entries import (
     ConfigFlow,
@@ -18,10 +14,7 @@ from homeassistant.config_entries import (
     ConfigEntry,
     CONN_CLASS_LOCAL_POLL,
 )
-from homeassistant.core import HomeAssistant, callback
-import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.schema_config_entry_flow import SchemaFlowError
-from homeassistant.data_entry_flow import section
+from homeassistant.core import callback
 from homeassistant.const import (
         CONF_IP_ADDRESS,
         CONF_API_TOKEN,
@@ -30,7 +23,6 @@ from homeassistant.const import (
         CONF_DEVICE_ID,
         CONF_SCAN_INTERVAL,
         )
-#import homeassistant.helpers.config_validation as cv
 from homeassistant.exceptions import HomeAssistantError
 
 from .coordinator import SonnenBackupAPI
@@ -38,7 +30,6 @@ from .const import (
     DOMAIN,
     CONFIG_SCHEMA,
     OPTIONS_SCHEMA,
-    DEFAULT_PORT,
     MIN_PORT,
     MAX_PORT,
     MIN_SCAN_INTERVAL,
@@ -52,11 +43,10 @@ _LOGGER = logging.getLogger(__name__)
 async def _validate_api(user_input) -> bool:
     """Validate credentials."""
 
-    _LOGGER.info(" config_flow validate_api")
+#    _LOGGER.info(" config_flow validate_api")
     _batterie = Batterie(
         user_input[CONF_API_TOKEN],
         user_input[CONF_IP_ADDRESS],
-        int(user_input[CONF_PORT]),
         int(user_input[CONF_PORT]),
     )
     try:
@@ -69,7 +59,7 @@ async def _validate_api(user_input) -> bool:
         raise CannotConnect(f'Batterie connection fail. {str(error)}')
 
     if success is False:
-        raise InvalidAuth ('Invalid Token or IP address')
+        raise InvalidAuth (f'Invalid IP address, port or Token. {user_input[CONF_IP_ADDRESS]}:{user_input[CONF_PORT]}|{user_input[CONF_API_TOKEN]}')
 
     return success
 
@@ -85,7 +75,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle user initial step."""
 
-        _LOGGER.info(" config_flow user")
+#        _LOGGER.info(" config_flow user")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 
@@ -96,9 +86,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors=errors
             )
 
-    #    _LOGGER.info(f'user_input: {user_input}')
-
-        # Check if is a valid port number
+        # Check if valid port number
         try:
             input_port = int(user_input[CONF_PORT])
             if not (MIN_PORT <= input_port <= MAX_PORT):
@@ -125,7 +113,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "unknown"
                 placeholders["error_detail"] = f'{str(error)}'
             else:
-                serial_number = user_input[CONF_DEVICE_ID] #user_input['details'][CONF_DEVICE_ID]
+                serial_number = user_input[CONF_DEVICE_ID]
                 batterie_model = user_input[CONF_MODEL]
                 await self.async_set_unique_id(serial_number)
                 self._abort_if_unique_id_configured()
@@ -136,7 +124,12 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=CONFIG_SCHEMA,
+#            data_schema=CONFIG_SCHEMA,
+            data_schema =
+                self.add_suggested_values_to_schema(
+                CONFIG_SCHEMA,
+                user_input
+            ),
             errors=errors,
             description_placeholders=placeholders
         )
@@ -146,7 +139,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle reconfiguration step."""
 
-        _LOGGER.info(" config_flow reconfigure")
+#        _LOGGER.info(" config_flow reconfigure")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 
@@ -161,7 +154,6 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 ),
                 errors=errors
             )
-
 
         try:
             await _validate_api(user_input)
@@ -208,30 +200,23 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
         """Create the options flow."""
 
         return SonnenBackupOptionsFlow(config_entry)
-    def async_get_options_flow(config_entry: SonnenBackupConfigEntry
-    ) -> OptionsFlow:
-        """Create the options flow."""
-
-        return SonnenBackupOptionsFlow(config_entry)
 
 class SonnenBackupOptionsFlow(OptionsFlow):
     """SonnenBackup options."""
 
-    def __init__(self, config_entry) -> None:
-    def __init__(self, config_entry) -> None:
+    def __init__(self, config_entry:SonnenBackupConfigEntry
+    ) -> None:
         """Initialize options flow."""
 
-        _LOGGER.info(' config_options')
+#        _LOGGER.info(' config_options')
         self.options = dict(config_entry.options)
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle options flow."""
-        """Handle options flow."""
 
-        _LOGGER.info(" config_options step_init")
-        _LOGGER.info(" config_options step_init")
+#        _LOGGER.info(" config_options step_init")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 
@@ -240,16 +225,13 @@ class SonnenBackupOptionsFlow(OptionsFlow):
                 step_id="init",
                 data_schema = #OPTIONS_SCHEMA,
                     self.add_suggested_values_to_schema(
-                data_schema = #OPTIONS_SCHEMA,
-                    self.add_suggested_values_to_schema(
                     OPTIONS_SCHEMA,
                     self.options
                 ),
                 errors=errors
             )
 
-        if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL or user_input[CONF_SCAN_INTERVAL] > MAX_SCAN_INTERVAL:
-        if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL or user_input[CONF_SCAN_INTERVAL] > MAX_SCAN_INTERVAL:
+        if MIN_SCAN_INTERVAL <= user_input[CONF_SCAN_INTERVAL] and user_input[CONF_SCAN_INTERVAL] <= MAX_SCAN_INTERVAL:
             return self.async_create_entry(
                 title='',
                 data={
@@ -258,16 +240,14 @@ class SonnenBackupOptionsFlow(OptionsFlow):
                 }
             )
 
-        # """Invalid scan_interval"""
-        # errors["base"] = 'invalid_interval'
-        # placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least {MIN_SCAN_INTERVAL} seconds and no more than {MAX_SCAN_INTERVAL}.'
-        # user_input[CONF_SCAN_INTERVAL] = MIN_SCAN_INTERVAL if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL else MAX_SCAN_INTERVAL
+        """Invalid scan_interval"""
+        errors["base"] = 'invalid_interval'
+        placeholders["error_detail"] = f'Scan interval "{user_input[CONF_SCAN_INTERVAL]}" must be at least {MIN_SCAN_INTERVAL} seconds and no more than {MAX_SCAN_INTERVAL}.'
+        user_input[CONF_SCAN_INTERVAL] = MIN_SCAN_INTERVAL if user_input[CONF_SCAN_INTERVAL] < MIN_SCAN_INTERVAL else MAX_SCAN_INTERVAL
 
         return self.async_show_form(
             step_id="init",
             data_schema = self.add_suggested_values_to_schema(
-                OPTIONS_SCHEMA,
-                user_input
                 OPTIONS_SCHEMA,
                 user_input
             ),
@@ -276,10 +256,9 @@ class SonnenBackupOptionsFlow(OptionsFlow):
         )
 
 class CannotConnect(HomeAssistantError):
-    """Error to indicate we cannot connect."""
+    """Error to indicate failed connection to device."""
 
 class DeviceAPIError(HomeAssistantError):
-    """Error to indicate device API HTTP error."""
     """Error to indicate device API HTTP error."""
 
 class InvalidAuth(HomeAssistantError):

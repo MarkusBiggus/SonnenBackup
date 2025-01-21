@@ -72,8 +72,7 @@ async def async_setup_entry(
         identifiers={(DOMAIN, serial_number)},
         manufacturer=MANUFACTURER,
         model=config_entry.runtime_data.model,
-#        name=f"{MANUFACTURER} {serial_number}",
-        name=f"SonnenBB {serial_number}",
+        name=f"{MANUFACTURER} BB{serial_number}",
         sw_version=version,
     )
 
@@ -100,16 +99,11 @@ async def async_setup_entry(
         else:
             raise ValueError(f'Sensor {sensor} unknown group: {type(group)}')
 
-        uid = f"SB{serial_number}-{idx}"
+        uid = f"BB{serial_number}-{idx}"
     #    _LOGGER.info(f'sensor: {sensor}  uid:{uid}  description: {description}')
         entities.append(
             BatterieSensorEntity(
                 config_entry,
-                # coordinator,
-                # MANUFACTURER,
-                # uid,
-                # serial_number,
-                # version,
                 device_info,
                 uid,
                 sensor,
@@ -159,7 +153,6 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
 #        serial_number = config_entry.runtime_data.serial_number
         self._batterybackup = config_entry.runtime_data.api
         self._unique_id = uid
-#        self._name = f"{DOMAIN} {alias} {serial_number}"
         self._name = f"{DOMAIN} {alias}"
         self._has_entity_name = True
         self._native_unit_of_measurement = description.native_unit_of_measurement
@@ -173,8 +166,6 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         self._idx = sensor_idx
         self.alias = alias
         self._state = 'on'
-
-    #    _LOGGER.debug(f'Setup sensor: {sensor} value: {self.native_value}')
 
     @property
     def device_info(self):
