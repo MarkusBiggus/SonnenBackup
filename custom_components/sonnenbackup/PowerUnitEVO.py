@@ -85,6 +85,10 @@ class PowerUnitEVO(BatterieSensors):
                 "battery_max_cell_temp": (32, Units.C, "max_battery_temp"),
                 "state_bms": (33, Units.NONE),
                 "state_inverter": (34, Units.NONE),
+                "seconds_since_full": (35, Units.NONE),
+                "seconds_until_fully_charged": (36, Units.NONE),
+                "seconds_until_fully_discharged": (37, Units.NONE),
+                "seconds_until_reserve": (38, Units.NONE),
 
                 # "Total Yield": (pack_u16(22, 23), Total(Units.KWH), div10),
                 # "Daily Yield": (24, DailyTotal(Units.KWH), div10),
@@ -100,6 +104,7 @@ class PowerUnitEVO(BatterieSensors):
                 "backup_reserve_at": (12, Units.NONE),
                 "last_time_full": (22, Units.NONE),
                 "last_updated": (23, Units.NONE),
+                "time_since_full":(23, Units.NONE), #delta time
             },
 
             SENSOR_GROUP_ENUM: {
