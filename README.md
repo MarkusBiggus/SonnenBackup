@@ -23,7 +23,7 @@ Install SonnenBackup integration.
 install sonnenbackup with hacs
 
 ### Sensors
-```
+
 | Package Sensor               | Unit  | hass sensor        |
 |------------------------------|:------|-------------------:|
 |status_backup_buffer|percent|status_backup_buffer|
@@ -60,7 +60,7 @@ install sonnenbackup with hacs
 |status_battery_charging|bool|charging|
 |status_battery_discharging|bool|discharging|
 |configuration_em_operatingmode|enum|operating_mode|
-```
+
 
 Some sensors have enumerated values:
 
