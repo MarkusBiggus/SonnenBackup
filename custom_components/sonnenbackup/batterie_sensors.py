@@ -99,19 +99,23 @@ class BatterieSensors:
         """
         Return sensor map to create BatterieSensorEntity in sensor.async_setup_entry.
         """
-
+#TODO: refactor idx to remove from response_decoder and add it here as a counter
+        iidx = 0
+        idx_groups =[0,100,200] # max 100 per group
         sensors: Dict[str, Tuple[int, Measurement]] = {}
         for sensor_group, sensor_map in cls.response_decoder().items():
+            idx = idx_groups[iidx]
+            iidx += 1
             for name, mapping in sensor_map.items():
                 option = None
-                if len(mapping) > 2:
-                    if len(mapping) > 3:
-                        (idx, unit_or_measurement, alias, option, *_) = mapping
+                if len(mapping) > 1:
+                    if len(mapping) > 2:
+                        (unit_or_measurement, alias, option, *_) = mapping
                     else:
-                        (idx, unit_or_measurement, alias, *_) = mapping
+                        (unit_or_measurement, alias, *_) = mapping
                     alias = name if alias is None else alias
                 else:
-                    (idx, unit_or_measurement, *_) = mapping
+                    (unit_or_measurement, *_) = mapping
                     alias = name
 
                 if sensor_group == SENSOR_GROUP_UNITS:
@@ -131,7 +135,9 @@ class BatterieSensors:
                         unit = Measurement(Units.NONE, is_monotonic = option)
                     else:
                         unit = Measurement(Units.NONE, False)
+#    TODO:            sensors[alias] = (idx++, unit, name, sensor_group, option)
                 sensors[alias] = (idx, unit, name, sensor_group, option)
+                idx += 1
         return sensors
 
     # Post processors for UNITS measurements (still required??)

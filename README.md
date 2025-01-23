@@ -29,27 +29,32 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 
 ## Sensors
 
-| Package Sensor               | Unit  | HASS Sensor        |
-|------------------------------|:------|-------------------:|
+| Package Sensor                | Unit  | HASS sensor        |
+|------------------------------:|------:|-------------------:|
 |led_state|string|led_state|
 |system_status|string|system_status|
+|battery_activity_state|string|sonnenbackup_state|
 |battery_cycle_count|integer|battery_cycle_count|
 |battery_full_charge_capacity_wh|kWh|full_charge_capacity|
 |status_remaining_capacity_wh|kWh|remaining_capacity|
 |capacity_until_reserve|kWh|capacity_until_reserve|
-|backup_buffer_capacity_wh|kWh|backup_reserve_capacity|
+|backup_buffer_capacity_wh|kWh|reserve_capacity|
 |status_usable_capacity_wh|kWh|usable_remaining_capacity|
 |kwh_consumed|kWh|kwh_consumed|
 |kwh_produced|kWh|kwh_produced|
 |status_frequency|hertz|frequency|
-|status_backup_buffer|percent|backup_reserve_percent|
+|status_backup_buffer|percent|reserve_charge|
 |status_rsoc|percent|relative_state_of_charge|
 |status_usoc|percent|usable_state_of_charge|
+|charging|watts|charge_power|
+|discharging|watts|discharge_power|
 |consumption_average |watts|consumption_average|
 |consumption_total_w|watts|consumption_daily|
 |production_total_w|watts|production_daily|
 |consumption|watts|consumption_now|
 |production|watts|production_now|
+|status_grid_export|watts|grid_export|
+|status_grid_import|watts|grid_import|
 |inverter_pac_total|watts|ongrid_pac|
 |inverter_pac_microgrid|watts|offgrid_pac|
 |battery_min_cell_temp|celsius|min_battery_temp|
@@ -69,6 +74,9 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 |status_battery_charging|bool|charging|
 |status_battery_discharging|bool|discharging|
 |configuration_em_operatingmode|enum|operating_mode|
+|led_state_text|string|led_state_text|
+|dc_shutdown_reason|string|dc_shutdown_reason|
+|microgrid_status|string|microgrid_status|
 
 
 Some sensors have enumerated values:

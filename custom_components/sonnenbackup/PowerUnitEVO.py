@@ -50,45 +50,50 @@ class PowerUnitEVO(BatterieSensors):
         """
         return {
             SENSOR_GROUP_UNITS: {
-#                "configuration_em_operatingmode": (0, Units.NONE, "operating_mode", cls._decode_operating_mode),
-                "led_state": (2, Units.NONE, "led_state"),
-                "system_status": (3, Units.NONE),
-#                "system_status_timestamp": (4, Units.NONE, "status_timestamp", cls._format_datetime),
-                "battery_activity_state": (5, Units.NONE, "sonnenbackup_state"),
-#                "fully_charged_at": (6, Units.NONE, None, cls._format_datetime),
-#                "fully_discharged_at": (7, Units.NONE, None, cls._format_datetime),
-                "battery_cycle_count": (8, Units.NONE),
-                "battery_full_charge_capacity_wh":(9, BatteryCapacity, "full_charge_capacity"),
-    #            "battery_remaining_capacity_wh":(10, BatteryCapacity, "remaining_capacity"),
-                "status_remaining_capacity_wh":(10, BatteryCapacity, "remaining_capacity"),
-                "capacity_until_reserve":(11, BatteryCapacity),
-#                "backup_reserve_at": (12, Units.NONE),
-                "backup_buffer_capacity_wh":(13, BatteryCapacity, "backup_reserve_capacity"),
-                "status_usable_capacity_wh": (24, BatteryCapacity, "usable_remaining_capacity"),
-                "kwh_consumed": (14, TotalKWH), #Total(Units.KWH)),
-                "kwh_produced": (15, TotalKWH), #Total(Units.KWH)),
-                "consumption_average" : (16, DailyTotalW), #DailyTotal(Units.W)),
-                "status_frequency": (17, Units.HZ, "frequency"),
-                "status_backup_buffer": (1, Units.PERCENT, "backup_reserve_percent"),
-#                "status_battery_charging": (18, Units.NONE, "charging"),
-#                "status_battery_discharging": (19, Units.NONE, "discharging"),
-                "status_rsoc": (20, Units.PERCENT, "relative_state_of_charge"),
-                "status_usoc": (21, Units.PERCENT, "usable_state_of_charge"),
-#                "last_time_full": (22, Units.NONE),
-                "consumption_total_w": (25, Units.W, "consumption_daily"),
-                "production_total_w": (26, Units.W, "production_daily"),
-                "consumption": (27, Units.W, "consumption_now"),
-                "production": (28, Units.W, "production_now"),
-                "inverter_pac_total": (29, Units.W, "ongrid_pac"),
-                "inverter_pac_microgrid": (30, Units.W, "offgrid_pac"),
-                "battery_min_cell_temp": (31, Units.C, "min_battery_temp"),
-                "battery_max_cell_temp": (32, Units.C, "max_battery_temp"),
-                "state_bms": (33, Units.NONE),
-                "state_inverter": (34, Units.NONE),
-                "seconds_since_full": (35, Units.NONE),
-                "seconds_until_fully_charged": (36, Units.NONE),
-                "seconds_until_fully_discharged": (37, Units.NONE),
-                "seconds_until_reserve": (38, Units.NONE),
+                "led_state": (Units.NONE),
+                "system_status": (Units.NONE),
+                "battery_activity_state": (Units.NONE, "sonnenbackup_state"),
+                "battery_cycle_count": (Units.NONE),
+                "installed_capacity":(BatteryCapacity),
+                "full_charge_capacity":(BatteryCapacity),
+                "usable_capacity":(BatteryCapacity),
+                "unusable_capacity":(BatteryCapacity),
+                "battery_full_charge_capacity_wh":(BatteryCapacity, "battery_full_charge_capacity"),
+                "battery_remaining_capacity_wh":(BatteryCapacity, "Battery_remaining_capacity"),
+                "battery_unusable_capacity_wh": (Units.WH, "battery_unusable_capacity"),
+                "status_remaining_capacity_wh":(BatteryCapacity, "remaining_capacity"),
+                "capacity_until_reserve":(BatteryCapacity),
+                "backup_buffer_capacity_wh":(BatteryCapacity, "reserve_capacity"),
+                "status_usable_capacity_wh": (BatteryCapacity, "usable_remaining_capacity"),
+                "kwh_consumed": (TotalKWH), #Total(Units.KWH)),
+                "kwh_produced": (TotalKWH), #Total(Units.KWH)),
+                "consumption_average" : (DailyTotalW), #DailyTotal(Units.W)),
+                "status_frequency": (Units.HZ, "frequency"),
+                "status_backup_buffer": (Units.PERCENT, "reserve_charge"),
+                "status_rsoc": (Units.PERCENT, "relative_state_of_charge"),
+                "status_usoc": (Units.PERCENT, "usable_state_of_charge"),
+                "consumption_total_w": (Units.W, "consumption_daily"),
+                "production_total_w": (Units.W, "production_daily"),
+                "consumption": (Units.W, "consumption_now"),
+                "production": (Units.W, "production_now"),
+                "status_grid_export": (Units.W, "grid_export"),
+                "status_grid_import": (Units.W, "grid_import"),
+                "inverter_pac_total": (Units.W, "ongrid_pac"),
+                "inverter_pac_microgrid": (Units.W, "offgrid_pac"),
+                "battery_min_cell_temp": (Units.C, "min_battery_temp"),
+                "battery_max_cell_temp": (Units.C, "max_battery_temp"),
+                "state_bms": (Units.NONE),
+                "state_inverter": (Units.NONE),
+                "seconds_since_full": (Units.NONE),
+                "seconds_until_fully_charged": (Units.NONE),
+                "seconds_until_fully_discharged": (Units.NONE),
+                "seconds_until_reserve": (Units.NONE),
+                "discharging": (Units.W, "discharge_power"),
+                "charging": (Units.W, "charge_power"),
+                "dc_shutdown_reason": (Units.NONE),
+                "microgrid_status": (Units.NONE),
+                "battery_dod_limit": (Units.PERCENT, "depth_of_discharge_limit"),
+                "battery_module_dc_voltage": (Units.V, "module_dc_voltage"),
 
                 # "Total Yield": (pack_u16(22, 23), Total(Units.KWH), div10),
                 # "Daily Yield": (24, DailyTotal(Units.KWH), div10),
@@ -98,19 +103,19 @@ class PowerUnitEVO(BatterieSensors):
             },
 
             SENSOR_GROUP_TIMESTAMP: {
-                "system_status_timestamp": (4, Units.NONE, "status_timestamp"),
-                "fully_charged_at": (6, Units.NONE),
-                "fully_discharged_at": (7, Units.NONE),
-                "backup_reserve_at": (12, Units.NONE),
-                "last_time_full": (22, Units.NONE),
-                "last_updated": (23, Units.NONE),
-                "time_since_full":(23, Units.NONE), #delta time
+                "system_status_timestamp": (Units.NONE, "status_timestamp"),
+                "fully_charged_at": (Units.NONE),
+                "fully_discharged_at": (Units.NONE),
+                "backup_reserve_at": (Units.NONE, "reserve_at"),
+                "last_time_full": (Units.NONE),
+                "last_updated": (Units.NONE),
+                "time_since_full":(Units.NONE), #delta time
             },
 
             SENSOR_GROUP_ENUM: {
-                "status_battery_charging": (18, Units.NONE, "charging", True),
-                "status_battery_discharging": (19, Units.NONE, "discharging", True),
-                "configuration_em_operatingmode": (0, Units.NONE, "operating_mode", {1: "Manual",2: "Automatic",6: "Extension module",10: "Time of Use"}),
+                "status_battery_charging": (Units.NONE, "charging", True),
+                "status_battery_discharging": (Units.NONE, "discharging", True),
+                "configuration_em_operatingmode": (Units.NONE, "operating_mode", {1: "Manual",2: "Automatic",6: "Extension module",10: "Time of Use"}),
             },
         }
 
@@ -124,40 +129,40 @@ class SonnenBackupSensorEntityDescription(SensorEntityDescription):
 #    value_fn: Callable[[StateType], StateType] | None = None
 
 
-@classmethod
-def battery_sensors(cls) -> dict:
-    """sonnen_api_v2 properties used as sensor values"""
+# @classmethod
+# def battery_sensors(cls) -> dict:
+#     """sonnen_api_v2 properties used as sensor values"""
 
-    return BATTERY_ENTITY_DESCRIPTIONS
+#     return BATTERY_ENTITY_DESCRIPTIONS
 
 
-BATTERY_ENTITY_DESCRIPTIONS: list[SonnenBackupSensorEntityDescription] = [
-    SonnenBackupSensorEntityDescription(
-        key="kwh_produced",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    SonnenBackupSensorEntityDescription(
-        key="kwh_consumed",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    SonnenBackupSensorEntityDescription(
-        key="consumption_average",
-        native_unit_of_measurement=UnitOfPower.WATT,
-        device_class=SensorDeviceClass.POWER,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SonnenBackupSensorEntityDescription(
-        key="status_frequency",
-        default_value=0,
-        native_unit_of_measurement=UnitOfFrequency.HERTZ,
-        device_class=SensorDeviceClass.FREQUENCY,
-        state_class=SensorStateClass.MEASUREMENT,
-    #    entity_registry_enabled_default=False,
-    ),
+# BATTERY_ENTITY_DESCRIPTIONS: list[SonnenBackupSensorEntityDescription] = [
+#     SonnenBackupSensorEntityDescription(
+#         key="kwh_produced",
+#         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+#         device_class=SensorDeviceClass.ENERGY,
+#         state_class=SensorStateClass.TOTAL_INCREASING,
+#     ),
+#     SonnenBackupSensorEntityDescription(
+#         key="kwh_consumed",
+#         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+#         device_class=SensorDeviceClass.ENERGY,
+#         state_class=SensorStateClass.TOTAL_INCREASING,
+#     ),
+#     SonnenBackupSensorEntityDescription(
+#         key="consumption_average",
+#         native_unit_of_measurement=UnitOfPower.WATT,
+#         device_class=SensorDeviceClass.POWER,
+#         state_class=SensorStateClass.MEASUREMENT,
+#     ),
+#     SonnenBackupSensorEntityDescription(
+#         key="status_frequency",
+#         default_value=0,
+#         native_unit_of_measurement=UnitOfFrequency.HERTZ,
+#         device_class=SensorDeviceClass.FREQUENCY,
+#         state_class=SensorStateClass.MEASUREMENT,
+#     #    entity_registry_enabled_default=False,
+#     ),
     # SonnenBackupSensorEntityDescription(
     #     key="current_ac",
     #     default_value=0,
@@ -209,10 +214,10 @@ BATTERY_ENTITY_DESCRIPTIONS: list[SonnenBackupSensorEntityDescription] = [
     #     state_class=SensorStateClass.MEASUREMENT,
     # ),
     # device status entities
-    SonnenBackupSensorEntityDescription(
-        key="system_status",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
+    # SonnenBackupSensorEntityDescription(
+    #     key="system_status",
+    #     entity_category=EntityCategory.DIAGNOSTIC,
+    # ),
     # SonnenBackupSensorEntityDescription(
     #     key="system_status_timestamp",
     #     entity_category=EntityCategory.DIAGNOSTIC,
@@ -227,11 +232,11 @@ BATTERY_ENTITY_DESCRIPTIONS: list[SonnenBackupSensorEntityDescription] = [
     #     options=list(dict.fromkeys(BATTERY_ERROR_CODES.values())),
     #     value_fn=BATTERY_ERROR_CODES.get,  # type: ignore[arg-type]
     # ),
-    SonnenBackupSensorEntityDescription(
-        key="battery_activity_state",
-        entity_category=EntityCategory.DIAGNOSTIC,
-#        entity_registry_enabled_default=False,
-    ),
+#     SonnenBackupSensorEntityDescription(
+#         key="battery_activity_state",
+#         entity_category=EntityCategory.DIAGNOSTIC,
+# #        entity_registry_enabled_default=False,
+#     ),
     # SonnenBackupSensorEntityDescription(
     #     key="status_message",
     #     response_key="status_code",
@@ -250,4 +255,4 @@ BATTERY_ENTITY_DESCRIPTIONS: list[SonnenBackupSensorEntityDescription] = [
     #     entity_category=EntityCategory.DIAGNOSTIC,
     #     entity_registry_enabled_default=False,
     # ),
-]
+# ]

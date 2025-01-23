@@ -21,7 +21,7 @@ def __mock_status_charging(*args)-> json:
         'Pac_total_W': -1394,
         'Production_W': 2972,
         'RSOC': 88,
-        'RemainingCapacity_Wh': 40181,
+        'RemainingCapacity_Wh': 40181, #<- wrong value from device!
         'Sac1': 99,
         'Sac2': None,
         'Sac3': None,

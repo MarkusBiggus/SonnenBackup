@@ -156,7 +156,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         self._name = f"{DOMAIN} {alias}"
         self._has_entity_name = True
         self._native_unit_of_measurement = description.native_unit_of_measurement
-        self._suggested_display_precision = 1
+        self._suggested_display_precision = description.suggested_display_precision
         self._state_class = description.state_class
         self._device_class = description.device_class
         self._options = description.options
