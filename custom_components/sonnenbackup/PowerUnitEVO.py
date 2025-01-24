@@ -98,7 +98,7 @@ class PowerUnitEVO(BatterieSensors):
                 "charging": (Units.W, "charge_power"),
                 "battery_dod_limit": (Units.PERCENT, "depth_of_discharge_limit"),
                 "battery_module_dc_voltage": (Units.V, "module_dc_voltage"),
-                "time_since_full":(Units.NONE,None, "_format_deltatime"),
+#                "time_since_full":(Units.NONE,None, "_format_deltatime"),
 #       1082bytes         "dc_shutdown_reason": (Units.NONE,),
 #       394bytes          "microgrid_status": (Units.NONE,),
 

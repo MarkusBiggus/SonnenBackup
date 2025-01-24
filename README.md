@@ -31,7 +31,9 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 
 | Package Sensor                | Unit  | HASS sensor        |
 |------------------------------:|------:|-------------------:|
+|configuration_de_software|string|firmware_version|
 |led_state|string|led_state|
+|led_state_text|string|led_state_text|
 |system_status|string|system_status|
 |battery_activity_state|string|sonnenbackup_state|
 |battery_cycle_count|integer|battery_cycle_count|
@@ -43,6 +45,7 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 |kwh_consumed|kWh|kwh_consumed|
 |kwh_produced|kWh|kwh_produced|
 |status_frequency|hertz|frequency|
+|battery_dod_limit|percent|depth_of_discharge_limit|
 |status_backup_buffer|percent|reserve_charge|
 |status_rsoc|percent|relative_state_of_charge|
 |status_usoc|percent|usable_state_of_charge|
@@ -74,9 +77,6 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 |status_battery_charging|bool|charging|
 |status_battery_discharging|bool|discharging|
 |configuration_em_operatingmode|enum|operating_mode|
-|led_state_text|string|led_state_text|
-|dc_shutdown_reason|string|dc_shutdown_reason|
-|microgrid_status|string|microgrid_status|
 
 
 Some sensors have enumerated values:
