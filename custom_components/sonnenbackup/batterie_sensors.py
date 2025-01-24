@@ -80,7 +80,7 @@ class BatterieSensors:
                 if len(mapping) == 1:
                     mapping = (mapping[0], sensor_name) # add alias
                 sensors[sensor_name] = (sensor_group, mapping)
-                _LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
+#                _LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
         return sensors
 
     def _postprocess_gen(
