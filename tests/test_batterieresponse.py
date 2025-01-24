@@ -56,3 +56,10 @@ async def test_batterieresponse(battery_charging: Batterie) -> None:
         last_updated=datetime.datetime(2023, 11, 20, 17, 0, tzinfo=tzlocal.get_localzone()),
         sensor_values={}
     )
+
+    assert _batterie.get_sensor_value('installed_capacity') == 20000
+    assert _batterie.get_sensor_value('seconds_since_full') == 3720
+    since_full = datetime.timedelta(seconds=3720)
+
+    print(f'since full: {since_full.strftime("%D %H:%M:%S")}')
+    assert _batterie.get_sensor_value('time_since_full') == since_full

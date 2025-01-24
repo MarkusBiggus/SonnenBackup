@@ -15,7 +15,6 @@ setuptools.setup(
     url="https://github.com/markusbiggus/sonnenbackup",
     packages=setuptools.find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
-        "asyncio>=3.4.3",
         "voluptuous>=0.15.2",
         "sonnen_api_v2>=0.5.13",
         "setuptools~=75.7.0",

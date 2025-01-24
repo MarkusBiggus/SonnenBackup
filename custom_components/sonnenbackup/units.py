@@ -9,6 +9,7 @@ class Units(Enum):
 
     W = "W"
     KWH = "kWh"
+    WH = "Wh"
     A = "A"
     V = "V"
     C = "°C"
@@ -55,7 +56,7 @@ class DailyTotalW(Measurement):
 class BatteryCapacity(Measurement):
     """A percent Measurement of Battery Capacity."""
 
-    unit: Units = Units.KWH
+    unit: Units = Units.WH
     is_monotonic: bool = False
     storage: bool = True
 

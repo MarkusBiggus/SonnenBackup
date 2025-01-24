@@ -1,7 +1,7 @@
 """Constants for the sonnenbackup integration."""
 
-
 import voluptuous as vol
+from collections import namedtuple
 
 import homeassistant.helpers.config_validation as cv
 #from homeassistant.data_entry_flow import section
@@ -78,6 +78,13 @@ SENSOR_GROUP_UNITS = 'UNITS'
 SENSOR_GROUP_TIMESTAMP = 'TIMESTAMP'
 SENSOR_GROUP_ENUM = 'ENUM'
 
+type decoder_mapping = namedtuple("mapping",
+    [
+        "units",
+        "alias",
+    ]
+)
+
 SENSOR_DESCRIPTIONS: dict[str, dict[tuple[Units, bool], SensorEntityDescription]] = {
     SENSOR_GROUP_UNITS: {
         (Units.C, False): SensorEntityDescription(
@@ -99,6 +106,20 @@ SENSOR_DESCRIPTIONS: dict[str, dict[tuple[Units, bool], SensorEntityDescription]
             device_class=SensorDeviceClass.ENERGY,
             native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
             suggested_display_precision = 2,
+            state_class=SensorStateClass.TOTAL,
+        ),
+        (Units.WH, False): SensorEntityDescription(
+            key=f"{Units.WH}_{False}",
+            device_class=SensorDeviceClass.ENERGY_STORAGE,
+            native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+            suggested_display_precision = 1,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        (Units.WH, True): SensorEntityDescription(
+            key=f"{Units.WH}_{True}",
+            device_class=SensorDeviceClass.ENERGY,
+            native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+            suggested_display_precision = 1,
             state_class=SensorStateClass.TOTAL,
         ),
         (Units.V, False): SensorEntityDescription(
