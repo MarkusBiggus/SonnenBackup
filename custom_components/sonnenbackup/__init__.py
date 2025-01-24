@@ -77,8 +77,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         except Exception as error:
             _LOGGER.error(f"SonnenBackup async_update failed: {repr(error)}")
             raise UpdateFailed from error
-        finally:
-            return _batterie_response
+#        finally:
+
+        return _batterie_response
 
     # Could be a different response_decoder defined for each model
     _battery_sensors = PowerUnitEVO(_batterie)

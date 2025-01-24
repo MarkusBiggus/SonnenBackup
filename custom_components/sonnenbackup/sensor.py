@@ -51,9 +51,9 @@ async def async_setup_entry(
 ) -> None:
     """Set up Batterie sensor based on a config entry."""
 
-    _LOGGER.info('Setup sensor entries')
+    _LOGGER.info('Setup sensor entities')
 
-# from exmaple, where is device defined before this call?
+# from example, where is device defined before this call?
 #    device: ExampleDevice = hass.data[DOMAIN][config_entry.entry_id]
 
     # api is BatterieBackup class
