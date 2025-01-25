@@ -146,16 +146,19 @@ def strfdelta(tdelta: int | timedelta | datetime, fmt='{D:01}d {H:02}:{M:02}:{S:
     if isinstance(tdelta, timedelta):
         remainder = int(tdelta.total_seconds())
     elif isinstance(tdelta, datetime):
+        '''this bit doesn't work
+            - datetime has huge problems with negatives and/or timezones.
+        '''
         tz = tdelta.tzinfo
         if tz is None:
             now = datetime.now() # naive
         else:
             now = datetime.now(tz) # aware
-            print(f"now:{datetime.now(tz)}")
-        print(f"tdelta:{tdelta}")
+    #        print(f"now:{datetime.now(tz)}")
+    #    print(f"tdelta:{tdelta}")
         delta = tdelta - now
         remainder = int(delta.total_seconds())
-        print (f'seconds: {remainder} ')
+    #    print (f'seconds: {remainder} ')
         return strfdelta(remainder, fmt)
 
     elif type(tdelta) is int:
