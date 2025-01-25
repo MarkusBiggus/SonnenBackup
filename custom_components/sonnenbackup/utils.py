@@ -141,19 +141,27 @@ def strfdelta(tdelta: int | timedelta | datetime, fmt='{D:01}d {H:02}:{M:02}:{S:
     MINUTE_SECONDS = 60
     FORMAT_UNITS = {'W': WEEK_SECONDS, 'D': DAY_SECONDS, 'H': HOUR_SECONDS, 'M': MINUTE_SECONDS, 'S': 1}
 
+    sign=''
     # Convert tdelta to integer seconds.
     if isinstance(tdelta, timedelta):
         remainder = int(tdelta.total_seconds())
     elif isinstance(tdelta, datetime):
         tz = tdelta.tzinfo
         if tz is None:
-            delta = datetime.now() - tdelta # naive
+            now = datetime.now() # naive
         else:
-            delta = datetime.now(tz) - tdelta # aware
+            now = datetime.now(tz) # aware
             print(f"now:{datetime.now(tz)}")
+        print(f"tdelta:{tdelta}")
+        delta = tdelta - now
         remainder = int(delta.total_seconds())
-        print (f'seconds: {remainder}')
+        print (f'seconds: {remainder} ')
+        return strfdelta(remainder, fmt)
+
     elif type(tdelta) is int:
+        if tdelta < 0:
+            sign = '-'
+            tdelta = abs(tdelta)
         if inputtype.lower() in ['s', 'seconds']:
             remainder = tdelta
         elif inputtype.lower() in ['m', 'minutes']:
@@ -165,7 +173,7 @@ def strfdelta(tdelta: int | timedelta | datetime, fmt='{D:01}d {H:02}:{M:02}:{S:
         elif inputtype.lower() in ['w', 'weeks']:
             remainder = tdelta * WEEK_SECONDS
         else:
-            raise ValueError (f"Wrong inputtype type! {inputtype} is not one of: 'W' | 'D' | 'H' | 'M' | 'S'")
+            raise ValueError (f"Wrong inputtype! {inputtype} is not one of: 'W' | 'D' | 'H' | 'M' | 'S'")
     else:
         raise ValueError (f'Wrong tdelta type! {type(tdelta)} is not one of: int | timedelta | datetime')
 
@@ -178,4 +186,4 @@ def strfdelta(tdelta: int | timedelta | datetime, fmt='{D:01}d {H:02}:{M:02}:{S:
         if field in desired_fields and field in FORMAT_UNITS:
 #            print(f"remain:{remainder}  field:{field}  unit:{FORMAT_UNITS[field]}  divmod:{divmod(remainder, FORMAT_UNITS[field])}")
             values[field], remainder = divmod(remainder, FORMAT_UNITS[field])
-    return fmtr.format(fmt, **values)
+    return sign+fmtr.format(fmt, **values)
