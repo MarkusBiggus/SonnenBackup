@@ -78,13 +78,6 @@ SENSOR_GROUP_UNITS = 'UNITS'
 SENSOR_GROUP_TIMESTAMP = 'TIMESTAMP'
 SENSOR_GROUP_ENUM = 'ENUM'
 
-type decoder_mapping = namedtuple("mapping",
-    [
-        "units",
-        "alias",
-    ]
-)
-
 SENSOR_DESCRIPTIONS: dict[str, dict[tuple[Units, bool], SensorEntityDescription]] = {
     SENSOR_GROUP_UNITS: {
         (Units.C, False): SensorEntityDescription(

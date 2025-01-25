@@ -4,29 +4,32 @@ from numbers import Number
 from typing import List, Protocol, Tuple
 
 from voluptuous import Invalid
+from string import Formatter
+from datetime import timedelta, datetime
+import tzlocal
 
 
-class Packer(Protocol):  # pragma: no cover
-    # pylint: disable=R0903
-    """
-    Pack multiple raw values from the inverter
-     data into one raw value
-    """
+# class Packer(Protocol):  # pragma: no cover
+#     # pylint: disable=R0903
+#     """
+#     Pack multiple raw values from the inverter
+#      data into one raw value
+#     """
 
-    def __call__(self, *vals: float) -> float: ...
-
-
-PackerBuilderResult = Tuple[Tuple[int, ...], Packer]
+#     def __call__(self, *vals: float) -> float: ...
 
 
-class PackerBuilder(Protocol):  # pragma: no cover
-    # pylint: disable=R0903
-    """
-    Build a packer by identifying the indexes of the
-    raw values to be fed to the packer
-    """
+# PackerBuilderResult = Tuple[Tuple[int, ...], Packer]
 
-    def __call__(self, *indexes: int) -> PackerBuilderResult: ...
+
+# class PackerBuilder(Protocol):  # pragma: no cover
+#     # pylint: disable=R0903
+#     """
+#     Build a packer by identifying the indexes of the
+#     raw values to be fed to the packer
+#     """
+
+#     def __call__(self, *indexes: int) -> PackerBuilderResult: ...
 
 
 # def __u16_packer(*values: float) -> float:
@@ -106,3 +109,73 @@ def contains_none_zero_value(value: List[Number]):
         if len(value) != 0 and any((v != 0 for v in value)):
             return value
     raise Invalid("All elements in the list are zero: {value}")
+
+
+def strfdelta(tdelta: int | timedelta | datetime, fmt='{D:01}d {H:02}:{M:02}:{S:02}', inputtype:str = 's'):
+    """Convert a datetime.timedelta object or a regular number to a custom-
+    formatted string, just like the stftime() method does for datetime.datetime
+    objects.
+    A datetime object will calculate seconds from now to the datetime provided.
+
+    The fmt argument allows custom formatting to be specified.  Fields can
+    include seconds, minutes, hours, days, and weeks.  Each field is optional.
+
+    Some examples:
+        '{D:01}d {H:02}:{M:02}:{S:02}' --> '5d 08:04:02' (default)
+        '{D:01}d {H:02}h {M:02}m {S:02}s' --> '5d 08h 04m 02s'
+        '{W}w {D}d {H}:{M:02}:{S:02}'     --> '4w 5d 8:04:02'
+        '{D:2}d {H:2}:{M:02}:{S:02}'      --> ' 5d  8:04:02'
+        '{H}h {S}s'                       --> '72h 800s'
+
+    The inputtype argument allows tdelta to be a regular number instead of the
+    default, which is a datetime.timedelta object.  Valid inputtype strings:
+        's', 'seconds',
+        'm', 'minutes',
+        'h', 'hours',
+        'd', 'days',
+        'w', 'weeks'
+    """
+    WEEK_SECONDS = 604800
+    DAY_SECONDS = 86400
+    HOUR_SECONDS = 3600
+    MINUTE_SECONDS = 60
+    FORMAT_UNITS = {'W': WEEK_SECONDS, 'D': DAY_SECONDS, 'H': HOUR_SECONDS, 'M': MINUTE_SECONDS, 'S': 1}
+
+    # Convert tdelta to integer seconds.
+    if isinstance(tdelta, timedelta):
+        remainder = int(tdelta.total_seconds())
+    elif isinstance(tdelta, datetime):
+        tz = tdelta.tzinfo
+        if tz is None:
+            delta = datetime.now() - tdelta # naive
+        else:
+            delta = datetime.now(tz) - tdelta # aware
+            print(f"now:{datetime.now(tz)}")
+        remainder = int(delta.total_seconds())
+        print (f'seconds: {remainder}')
+    elif type(tdelta) is int:
+        if inputtype.lower() in ['s', 'seconds']:
+            remainder = tdelta
+        elif inputtype.lower() in ['m', 'minutes']:
+            remainder = tdelta * MINUTE_SECONDS
+        elif inputtype.lower() in ['h', 'hours']:
+            remainder = tdelta * HOUR_SECONDS
+        elif inputtype.lower() in ['d', 'days']:
+            remainder = tdelta * DAY_SECONDS
+        elif inputtype.lower() in ['w', 'weeks']:
+            remainder = tdelta * WEEK_SECONDS
+        else:
+            raise ValueError (f"Wrong inputtype type! {inputtype} is not one of: 'W' | 'D' | 'H' | 'M' | 'S'")
+    else:
+        raise ValueError (f'Wrong tdelta type! {type(tdelta)} is not one of: int | timedelta | datetime')
+
+
+    fmtr = Formatter()
+    desired_fields = [field_tuple[1] for field_tuple in fmtr.parse(fmt)]
+    possible_fields = ('W', 'D', 'H', 'M', 'S')
+    values = {}
+    for field in possible_fields:
+        if field in desired_fields and field in FORMAT_UNITS:
+#            print(f"remain:{remainder}  field:{field}  unit:{FORMAT_UNITS[field]}  divmod:{divmod(remainder, FORMAT_UNITS[field])}")
+            values[field], remainder = divmod(remainder, FORMAT_UNITS[field])
+    return fmtr.format(fmt, **values)

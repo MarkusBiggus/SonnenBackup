@@ -82,7 +82,7 @@ async def async_setup_entry(
     # sensor_values = battery_sensors.map_response()
 
     entities: list[BatterieSensorEntity] = []
-    for alias, (idx, measurement, sensor, group, options) in battery_sensors.sensor_map().items():
+    for alias, (idx, measurement, sensor, group, options) in battery_sensors.mapped_sensors().items():
         if group == SENSOR_GROUP_UNITS:
     #       _LOGGER.debug(f'{SENSOR_GROUP_UNITS}: {sensor}  idx:{idx}  measurement: {measurement}')
             description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_UNITS][(measurement.unit, measurement.is_monotonic)]
