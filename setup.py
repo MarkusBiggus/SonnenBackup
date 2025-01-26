@@ -16,6 +16,7 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
         "voluptuous>=0.15.2",
+        "tzlocal",
         "sonnen_api_v2>=0.5.13",
         "setuptools~=75.7.0",
     ],

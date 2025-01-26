@@ -10,6 +10,7 @@
   "loggers": ["sonnenbackup"],
   "quality_scale": "bronze",
   "requirements": [
+    "tzlocal",
     "sonnen_api_v2>=0.5.13"
   ],
   "version": "0.0.1"

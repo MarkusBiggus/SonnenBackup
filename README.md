@@ -42,6 +42,8 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 |capacity_until_reserve|kWh|capacity_until_reserve|
 |backup_buffer_capacity_wh|kWh|reserve_capacity|
 |status_usable_capacity_wh|kWh|usable_remaining_capacity|
+|used_capacity|Wh|used_capacity|
+|battery_unusable_capacity_wh|Wh|unusable_capacity|
 |kwh_consumed|kWh|kwh_consumed|
 |kwh_produced|kWh|kwh_produced|
 |status_frequency|hertz|frequency|

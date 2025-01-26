@@ -13,6 +13,7 @@ import tzlocal
 
 from sonnen_api_v2 import Batterie, BatterieResponse, BatterieBackup
 
+from custom_components.sonnenbackup.utils import strfdelta
 from .battery_charging_asyncio import fixture_battery_charging
 
 LOGGER_NAME = None # "sonnenapiv2" #
@@ -61,5 +62,6 @@ async def test_batterieresponse(battery_charging: Batterie) -> None:
     assert _batterie.get_sensor_value('seconds_since_full') == 3720
     since_full = datetime.timedelta(seconds=3720)
 
-    print(f'since full: {since_full.strftime("%D %H:%M:%S")}')
+#    print(f'since full: {strfdelta(since_full)}')
     assert _batterie.get_sensor_value('time_since_full') == since_full
+    assert strfdelta(since_full) == '0d 01:02:00'

@@ -1,13 +1,13 @@
 #from abc import abstractmethod
 from typing import Any, Callable, Dict, Generator, Optional, Tuple, Union, Unpack
-from datetime import datetime
+from datetime import timedelta, datetime
 
 import voluptuous as vol
 import logging
 
 from sonnen_api_v2 import BatterieBackup
 
-from .utils import PackerBuilderResult
+from .utils import strfdelta # , PackerBuilderResult
 from .units import Measurement, Units, SensorUnit
 from .const import (
     SENSOR_GROUP_UNITS,
@@ -15,17 +15,20 @@ from .const import (
     # SENSOR_GROUP_ENUM,
     )
 
-
+SensorAlias = str | None
 ProcessorTuple = Tuple[Callable[[Any], Any], ...]
-SensorIndexSpec = Union[int, PackerBuilderResult]
+#SensorMap = Union[int, PackerBuilder]
+SensorMap = Tuple[SensorUnit, SensorAlias, Unpack[ProcessorTuple]]
 ResponseDecoder = Dict[
-    str,
-    Tuple[SensorIndexSpec, SensorUnit, Unpack[ProcessorTuple]],
+    str, SensorMap
+#    Tuple[SensorUnit,  Unpack[ProcessorTuple]],
 ]
 _LOGGER = logging.getLogger(__name__)
 
 class BatterieSensors:
-    """Base functions for batterie model sensor maps"""
+    """Base functions for SonnenBatterie sensor maps.
+        Sensor names are mapped to SonnenBattery properties.
+    """
 
 
     # pylint: enable=C0301
@@ -68,11 +71,11 @@ class BatterieSensors:
 
         return result
 
-    def _decode_map(self) -> Dict[str, SensorIndexSpec]:
+    def _decode_map(self) -> Dict[str, SensorMap]:
         """Decode the map creating a single list of mappings used
             to hydrate sensors.
         """
-        sensors: Dict[str, SensorIndexSpec] = {}
+        sensors: Dict[str, SensorMap] = {}
         for sensor_group, sensor_map in self._response_decoder.items():
             for sensor_name, mapping in sensor_map.items():
                 if sensor_name == "*skip*":
@@ -80,7 +83,7 @@ class BatterieSensors:
                 if len(mapping) == 1:
                     mapping = (mapping[0], sensor_name) # add alias
                 sensors[sensor_name] = (sensor_group, mapping)
-                _LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
+#                _LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
         return sensors
 
     def _postprocess_gen(
@@ -101,11 +104,11 @@ class BatterieSensors:
 
 
     @classmethod
-    def sensor_map(cls) -> Dict[str, Tuple[int, Measurement]]:
+    def mapped_sensors(cls) -> Dict[str, Tuple[int, Measurement]]:
         """
         Return sensor map to create BatterieSensorEntity in sensor.async_setup_entry.
         """
-        _LOGGER.info('BatterieSensors sensor_map')
+        _LOGGER.info('BatterieSensors mapped_sensors')
 
         iidx = 0
         idx_groups =[0,100,200] # max 100 per group
@@ -164,8 +167,8 @@ class BatterieSensors:
         return TimeStamp.strftime("%d-%b-%Y %H:%M:%S") if TimeStamp is not None else 'na'
 
     @classmethod
-    def _format_deltatime(cls, TimeStamp: datetime = None) -> str:
+    def _format_deltatime(cls, DeltaTimeStamp: int | timedelta | None) -> str:
 
         """Return delta time formatted: D H:M:S."""
 
-        return TimeStamp.strftime("%D %H:%M:%S") if TimeStamp is not None else 'na'
+        return strfdelta(DeltaTimeStamp) if DeltaTimeStamp is not None else 'na'
