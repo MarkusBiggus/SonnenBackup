@@ -1,60 +1,100 @@
 #from abc import abstractmethod
 from typing import Any, Callable, Dict, Generator, Optional, Tuple, Union, Unpack
-from datetime import datetime
+from datetime import timedelta, datetime
 
 import voluptuous as vol
-from .const import MANUFACTURER
+import logging
 
 from sonnen_api_v2 import BatterieBackup
-from sonnen_api_v2.utils import PackerBuilderResult
-from sonnen_api_v2.units import Measurement, Units, SensorUnit
 
+from .utils import strfdelta # , PackerBuilderResult
+from .units import Measurement, Units, SensorUnit
+from .const import (
+    SENSOR_GROUP_UNITS,
+    # SENSOR_GROUP_TIMESTAMP,
+    # SENSOR_GROUP_ENUM,
+    )
 
+SensorAlias = str | None
 ProcessorTuple = Tuple[Callable[[Any], Any], ...]
-SensorIndexSpec = Union[int, PackerBuilderResult]
+#SensorMap = Union[int, PackerBuilder]
+SensorMap = Tuple[SensorUnit, SensorAlias, Unpack[ProcessorTuple]]
 ResponseDecoder = Dict[
-    str,
-    Tuple[SensorIndexSpec, SensorUnit, Unpack[ProcessorTuple]],
+    str, SensorMap
+#    Tuple[SensorUnit,  Unpack[ProcessorTuple]],
 ]
+_LOGGER = logging.getLogger(__name__)
 
 class BatterieSensors:
-    """Base functions for batterie model sensor maps"""
+    """Base functions for SonnenBatterie sensor maps.
+        Sensor names are mapped to SonnenBattery properties.
+    """
 
-    # @classmethod
-    # def response_decoder(cls) -> ResponseDecoder:
-    #     """
-    #     Inverter implementations should override
-    #     this to return a decoding map
-    #     """
-    #     raise NotImplementedError()
 
     # pylint: enable=C0301
     _schema = vol.Schema({})  # type: vol.Schema
 
-    def __init__(self, batterieAPI:BatterieBackup): #, serial_number: str):
+    def __init__(self, batterieAPI:BatterieBackup):
         """Base methods to process the sensor map defined
             by extensions to this class.
         """
+
+        _LOGGER.info('Init BatterieSensors')
         self._response_decoder = type(self).response_decoder()
         # self.manufacturer = MANUFACTURER
         # self._serial_number = serial_number
         self.batterieAPI = batterieAPI
+        self.decoded_map = self._decode_map()
 
-    def _decode_map(self) -> Dict[str, SensorIndexSpec]:
-        sensors: Dict[str, SensorIndexSpec] = {}
-        for name, mapping in self._response_decoder.items():
-            sensors[name] = mapping#[0]
-    #        print(f'decoded name: {name}  mapping:{mapping}')
+    def map_response(self) -> Dict[str, Any]:
+        """Called by sensor.async_setup_entry to prepare sensor definitions
+            for a particular device model's set of sensors.
+            There are 3 sensor groups:
+            UNITS: All sensors that have units of measurment
+            TIMESTAMPS: All timestamps
+            ENUM: All that have a set of possible values. Bool is a special case here.
+        """
+
+        result = {}
+        for sensor_name, (sensor_group, mapping) in self.decoded_map.items():
+            (unit_or_measurement, alias, *_) = mapping
+
+            result[alias] = self.batterieAPI.get_sensor_value(sensor_name)
+
+            if sensor_group == SENSOR_GROUP_UNITS:
+                for sensor_name, processor in self._postprocess_gen():
+            #        print(f'{sensor_name}  processor: {processor}')
+                    result[alias] = processor(result[alias])
+                    _LOGGER.info(f'{alias}  processed result: {result[alias]}')
+
+
+
+        return result
+
+    def _decode_map(self) -> Dict[str, SensorMap]:
+        """Decode the map creating a single list of mappings used
+            to hydrate sensors.
+        """
+        sensors: Dict[str, SensorMap] = {}
+        for sensor_group, sensor_map in self._response_decoder.items():
+            for sensor_name, mapping in sensor_map.items():
+                if sensor_name == "*skip*":
+                    continue
+                if len(mapping) == 1:
+                    mapping = (mapping[0], sensor_name) # add alias
+                sensors[sensor_name] = (sensor_group, mapping)
+#                _LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
         return sensors
 
     def _postprocess_gen(
         self,
     ) -> Generator[Tuple[str, Callable[[Any], Any]], None, None]:
         """
-        Return map of functions to be applied to each sensor value
+        Return map of functions to be applied to each UNITS sensor measurement.
         """
-        for name, mapping in self._response_decoder.items():
-            if len(mapping) > 3:
+
+        for name, mapping in self._response_decoder.get(SENSOR_GROUP_UNITS).items():
+            if len(mapping) > 2:
                 (_, _, alias, *processors) = mapping
                 alias = name if alias is None else alias
             else:
@@ -62,62 +102,56 @@ class BatterieSensors:
             for processor in processors:
                 yield alias, processor
 
-    def map_response(self) -> Dict[str, Any]:
-        result = {}
-        for sensor_name, decode_info in self._decode_map().items():
-            # if isinstance(decode_info, (tuple, list)):
-            #     indexes = decode_info[0]
-            #     packer = decode_info[1]
-            #     values = tuple(resp_data[i] for i in indexes)
-            #     val = packer(*values)
-            # else:
-            #val = resp_data[decode_info]
-            alias = decode_info[2] if len(decode_info) >2 and decode_info[2] is not None else sensor_name
-    #        print(f'sensor name: {sensor_name}  alias: {alias}  decode_info: {decode_info}')
-            result[alias] = self.batterieAPI.get_sensor_value(sensor_name)
-    #        print(f'sensor name: {alias}  result: {result[alias]}')
-        for sensor_name, processor in self._postprocess_gen():
-    #        print(f'{sensor_name}  processor: {processor}')
-            result[sensor_name] = processor(result[sensor_name])
-    #        print(f'{sensor_name}  processed result: {result[sensor_name]}')
-        return result
 
     @classmethod
-    def sensor_map(cls) -> Dict[str, Tuple[int, Measurement]]:
+    def mapped_sensors(cls) -> Dict[str, Tuple[int, Measurement]]:
         """
-        Return sensor map
-        Warning, HA depends on this
+        Return sensor map to create BatterieSensorEntity in sensor.async_setup_entry.
         """
-        sensors: Dict[str, Tuple[int, Measurement]] = {}
-        for name, mapping in cls.response_decoder().items():
-            if len(mapping) > 2:
-                (idx, unit_or_measurement, alias, *_) = mapping
-                alias = name if alias is None else alias
-            else:
-                (idx, unit_or_measurement, *_) = mapping
-                alias = name
+        _LOGGER.info('BatterieSensors mapped_sensors')
 
-            if isinstance(unit_or_measurement, Units):
-                unit = Measurement(unit_or_measurement)
-            else:
-                unit = unit_or_measurement
-            # if isinstance(idx, tuple):
-            #     sensor_indexes = idx[0]
-            #     first_sensor_index = sensor_indexes[0]
-            #     idx = first_sensor_index
-            sensors[alias] = (idx, unit)
+        iidx = 0
+        idx_groups =[0,100,200] # max 100 per group
+        sensors: Dict[str, Tuple[int, Measurement]] = {}
+        for sensor_group, sensor_map in cls.response_decoder().items():
+            idx = idx_groups[iidx]
+            iidx += 1
+            for sensor_name, mapping in sensor_map.items():
+                if sensor_name == "*skip*":
+                    continue
+                option = None
+                if len(mapping) == 1:
+                    (unit_or_measurement, *_) = mapping
+                    alias = sensor_name
+                elif len(mapping) == 2:
+                    (unit_or_measurement, alias, *_) = mapping
+                else:
+                    (unit_or_measurement, alias, option, *_) = mapping
+
+                alias = sensor_name if alias is None else alias
+
+                if sensor_group == SENSOR_GROUP_UNITS:
+                    if isinstance(unit_or_measurement, Units):
+                        unit = Measurement(unit_or_measurement)
+                    elif issubclass(unit_or_measurement, SensorUnit):
+                        unit = unit_or_measurement
+                    else:
+                        raise ValueError(f'{SENSOR_GROUP_UNITS} sensor {sensor_name} wrong type: {type(unit_or_measurement)}')
+                else:
+                    if type(option) is bool:
+                        unit = Measurement(Units.NONE, is_monotonic = option)
+                    else:
+                        unit = Measurement(Units.NONE, False)
+                sensors[alias] = (idx, unit, sensor_name, sensor_group, option)
+                idx += 1
         return sensors
 
-    # @classmethod
-    # def schema(cls) -> vol.Schema:
-    #     """
-    #     Return schema
-    #     """
-    #     return cls._schema
-
+    # Post processors for UNITS measurements (still required??)
     @classmethod
     def _decode_operating_mode(cls, operating_mode) -> str:
-        """Return name of Operating Mode"""
+
+        """Return name of Operating Mode."""
+
         return {
             1: "Manual",
             2: "Automatic",
@@ -127,15 +161,14 @@ class BatterieSensors:
 
     @classmethod
     def _format_datetime(cls, TimeStamp: datetime = None) -> str:
-        """Return datime formatted: d-m-Y H:M:S"""
+
+        """Return datime formatted: d-m-Y H:M:S."""
 
         return TimeStamp.strftime("%d-%b-%Y %H:%M:%S") if TimeStamp is not None else 'na'
 
+    @classmethod
+    def _format_deltatime(cls, DeltaTimeStamp: int | timedelta | None) -> str:
 
-    # @property
-    # def serial_number(self) -> str:
-    # #    raise NotImplementedError  # pragma: no cover
-    #     return self._serial_number
+        """Return delta time formatted: D H:M:S."""
 
-    # def __str__(self) -> str:
-    #     return f"{self.__class__.__name__}::{self.http_client}"
+        return strfdelta(DeltaTimeStamp) if DeltaTimeStamp is not None else 'na'

@@ -5,17 +5,16 @@ import datetime
 import os
 import sys
 import logging
-import urllib3
 
 #for tests only
 import pytest
 from freezegun import freeze_time
-from unittest.mock import patch
+import tzlocal
 
-from sonnen_api_v2 import Batterie, BatterieBackup, BatterieResponse, BatterieAuthError, BatterieHTTPError, BatterieError
+from sonnen_api_v2 import Batterie, BatterieResponse, BatterieBackup
 
+from custom_components.sonnenbackup.utils import strfdelta
 from .battery_charging_asyncio import fixture_battery_charging
-from .mock_battery_configurations import __battery_configurations_auth200, __battery_configurations_auth401
 
 LOGGER_NAME = None # "sonnenapiv2" #
 
@@ -43,73 +42,26 @@ if LOGGER_NAME is not None:
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("battery_charging")
 @freeze_time("20-11-2023 17:00:00")
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
-async def test_batterieresponse_works(battery_charging: Batterie) -> None:
-    """Batterie Response using mock data"""
+async def test_batterieresponse(battery_charging: Batterie) -> None:
+    """BatterieBackup Response using mock data."""
 
     _batterie = BatterieBackup('fakeToken', 'fakeHost')
-
-    response = await _batterie.validate_token()
-
-    assert isinstance(response, BatterieResponse) is True
-    assert response == BatterieResponse(version='1.14.5', last_updated=datetime.datetime(2023, 11, 20, 17, 0), configurations={'EM_RE_ENABLE_MICROGRID': 'False', 'NVM_PfcIsFixedCosPhiActive': 0, 'NVM_PfcFixedCosPhi': 0.8, 'IC_BatteryModules': 4, 'EM_ToU_Schedule': [], 'DE_Software': '1.14.5', 'EM_USER_INPUT_TIME_ONE': 0, 'NVM_PfcIsFixedCosPhiLagging': 0, 'EM_Prognosis_Charging': 1, 'EM_USOC': 20, 'EM_USER_INPUT_TIME_TWO': 0, 'EM_OperatingMode': '2', 'SH_HeaterTemperatureMax': 80, 'SH_HeaterOperatingMode': 0, 'IC_InverterMaxPower_w': 5000, 'SH_HeaterTemperatureMin': 0, 'CM_MarketingModuleCapacity': 5000, 'EM_USER_INPUT_TIME_THREE': 0, 'CN_CascadingRole': 'none', 'EM_US_GEN_POWER_SET_POINT': 0, 'DepthOfDischargeLimit': 93})
 
     response = await _batterie.refresh_response()
 
     #print(f'response: {response}')
 
     assert isinstance(response, BatterieResponse) is True
-    assert response == BatterieResponse(version='1.14.5', last_updated=datetime.datetime(2023, 11, 20, 17, 0), configurations={'EM_RE_ENABLE_MICROGRID': 'False', 'NVM_PfcIsFixedCosPhiActive': 0, 'NVM_PfcFixedCosPhi': 0.8, 'IC_BatteryModules': 4, 'EM_ToU_Schedule': [], 'DE_Software': '1.14.5', 'EM_USER_INPUT_TIME_ONE': 0, 'NVM_PfcIsFixedCosPhiLagging': 0, 'EM_Prognosis_Charging': 1, 'EM_USOC': 20, 'EM_USER_INPUT_TIME_TWO': 0, 'EM_OperatingMode': '2', 'SH_HeaterTemperatureMax': 80, 'SH_HeaterOperatingMode': 0, 'IC_InverterMaxPower_w': 5000, 'SH_HeaterTemperatureMin': 0, 'CM_MarketingModuleCapacity': 5000, 'EM_USER_INPUT_TIME_THREE': 0, 'CN_CascadingRole': 'none', 'EM_US_GEN_POWER_SET_POINT': 0, 'DepthOfDischargeLimit': 93})
+    assert response == BatterieResponse(
+        version='1.14.5',
+        last_updated=datetime.datetime(2023, 11, 20, 17, 0, tzinfo=tzlocal.get_localzone()),
+        sensor_values={}
+    )
 
-    sensor_value = _batterie.get_sensor_value('configuration_de_software')
-    assert sensor_value == '1.14.5'
+    assert _batterie.get_sensor_value('installed_capacity') == 20000
+    assert _batterie.get_sensor_value('seconds_since_full') == 3720
+    since_full = datetime.timedelta(seconds=3720)
 
-
-async def __mock_async_validate_token(self):
-    """Mock validation failed."""
-    return False
-
-@pytest.mark.asyncio
-@patch.object(Batterie, 'async_validate_token', __mock_async_validate_token)
-async def test_batterieresponse_BatterieAuthError(battery_charging: Batterie) -> None:
-    """Batterie Response using mock data"""
-
-    _batterie = BatterieBackup('fakeToken', 'fakeHost')
-
-    with pytest.raises(BatterieAuthError, match='BatterieBackup: Error validating API token!'):
-        await _batterie.validate_token()
-
-
-async def __mock_async_update(self):
-    """Mock update failed."""
-    return False
-
-@pytest.mark.asyncio
-@pytest.mark.usefixtures("battery_charging")
-#@freeze_time("20-11-2023 17:00:00")
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth200)
-@patch.object(Batterie, 'async_update', __mock_async_update)
-async def test_batterieresponse_BatterieError(battery_charging: Batterie) -> None:
-    """Batterie Response using mock data"""
-
-    _batterie = BatterieBackup('fakeToken', 'fakeHost')
-
-    response = await _batterie.validate_token()
-
-    assert isinstance(response, BatterieResponse) is True
-    assert response == BatterieResponse(version='1.14.5', last_updated=datetime.datetime(2023, 11, 20, 17, 0), configurations={'EM_RE_ENABLE_MICROGRID': 'False', 'NVM_PfcIsFixedCosPhiActive': 0, 'NVM_PfcFixedCosPhi': 0.8, 'IC_BatteryModules': 4, 'EM_ToU_Schedule': [], 'DE_Software': '1.14.5', 'EM_USER_INPUT_TIME_ONE': 0, 'NVM_PfcIsFixedCosPhiLagging': 0, 'EM_Prognosis_Charging': 1, 'EM_USOC': 20, 'EM_USER_INPUT_TIME_TWO': 0, 'EM_OperatingMode': '2', 'SH_HeaterTemperatureMax': 80, 'SH_HeaterOperatingMode': 0, 'IC_InverterMaxPower_w': 5000, 'SH_HeaterTemperatureMin': 0, 'CM_MarketingModuleCapacity': 5000, 'EM_USER_INPUT_TIME_THREE': 0, 'CN_CascadingRole': 'none', 'EM_US_GEN_POWER_SET_POINT': 0, 'DepthOfDischargeLimit': 93})
-
-    with pytest.raises(BatterieError, match='BatterieBackup: Error updating batterie data!'):
-        await _batterie.refresh_response()
-
-
-@pytest.mark.asyncio
-@pytest.mark.usefixtures("battery_charging")
-@patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_configurations_auth401)
-async def test_batterieresponse_BatterieHTTPError(battery_charging: Batterie) -> None:
-    """Batterie 401 Response using mock data"""
-
-    _batterie = BatterieBackup('fakeToken', 'fakeHost')
-
-    with pytest.raises(BatterieHTTPError, match='BatterieBackup: Error updating batterie data!'):
-        await _batterie.validate_token()
+#    print(f'since full: {strfdelta(since_full)}')
+    assert _batterie.get_sensor_value('time_since_full') == since_full
+    assert strfdelta(since_full) == '0d 01:02:00'

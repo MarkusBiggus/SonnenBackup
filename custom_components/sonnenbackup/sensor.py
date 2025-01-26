@@ -6,12 +6,11 @@ import logging
 from collections.abc import Callable
 #from typing import Any
 
-from sonnen_api_v2 import BatterieBackup
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
-#    SensorEntityDescription,
+    SensorEntityDescription,
     SensorStateClass,
 )
 #from homeassistant import config_entries, core
@@ -24,14 +23,25 @@ from homeassistant.helpers.typing import (
     ConfigType,
     DiscoveryInfoType,
 )
-from .const import _DOMAIN, MANUFACTURER, SENSOR_DESCRIPTIONS
+from homeassistant.const import (
+    EntityCategory,
+)
+from .const import (
+    DOMAIN,
+    MANUFACTURER,
+    SENSOR_DESCRIPTIONS,
+    SENSOR_GROUP_UNITS,
+    SENSOR_GROUP_TIMESTAMP,
+    SENSOR_GROUP_ENUM,
+)
+from . import BatterieBackup
 from .coordinator import SonnenBackupAPI
-from .PowerUnitEVO import PowerUnitEVO
+from .PowerUnitEVO import PowerUnitEVO, SonnenBackupSensorEntityDescription
 
 #from . import SonnenConfigEntry
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
-DOMAIN = _DOMAIN
+#DOMAIN = _DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
@@ -39,9 +49,12 @@ async def async_setup_entry(
     config_entry: SonnenBackupConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Entry setup."""
+    """Set up Batterie sensor based on a config entry."""
 
-    _LOGGER.info('Setup sensor entries')
+    _LOGGER.info('Setup sensor entities')
+
+# from example, where is device defined before this call?
+#    device: ExampleDevice = hass.data[DOMAIN][config_entry.entry_id]
 
     # api is BatterieBackup class
     api:BatterieBackup = config_entry.runtime_data.api
@@ -49,35 +62,54 @@ async def async_setup_entry(
     coordinator = config_entry.runtime_data.coordinator
     batterie_response = coordinator.data
     version = batterie_response.version
+#    hass_data = hass.data[DOMAIN][config_entry.entry_id]
+    # hass_data = hass.data[DOMAIN] # setdefault(DOMAIN, {})
+    # _LOGGER.info(f'hass_data: {hass_data}')
+    # hass_data_entry = hass_data.get(config_entry.entry_id)
+    # _LOGGER.debug(f'hass_data_entry: {hass_data_entry}')
+    # _LOGGER.debug(f'config rtd: {config_entry.runtime_data}')
     device_info = DeviceInfo(
         identifiers={(DOMAIN, serial_number)},
         manufacturer=MANUFACTURER,
-        name=f"{MANUFACTURER} {serial_number}",
+        model=config_entry.runtime_data.model,
+        name=f"{MANUFACTURER} BB{serial_number}",
         sw_version=version,
     )
+
+
     battery_sensors = PowerUnitEVO(api)
-    sensor_values = battery_sensors.map_response()
+    # BREAK ANYTHING?
+    # sensor_values = battery_sensors.map_response()
 
     entities: list[BatterieSensorEntity] = []
-    for sensor, (idx, measurement) in battery_sensors.sensor_map().items():
-        _LOGGER.debug(f'sensor: {sensor}  idx:{idx}  measurement: {measurement}')
-        description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
-        uid = f"SB{serial_number}-{idx}"
-        _LOGGER.debug(f'sensor: {sensor}  uid:{uid}  description: {description}')
+    for alias, (idx, measurement, sensor, group, options) in battery_sensors.mapped_sensors().items():
+        if group == SENSOR_GROUP_UNITS:
+    #       _LOGGER.debug(f'{SENSOR_GROUP_UNITS}: {sensor}  idx:{idx}  measurement: {measurement}')
+            description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_UNITS][(measurement.unit, measurement.is_monotonic)]
+        elif group == SENSOR_GROUP_TIMESTAMP:
+            description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_TIMESTAMP][(measurement.unit, measurement.is_monotonic)] # only (Units.NONE, False)
+        elif group == SENSOR_GROUP_ENUM:
+            description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_ENUM][(measurement.unit, measurement.is_monotonic)]
+            if description.options is None:
+                description = SensorEntityDescription(
+                    description.key,
+                    description.device_class,
+                    options=options
+                )
+        else:
+            raise ValueError(f'Sensor {sensor} unknown group: {type(group)}')
+
+        uid = f"BB{serial_number}-{idx}"
+    #    _LOGGER.info(f'sensor: {sensor}  uid:{uid}  description: {description}')
         entities.append(
             BatterieSensorEntity(
                 config_entry,
-                # coordinator,
-                # MANUFACTURER,
-                # uid,
-                # serial_number,
-                # version,
                 device_info,
                 uid,
                 sensor,
-                description.native_unit_of_measurement,
-                description.state_class,
-                description.device_class,
+                idx,
+                alias,
+                description
             )
         )
     async_add_entities(entities)
@@ -90,14 +122,19 @@ async def async_setup_platform(
 ) -> None:
     """Set up the sensor platform."""
 
-    _LOGGER.info('Setup sensor platform')
+    _LOGGER.info('Setup sensor platform') #######  NOT called!!!!!!!!!!!????
 
 
 class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
-    """Class for a sensor."""
+    """Represent a battery sensor."""
 
     _attr_should_poll = False
     _attr_icon = "mdi:battery-outline"
+    _attr_has_entity_name = True
+    _attr_entity_category = (
+            EntityCategory.DIAGNOSTIC
+    )
+    entity_description: SonnenBackupSensorEntityDescription
 
     def __init__(
         self,
@@ -105,27 +142,30 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         device_info: DeviceInfo,
         uid: str,
         sensor: str,
-        unit: str | None,
-        state_class: SensorStateClass | str | None,
-        device_class: SensorDeviceClass | None,
+        sensor_idx: int,
+        alias: str,
+        description: SensorEntityDescription,
     ) -> None:
         """Initialize a battery sensor."""
         super().__init__(config_entry.runtime_data.coordinator)
 
-        serial_number = config_entry.runtime_data.serial_number
+        self.entity_description = description
+#        serial_number = config_entry.runtime_data.serial_number
         self._batterybackup = config_entry.runtime_data.api
         self._unique_id = uid
-        self._name = f"{DOMAIN} {sensor} {serial_number}"
+        self._name = f"{DOMAIN} {alias}"
         self._has_entity_name = True
-        self._native_unit_of_measurement = unit
-        self._state_class = state_class
-        self._device_class = device_class
+        self._native_unit_of_measurement = description.native_unit_of_measurement
+        self._suggested_display_precision = description.suggested_display_precision
+        self._state_class = description.state_class
+        self._device_class = description.device_class
+        self._options = description.options
         self._device_info = device_info
         self._available = True
         self.key = sensor
+        self._idx = sensor_idx
+        self.alias = alias
         self._state = 'on'
-
-    #    _LOGGER.info(f'Setup sensor: {sensor} value: {self.native_value}')
 
     @property
     def device_info(self):
@@ -135,7 +175,10 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Value of this sensor from mapped battery property."""
-        return self.coordinator.data[self.key] # ??????????????????
+        # self.coordinator.data is last BatterieResponse from async_setup_entry._async_update
+        self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) #self._batterybackup.get_sensor_value(self.key)
+    #    _LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
+        return self._attr_native_value
 
     @property
     def name(self) -> str:
@@ -152,20 +195,23 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         """Return True if entity is available."""
         return self._available
 
-    @property
-    def state(self) -> str | None:
-        """Return entity state."""
-        return self._state
+### Was never called!
+### https://developers.home-assistant.io/docs/core/entity/#property-implementation
+    # def update(self) -> None:
+    #         """Update entity state."""
+    #         # try:
+    # #            self._attr_native_value self._batterybackup.get_sensor_value(self.key)
+    #         # except BatterieSensorError:
+    #         #     if self.available:  # Read current state, no need to prefix with _attr_
+    #         #         LOGGER.warning(f'Sensor {self.key} update failed! ID: {entity_id}')
+    #         #     self._attr_available = False  # Set property value
+    #         #     return
+    #         # self._attr_available = Ture
 
-    # async def async_update(self) -> None:
-    #     """Update all sensors."""
-    #     try:
-    #         await self.coordinator["update_method"]()
-
-
-    #         self._available = True
-    #     except (UpdateFailed, BatterieError):
-    #         self._available = False
-    #         _LOGGER.exception(
-    #             "Error retrieving data from GitHub for sensor %s", self.name
-    #         )
+    #         #self._attr_available = True
+    #         # We don't need to check if device available here
+    #         _LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
+    #         self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) # data coordinator gets sensor_values from device
+    #         # self._attr_native_value = self.entity_description.value_fn(
+    #         #     self._device
+    #         # )

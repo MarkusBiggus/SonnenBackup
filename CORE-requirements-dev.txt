@@ -1,0 +1,4 @@
+# Strictly for CORE tests
+pytest-mock
+asyncmock>=0.4.2
+responses
