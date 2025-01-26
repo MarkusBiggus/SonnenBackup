@@ -69,7 +69,7 @@ class PowerUnitEVO(BatterieSensors):
                 "battery_unusable_capacity_wh": (Units.WH, "battery_unusable_capacity"),
                 "status_remaining_capacity_wh":(BatteryCapacity, "remaining_capacity"),
                 "capacity_until_reserve":(BatteryCapacity,),
-                "backup_buffer_capacity_wh":(BatteryCapacity, "reserve_capacity"),
+                "backup_buffer_usable_capacity_wh":(BatteryCapacity, "reserve_capacity"),
                 "status_usable_capacity_wh": (BatteryCapacity, "usable_remaining_capacity"),
                 "kwh_consumed": (TotalKWH,), #Total(Units.KWH)),
                 "kwh_produced": (TotalKWH,), #Total(Units.KWH)),
