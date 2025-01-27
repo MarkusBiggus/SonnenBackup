@@ -75,7 +75,6 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 |fully_discharged_at|timestamp|fully_discharged_at|
 |backup_reserve_at|timestamp|backup_reserve_at|
 |last_time_full|timestamp|last_time_full|
-|last_updated|timestamp|last_updated|
 |status_battery_charging|bool|charging|
 |status_battery_discharging|bool|discharging|
 |configuration_em_operatingmode|enum|operating_mode|

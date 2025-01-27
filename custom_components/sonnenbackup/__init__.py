@@ -76,7 +76,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
             raise UpdateFailed from error
         except Exception as error:
             _LOGGER.error(f"SonnenBackup async_update failed: {repr(error)}")
-            raise UpdateFailed from error
+            raise UpdateFailed(
+                translation_domain=DOMAIN,
+                translation_key="update_failed",
+                translation_placeholders={"unknown": repr(error)},
+            ) from error
 #        finally:
 
         return _batterie_response

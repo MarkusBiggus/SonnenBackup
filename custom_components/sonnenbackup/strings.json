@@ -39,7 +39,7 @@
         }
       },
       "reconfigure": {
-        "description": "Update configuration for {device_id}.",
+        "description": "Update {device} configuration.",
         "data": {
           "ip_address":  "[%key:common::config_flow::data::ip%]",
           "port": "[%key:common::config_flow::data::port%]",
@@ -70,18 +70,20 @@
   "entity": {
     "binary_sensor": {
       "offgrid": { "name": "Off Grid" },
+      "firmware_update": { "name": "Firmware Update" },
       "critical_error": { "name": "Critical Error" }
     },
     "sensor": {
       "sonnenbackup_state": {
         "name": "Batterie State",
         "state": {
-          "standby": "Reserve Standby",
+          "standby": "Standby",
           "charging": "Charging",
           "discharging": "Discharging",
           "discharging_reserve": "Discharging Reserve",
           "charged": "Fully Charged",
-          "discharged" : "Fully Discharged"
+          "discharged" : "Fully Discharged",
+          "standby_reserve": "Standby Reserve"
         }
       },
       "operating_mode": {
@@ -102,6 +104,9 @@
           "critical_error": "Critical Error"
         }
       },
+      "firmware_version": {
+        "name": "Version"
+      },
       "status_timestamp": {
         "name": "Status Timestamp"
       },
@@ -111,38 +116,68 @@
       "fully_discharged_at": {
         "name": "Fully Discharged at"
       },
-      "status_backup_buffer": {
-        "name": "Backup Buffer%"
+      "reserve_charge": {
+        "name": "Reserve Charge"
       },
       "battery_cycle_count": {
         "name": "Charge cycles"
       },
       "full_charge_capacity": {
-        "name": "Full Charge Capacity kWh"
+        "name": "Full Charge Capacity"
+      },
+      "usable_capacity": {
+        "name": "Usable Capacity"
+      },
+      "depth_of_discharge_limit": {
+        "name": "Unusable Charge"
       },
       "remaining_capacity": {
-        "name": "Remaining Capacity kWh"
+        "name": "Remaining Capacity"
+      },
+      "unusable_capacity": {
+        "name": "Unusable Capacity"
+      },
+      "reserve_capacity": {
+        "name": "Reserve Capacity"
       },
       "capacity_until_reserve": {
-        "name": "Capacity until Reserve kWh"
+        "name": "Capacity until Reserve"
       },
       "backup_reserve_at": {
-        "name": "Reserve Standby at"
+        "name": "Standby at"
       },
       "backup_reserve_capacity": {
-        "name": "Backup Reserve Capacity kWh"
+        "name": "Backup Reserve Capacity"
       },
       "consumption_average": {
         "name": "Average consumption"
       },
       "frequency": {
-        "name": "Frequency Hz"
+        "name": "Frequency"
+      },
+      "charge_power": {
+        "name": "Charging Power"
+      },
+      "discharge_power": {
+        "name": "Discharging Power"
+      },
+      "grid_export": {
+        "name": "Grid Export"
+      },
+      "grid_import": {
+        "name": "Grid Import"
+      },
+      "ongrid_pac": {
+        "name": "OnGrid PAC"
+      },
+      "offgrid_pac": {
+        "name": "OffGrid PAC"
       },
       "relative_state_of_charge": {
-        "name": "Relative State of Charge%"
+        "name": "Relative State of Charge"
       },
       "usable_state_of_charge": {
-        "name": "Usable State of Charge%"
+        "name": "Usable State of Charge"
       }
     }
   }
