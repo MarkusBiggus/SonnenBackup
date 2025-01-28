@@ -101,7 +101,7 @@ class PowerUnitEVO(BatterieSensors):
                 "battery_module_dc_voltage": (Units.V, "module_dc_voltage"),
                 "time_since_full":(Units.NONE,"interval_since_full", "_format_deltatime"),
                 "led_state_text": (Units.NONE,),
-                "battery_used_capacity": (BatteryCapacity, "used_capacity"),
+                "battery_used_capacity_wh": (BatteryCapacity, "used_capacity"),
                 "status_grid_feedin": (Units.W, "grid_feedin"),
 #       1082bytes         "dc_shutdown_reason": (Units.NONE,),
 #       394bytes          "microgrid_status": (Units.NONE,),
