@@ -103,6 +103,7 @@ class PowerUnitEVO(BatterieSensors):
                 "led_state_text": (Units.NONE,),
                 "battery_used_capacity_wh": (BatteryCapacity, "used_capacity"),
                 "status_grid_feedin": (Units.W, "grid_feedin"),
+                "capacity_to_reserve":(BatteryCapacity,),
 #       1082bytes         "dc_shutdown_reason": (Units.NONE,),
 #       394bytes          "microgrid_status": (Units.NONE,),
 
