@@ -62,12 +62,13 @@ class PowerUnitEVO(BatterieSensors):
                 "*skip*": ("deleted sensor: index is skipped", "replace later with a new sensor"),
                 "installed_capacity":(BatteryCapacity,),
                 "full_charge_capacity":(BatteryCapacity,),
-                "usable_capacity":(BatteryCapacity,),
+                "battery_usable_remaining_capacity_wh": (BatteryCapacity, "usable_capacity"),
                 "unusable_capacity":(BatteryCapacity,),
                 "battery_full_charge_capacity_wh":(BatteryCapacity, "battery_full_charge_capacity"),
-                "battery_remaining_capacity_wh":(BatteryCapacity, "battery_remaining_capacity"),
+                "*skip1*":(BatteryCapacity, "battery_remaining_capacity"),
                 "battery_unusable_capacity_wh": (Units.WH, "battery_unusable_capacity"),
-                "status_remaining_capacity_wh":(BatteryCapacity, "remaining_capacity"),
+                "battery_remaining_capacity_wh":(BatteryCapacity, "remaining_capacity"),
+#                "status_remaining_capacity_wh":(BatteryCapacity, "remaining_capacity"),
                 "capacity_until_reserve":(BatteryCapacity,),
                 "backup_buffer_usable_capacity_wh":(BatteryCapacity, "reserve_capacity"),
                 "status_usable_capacity_wh": (BatteryCapacity, "usable_remaining_capacity"),
@@ -100,7 +101,7 @@ class PowerUnitEVO(BatterieSensors):
                 "battery_module_dc_voltage": (Units.V, "module_dc_voltage"),
                 "time_since_full":(Units.NONE,"interval_since_full", "_format_deltatime"),
                 "led_state_text": (Units.NONE,),
-                "used_capacity": (BatteryCapacity,),
+                "battery_used_capacity": (BatteryCapacity, "used_capacity"),
                 "status_grid_feedin": (Units.W, "grid_feedin"),
 #       1082bytes         "dc_shutdown_reason": (Units.NONE,),
 #       394bytes          "microgrid_status": (Units.NONE,),
@@ -119,7 +120,6 @@ class PowerUnitEVO(BatterieSensors):
                 "backup_reserve_at": (Units.NONE, "reserve_at"),
                 "last_time_full": (Units.NONE,),
                 "last_updated": (Units.NONE,),
-#                "time_since_full":(Units.NONE,None, _format_deltatime), #delta time
             },
 
             SENSOR_GROUP_ENUM: {

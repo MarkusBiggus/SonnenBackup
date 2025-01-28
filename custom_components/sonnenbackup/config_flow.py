@@ -198,7 +198,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: SonnenBackupConfigEntry
-    ) -> OptionsFlow:
+    ) -> SonnenBackupOptionsFlow:
         """Create the options flow."""
 
         return SonnenBackupOptionsFlow(config_entry)
