@@ -142,6 +142,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
 #        _LOGGER.info(" config_flow reconfigure")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
+        reconfigure_entry = self._get_reconfigure_entry()
 
         if user_input is None:
             return self.async_show_form(
@@ -150,7 +151,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 data_schema =
                     self.add_suggested_values_to_schema(
                     CONFIG_SCHEMA,
-                    self.data
+                    reconfigure_entry.data
                 ),
                 errors=errors
             )
@@ -176,11 +177,12 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             await self.async_set_unique_id(serial_number)
             self._abort_if_unique_id_mismatch()
             return self.async_update_reload_and_abort(
-                entry=self._get_reconfigure_entry(),
+                entry=reconfigure_entry,
                 title=f'SonnenBackup {batterie_model} ({serial_number})',
                 data_updates=user_input,
             )
 
+        placeholders['device'] = reconfigure_entry.title
         return self.async_show_form(
             step_id="reconfigure",
 #            data_schema=CONFIG_SCHEMA,
@@ -196,7 +198,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: SonnenBackupConfigEntry
-    ) -> OptionsFlow:
+    ) -> SonnenBackupOptionsFlow:
         """Create the options flow."""
 
         return SonnenBackupOptionsFlow(config_entry)

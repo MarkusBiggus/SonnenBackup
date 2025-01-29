@@ -56,7 +56,6 @@ async def async_setup_entry(
 # from example, where is device defined before this call?
 #    device: ExampleDevice = hass.data[DOMAIN][config_entry.entry_id]
 
-    # api is BatterieBackup class
     api:BatterieBackup = config_entry.runtime_data.api
     serial_number = config_entry.runtime_data.serial_number
     coordinator = config_entry.runtime_data.coordinator
@@ -69,18 +68,16 @@ async def async_setup_entry(
     # _LOGGER.debug(f'hass_data_entry: {hass_data_entry}')
     # _LOGGER.debug(f'config rtd: {config_entry.runtime_data}')
     device_info = DeviceInfo(
+        configuration_url=config_entry.runtime_data.api.url,
         identifiers={(DOMAIN, serial_number)},
         manufacturer=MANUFACTURER,
         model=config_entry.runtime_data.model,
-        name=f"{MANUFACTURER} BB{serial_number}",
+        name=f"BackupBatterie {serial_number}",
         sw_version=version,
     )
 
 
     battery_sensors = PowerUnitEVO(api)
-    # BREAK ANYTHING?
-    # sensor_values = battery_sensors.map_response()
-
     entities: list[BatterieSensorEntity] = []
     for alias, (idx, measurement, sensor, group, options) in battery_sensors.mapped_sensors().items():
         if group == SENSOR_GROUP_UNITS:
@@ -99,7 +96,7 @@ async def async_setup_entry(
         else:
             raise ValueError(f'Sensor {sensor} unknown group: {type(group)}')
 
-        uid = f"BB{serial_number}-{idx}"
+        uid = f"BackupBatterie_{serial_number}-{idx}"
     #    _LOGGER.info(f'sensor: {sensor}  uid:{uid}  description: {description}')
         entities.append(
             BatterieSensorEntity(
