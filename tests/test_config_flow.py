@@ -43,8 +43,8 @@ CONFIG_DATA = {
 #    }
 }
 CONFIG_OPTIONS = {
-    CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
-    "sonnenbackup_debug": True,
+    CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL#,
+#    "sonnenbackup_debug": True,
 }
 
 _LOGGER = logging.getLogger(__name__)
@@ -293,8 +293,8 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input={
-            CONF_SCAN_INTERVAL: 2,
-            "sonnenbackup_debug": True,
+            CONF_SCAN_INTERVAL: 2#,
+#            "sonnenbackup_debug": True,
         }
     )
     assert FlowResultType.FORM == result["type"]
@@ -311,8 +311,8 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input={
-            CONF_SCAN_INTERVAL: 200,
-            "sonnenbackup_debug": True,
+            CONF_SCAN_INTERVAL: 200#,
+#            "sonnenbackup_debug": True,
         }
     )
     assert FlowResultType.FORM == result["type"]

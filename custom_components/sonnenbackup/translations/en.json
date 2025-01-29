@@ -60,8 +60,7 @@
                     "title": "BackupBatterie Behaviour Options",
                     "description": "Change scan interval or toggle debug mode.",
                     "data": {
-                        "scan_interval": "Update interval",
-                        "sonnenbackup_debug": "Debug mode"
+                        "scan_interval": "Update interval"
                     }
                 }
             }
