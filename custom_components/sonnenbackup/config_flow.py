@@ -237,8 +237,8 @@ class SonnenBackupOptionsFlow(OptionsFlow):
             return self.async_create_entry(
                 title='',
                 data={
-                    CONF_SCAN_INTERVAL: user_input[CONF_SCAN_INTERVAL],
-                    "sonnenbackup_debug": user_input["sonnenbackup_debug"]
+                    CONF_SCAN_INTERVAL: user_input[CONF_SCAN_INTERVAL]#,
+    #                "sonnenbackup_debug": user_input["sonnenbackup_debug"]
                 }
             )
 

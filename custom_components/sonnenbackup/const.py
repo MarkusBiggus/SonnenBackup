@@ -69,8 +69,8 @@ OPTIONS_SCHEMA = vol.Schema(
         vol.Optional(CONF_SCAN_INTERVAL,
                      vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),
                      default=DEFAULT_SCAN_INTERVAL,
-                    ): int,
-        vol.Required("sonnenbackup_debug", default=False): cv.boolean
+                    ): int #,
+#        vol.Required("sonnenbackup_debug", default=False): cv.boolean
     }
 )
 

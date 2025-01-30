@@ -37,11 +37,11 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 |system_status|string|system_status|
 |battery_activity_state|string|sonnenbackup_state|
 |battery_cycle_count|integer|battery_cycle_count|
-|battery_full_charge_capacity_wh|kWh|full_charge_capacity|
-|status_remaining_capacity_wh|kWh|remaining_capacity|
-|capacity_until_reserve|kWh|capacity_until_reserve|
-|backup_buffer_capacity_wh|kWh|reserve_capacity|
-|status_usable_capacity_wh|kWh|usable_remaining_capacity|
+|battery_full_charge_capacity_wh|Wh|full_charge_capacity|
+|status_remaining_capacity_wh|Wh|remaining_capacity|
+|capacity_until_reserve|Wh|capacity_until_reserve|
+|capacity_to_reserve|Wh|capacity_to_reserve|
+|backup_buffer_capacity_wh|Wh|reserve_capacity|
 |used_capacity|Wh|used_capacity|
 |battery_unusable_capacity_wh|Wh|unusable_capacity|
 |kwh_consumed|kWh|kwh_consumed|
@@ -49,8 +49,8 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 |status_frequency|hertz|frequency|
 |battery_dod_limit|percent|depth_of_discharge_limit|
 |status_backup_buffer|percent|reserve_charge|
-|status_rsoc|percent|relative_state_of_charge|
-|status_usoc|percent|usable_state_of_charge|
+|battery_rsoc|percent|relative_state_of_charge|
+|battery_usoc|percent|usable_state_of_charge|
 |charging|watts|charge_power|
 |discharging|watts|discharge_power|
 |consumption_average |watts|consumption_average|
@@ -75,8 +75,9 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 |fully_discharged_at|timestamp|fully_discharged_at|
 |backup_reserve_at|timestamp|backup_reserve_at|
 |last_time_full|timestamp|last_time_full|
-|status_battery_charging|bool|charging|
-|status_battery_discharging|bool|discharging|
+|last_updated|timestamp|last_updated|
+|status_battery_charging|bool|is_charging|
+|status_battery_discharging|bool|is_discharging|
 |configuration_em_operatingmode|enum|operating_mode|
 
 
@@ -104,27 +105,35 @@ Only one element will be True, that element, with brightness, is returned as a s
 e.g 'Pulsing White 100%'
 ```
 "Eclipse Led":{
-    "Blinking Red":false,   # undocumented
+    "Blinking Red":true,   # undocumented
     "Brightness":100,
-    "Pulsing Green":false,  # Off Grid, in backup mode
-    "Pulsing Orange":false, # no internet connection
-    "Pulsing White":true,   # normal operation
-    "Solid Red":false       # serious problem - call installer
+    "Pulsing Green":true,  # Off Grid, in backup mode
+    "Pulsing Orange":true, # no internet connection
+    "Pulsing White":true,  # normal operation
+    "Solid Red":true       # serious problem - call installer
 }
 ```
-All values False indicates Off Grid operation, the string 'off' is returned.
+Only one key maybe True at a time. All values False indicates Off Grid operation, the string "Off Grid." is returned.
+
+### State of Charge
+The batterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by
+sensor depth_of_discharge_limit. Depth of Discharge reserve is included in Relative State of Charge(RSoC) overall values, like full_charge_capacity. Specific usable values are based on Usable State of Charge(USoC).
+
+Importantly, the Backup Reserve Charge is based on USoC. eg when sensor sonnenbackup_state is 'standby' USoC equals Backup Reserve Charge, about 8 less than RSoC.
 
 ## Recording
 Some sensor values do not change, some only change when configuration changes, some are of little value when not current. These sensors will waste space if recorded.
 
 Suggested recording exclusions in configuration.yaml:
 ```
-# Recorder filter to exclude specified entities
+# Recorder filter to exclude specified entities, change placeholder names
+# your actual sensor names. eg "sonnenbackup.backupbatterie_nnnnnn_sonnenbackup_full_charge_capacity"
+where 'nnnnnn' is the battery serial number entered on the config form.
 recorder:
   exclude:
     entities:
-      - sonnenbackup.led_state
       - sonnenbackup.full_charge_capacity
+      - sonnenbackup.led_state
       - sonnenbackup.backup_reserve_capacity
       - sonnenbackup.status_frequency
       - sonnenbackup.backup_reserve_percent
@@ -147,6 +156,6 @@ recorder:
 ## Confirmed Supported Batteries
 
 These batteries have been tested and confirmed to be working. If your batterie is not listed below, this library may still work provided your battery admin portal can generate an API read token and responds to Sonnen API V2 endpoints.
-API token will return status 401 if used with V1 of the API. Use Weltmyer Sonnenbatterie package if user/password authentication is required.
+API token will return status 401 if used with V1 of the API. Use Weltmyer sonnenbatterie package if user/password authentication is required.
 
 * Power unit Evo IP56

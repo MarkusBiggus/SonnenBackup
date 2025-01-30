@@ -59,16 +59,16 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input={
-            CONF_SCAN_INTERVAL: 15,
-            "sonnenbackup_debug": True,
+            CONF_SCAN_INTERVAL: 15 #,
+#            "sonnenbackup_debug": True,
         },
     )
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["title"] == '' # "SonnenBackup Power unit Evo IP56 (321123)"
     assert config_entry.options == {
-            CONF_SCAN_INTERVAL: 15,
-            "sonnenbackup_debug": True,
+            CONF_SCAN_INTERVAL: 15#,
+#            "sonnenbackup_debug": True,
     }
     assert result["result"] is True # is config_entry when config_flow
 #    print(f'result: {result}')
