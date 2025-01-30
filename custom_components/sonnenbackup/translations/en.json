@@ -53,15 +53,15 @@
                     "device_id": "Cannot change unique ID: {device_id}."
                 }
             }
-        },
-        "options": {
-            "step": {
-                "init": {
-                    "title": "BackupBatterie Behaviour Options",
-                    "description": "Change scan interval or toggle debug mode.",
-                    "data": {
-                        "scan_interval": "Update interval"
-                    }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "BackupBatterie Behaviour Options",
+                "description": "Change scan interval or toggle debug mode.",
+                "data": {
+                    "scan_interval": "Update interval"
                 }
             }
         }

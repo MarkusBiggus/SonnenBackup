@@ -36,6 +36,8 @@ from .const import (
 )
 from .PowerUnitEVO import PowerUnitEVO
 
+PLATFORM_SCHEMA= {}  #hassfest STFU
+
 SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
