@@ -104,27 +104,35 @@ Only one element will be True, that element, with brightness, is returned as a s
 e.g 'Pulsing White 100%'
 ```
 "Eclipse Led":{
-    "Blinking Red":false,   # undocumented
+    "Blinking Red":true,   # undocumented
     "Brightness":100,
-    "Pulsing Green":false,  # Off Grid, in backup mode
-    "Pulsing Orange":false, # no internet connection
-    "Pulsing White":true,   # normal operation
-    "Solid Red":false       # serious problem - call installer
+    "Pulsing Green":true,  # Off Grid, in backup mode
+    "Pulsing Orange":true, # no internet connection
+    "Pulsing White":true,  # normal operation
+    "Solid Red":true       # serious problem - call installer
 }
 ```
-All values False indicates Off Grid operation, the string 'off' is returned.
+Only one key maybe True at a time. All values False indicates Off Grid operation, the string "Off Grid." is returned.
+
+### State of Charge
+The batterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by
+sensor depth_of_discharge_limit. Depth of Discharge reserve is included in Relative State of Charge(RSoC) overall values, like full_charge_capacity. Specific usable values are based on Usable State of Charge(USoC).
+
+Importantly, the Backup Reserve Charge is based on USoC. eg when sensor sonnenbackup_state is 'standby' USoC equals Backup Reserve Charge, about 8 less than RSoC.
 
 ## Recording
 Some sensor values do not change, some only change when configuration changes, some are of little value when not current. These sensors will waste space if recorded.
 
 Suggested recording exclusions in configuration.yaml:
 ```
-# Recorder filter to exclude specified entities
+# Recorder filter to exclude specified entities, change placeholder names
+# your actual sensor names. eg "sonnenbackup.backupbatterie_nnnnnn_sonnenbackup_full_charge_capacity"
+where 'nnnnnn' is the battery serial number entered on the config form.
 recorder:
   exclude:
     entities:
-      - sonnenbackup.led_state
       - sonnenbackup.full_charge_capacity
+      - sonnenbackup.led_state
       - sonnenbackup.backup_reserve_capacity
       - sonnenbackup.status_frequency
       - sonnenbackup.backup_reserve_percent
@@ -147,6 +155,6 @@ recorder:
 ## Confirmed Supported Batteries
 
 These batteries have been tested and confirmed to be working. If your batterie is not listed below, this library may still work provided your battery admin portal can generate an API read token and responds to Sonnen API V2 endpoints.
-API token will return status 401 if used with V1 of the API. Use Weltmyer Sonnenbatterie package if user/password authentication is required.
+API token will return status 401 if used with V1 of the API. Use Weltmyer sonnenbatterie package if user/password authentication is required.
 
 * Power unit Evo IP56
