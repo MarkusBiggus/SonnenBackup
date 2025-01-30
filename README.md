@@ -117,7 +117,7 @@ Only one key maybe True at a time. All values False indicates Off Grid operation
 
 ### State of Charge
 The batterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by
-sensor depth_of_discharge_limit. Depth of Discharge reserve is included in Relative State of Charge(RSoC) overall values, like full_charge_capacity. Specific usable values are based on Usable State of Charge(USoC).
+sensor depth_of_discharge_limit. Depth of Discharge reserve is included in Relative State of Charge (RSoC) overall values, like full_charge_capacity. Specific usable values are based on Usable State of Charge (USoC).
 
 Importantly, the Backup Reserve Charge is based on USoC. eg when sensor sonnenbackup_state is 'standby' USoC equals Backup Reserve Charge, about 8 less than RSoC.
 
