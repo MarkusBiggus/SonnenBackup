@@ -67,8 +67,6 @@ class BatterieSensors:
                     result[alias] = processor(result[alias])
                     _LOGGER.info(f'{alias}  processed result: {result[alias]}')
 
-
-
         return result
 
     def _decode_map(self) -> Dict[str, SensorMap]:
@@ -117,7 +115,7 @@ class BatterieSensors:
             idx = idx_groups[iidx]
             iidx += 1
             for sensor_name, mapping in sensor_map.items():
-                if sensor_name == "*skip*":
+                if sensor_name[:5] == "*skip" and sensor_name[-1:] == "*":
                     continue
                 option = None
                 if len(mapping) == 1:
