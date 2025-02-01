@@ -134,6 +134,7 @@ recorder:
     entities:
       - sonnenbackup.full_charge_capacity
       - sonnenbackup.led_state
+      - sonnenbackup.led_state_text
       - sonnenbackup.backup_reserve_capacity
       - sonnenbackup.status_frequency
       - sonnenbackup.backup_reserve_percent

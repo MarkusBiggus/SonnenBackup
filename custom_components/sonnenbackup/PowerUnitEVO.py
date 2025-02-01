@@ -94,10 +94,10 @@ class PowerUnitEVO(BatterieSensors):
                 "battery_max_cell_temp": (Units.C, "max_battery_temp"),
                 "state_bms": (Units.NONE,),
                 "state_inverter": (Units.NONE,),
-                "seconds_since_full": (Units.NONE,),
-                "seconds_until_fully_charged": (Units.NONE,),
-                "seconds_until_fully_discharged": (Units.NONE,),
-                "seconds_until_reserve": (Units.NONE,),
+                "*skip5*": (Units.NONE,), #seconds_since_full
+                "*skip6*": (Units.NONE,), #seconds_until_fully_charged
+                "*skip7*": (Units.NONE,), # seconds_until_fully_discharged
+                "*skip8*": (Units.NONE,), # seconds_until_reserve
                 "discharging": (Units.W, "discharge_power"),
                 "charging": (Units.W, "charge_power"),
                 "battery_dod_limit": (Units.PERCENT, "depth_of_discharge_limit"),
