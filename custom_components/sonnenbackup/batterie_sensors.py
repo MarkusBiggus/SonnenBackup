@@ -76,7 +76,7 @@ class BatterieSensors:
         sensors: Dict[str, SensorMap] = {}
         for sensor_group, sensor_map in self._response_decoder.items():
             for sensor_name, mapping in sensor_map.items():
-                if sensor_name[:5] == "*skip" and sensor_name[-1:] == "*":
+                if sensor_name[:5] == "*skip": #and sensor_name[-1:] == "*":
                     continue
                 if len(mapping) == 1:
                     mapping = (mapping[0], sensor_name) # add alias
@@ -115,7 +115,8 @@ class BatterieSensors:
             idx = idx_groups[iidx]
             iidx += 1
             for sensor_name, mapping in sensor_map.items():
-                if sensor_name[:5] == "*skip" and sensor_name[-1:] == "*":
+                if sensor_name[:5] == "*skip": #and sensor_name[-1:] == "*":
+                    idx += 1
                     continue
                 option = None
                 if len(mapping) == 1:
