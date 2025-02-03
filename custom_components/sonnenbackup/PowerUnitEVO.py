@@ -66,7 +66,7 @@ class PowerUnitEVO(BatterieSensors):
 #                "battery_usable_remaining_capacity_wh": (BatteryCapacity, "usable_capacity"),
                 "usable_remaining_capacity_wh": (BatteryCapacity, "usable_capacity"),
 #                "unusable_capacity_wh": (BatteryCapacity, "unusable_capacity"),
-                "battery_unusable_capacity_wh": (Units.WH, "unusable_capacity"),
+                "battery_unusable_capacity_wh": (BatteryCapacity, "unusable_capacity"),
                 "battery_average_current": (Units.A,),
                 "*skip1*": (BatteryCapacity, "battery_remaining_capacity"),
                 "*skip2*": (BatteryCapacity, "unusable_capacity"),
