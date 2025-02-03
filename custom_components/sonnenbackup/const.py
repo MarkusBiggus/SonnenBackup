@@ -164,11 +164,12 @@ SENSOR_DESCRIPTIONS: dict[str, dict[tuple[Units, bool], SensorEntityDescription]
         (Units.NONE, False): SensorEntityDescription(
             key=f"{Units.NONE}_{False}",
             device_class=SensorDeviceClass.ENUM, # all non-boolean enumerated types
+            options=[] # overriden when sensor created
         ),
         (Units.NONE, True): SensorEntityDescription(
             key=f"{Units.NONE}_{True}",
             device_class=SensorDeviceClass.ENUM,
-            options={0:'False',1:'True'} # special boolean description
+            options=['False','True'] # special boolean description
         ),
     }
 }

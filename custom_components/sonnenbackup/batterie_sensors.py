@@ -14,7 +14,7 @@ from .units import Measurement, Units, SensorUnit
 from .const import (
     SENSOR_GROUP_UNITS,
     # SENSOR_GROUP_TIMESTAMP,
-    # SENSOR_GROUP_ENUM,
+    SENSOR_GROUP_ENUM,
     )
 
 SensorAlias = str | None
@@ -62,9 +62,12 @@ class BatterieSensors:
 
             result[alias] = self.batterieAPI.get_sensor_value(sensor_name)
             if sensor_group == SENSOR_GROUP_UNITS:
+                _LOGGER.info(f'UNIT name: {sensor_name}  mapping:{mapping}')
                 for alias, processor in self._postprocess_gen(mapping):
                     try:
-                        result[alias] = processor(result[alias])
+
+                        result[alias] = getattr(self, processor)(result[alias])
+        #                result[alias] = processor(result[alias])
                     except (TypeError) as error:
                         _LOGGER.error(f"map_response {sensor_name} failed: {repr(error)}")
                         raise ValueError(f'{sensor_group} sensor {sensor_name} bad processor: {processor}')
@@ -87,7 +90,7 @@ class BatterieSensors:
                     if alias is None:
                         mapping = (mapping[0], sensor_name, mapping[2])
             sensors[sensor_name] = (sensor_group, mapping)
-#                _LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
+            _LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
         return sensors
 
     def _postprocess_gen(
@@ -102,7 +105,7 @@ class BatterieSensors:
         else:
             return
         for processor in processors:
-#            _LOGGER.info(f'{alias}  processor: {processor}')
+            _LOGGER.info(f'Alias: {alias}  processor: {processor}')
             yield alias, processor
 
 
@@ -141,7 +144,7 @@ class BatterieSensors:
                         unit = unit_or_measurement
                     else:
                         raise ValueError(f'{SENSOR_GROUP_UNITS} sensor {sensor_name} wrong type: {type(unit_or_measurement)}')
-                else:
+                elif sensor_group == SENSOR_GROUP_ENUM:
                     if type(option) is bool:
                         unit = Measurement(Units.NONE, is_monotonic = option)
                     else:
@@ -150,29 +153,26 @@ class BatterieSensors:
                 idx += 1
         return sensors
 
-    # Post processors for UNITS measurements (still required??)
+    # Post processors for UNITS measurements
     @classmethod
-    def _decode_operating_mode(cls, operating_mode) -> str:
-
-        """Return name of Operating Mode."""
+    def _decode_operatingmode(cls, operating_mode: int) -> str:
+        """Return Operating Mode name."""
 
         return {
             1: "Manual",
             2: "Automatic",
             6: "Extension module",
             10: "Time of Use"
-        }.get(operating_mode)
+        }.get(operating_mode, f"unknown: {operating_mode}")
 
     @classmethod
     def _format_datetime(cls, TimeStamp: datetime = None) -> str:
-
         """Return datime formatted: d-m-Y H:M:S."""
 
         return TimeStamp.strftime("%d-%b-%Y %H:%M:%S") if TimeStamp is not None else 'na'
 
     @classmethod
     def _format_deltatime(cls, DeltaTimeStamp: int | timedelta | None) -> str:
-
         """Return delta time formatted: D H:M:S."""
 
         return strfdelta(DeltaTimeStamp) if DeltaTimeStamp is not None else 'na'

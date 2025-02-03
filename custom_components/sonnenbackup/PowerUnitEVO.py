@@ -111,6 +111,7 @@ class PowerUnitEVO(BatterieSensors):
                 "battery_used_capacity_wh": (BatteryCapacity, "used_capacity"),
                 "status_grid_feedin": (Units.W, "grid_feedin"),
                 "capacity_to_reserve": (BatteryCapacity,),
+                "configuration_em_operatingmode": (Units.NONE, "operating_mode", "_decode_operatingmode"),
 #       1082bytes         "dc_shutdown_reason": (Units.NONE,),
 #       394bytes          "microgrid_status": (Units.NONE,),
 
@@ -133,7 +134,7 @@ class PowerUnitEVO(BatterieSensors):
             SENSOR_GROUP_ENUM: {
                 "status_battery_charging": (Units.NONE, "charging", True),
                 "status_battery_discharging": (Units.NONE, "discharging", True),
-                "configuration_em_operatingmode": (Units.NONE, "operating_mode", {1: "Manual",2: "Automatic",6: "Extension module",10: "Time of Use"}),
+                "*skip*": (Units.NONE, ), #"operating_mode", [1: "Manual",2: "Automatic",6: "Extension module",10: "Time of Use"]),
                 "microgrid_enabled": (Units.NONE, None, True),
                 "mg_minimum_soc_reached": (Units.NONE, 'microgrid_minimum_soc', True),
                 "dc_minimum_rsoc_reached": (Units.NONE, 'dc_minimum_rsoc', True),
