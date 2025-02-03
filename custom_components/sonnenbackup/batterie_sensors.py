@@ -46,7 +46,7 @@ class BatterieSensors:
         # self._serial_number = serial_number
         self.batterieAPI = batterieAPI
         self.decoded_map = self._decode_map()
-        _LOGGER.info(f'Decoded_Map:{self.decoded_map}')
+#        _LOGGER.info(f'Decoded_Map:{self.decoded_map}')
 
     def map_response(self) -> Dict[str, Any]:
         """Called by sensor.async_setup_entry to prepare sensor definitions
@@ -62,14 +62,14 @@ class BatterieSensors:
             (unit_or_measurement, alias, *processors) = mapping
 
             result[alias] = self.batterieAPI.get_sensor_value(sensor_name)
-            _LOGGER.info(f'Sensor: {alias}  value:{result[alias]}')
+#            _LOGGER.info(f'Sensor: {alias}  value:{result[alias]}')
             if sensor_group == SENSOR_GROUP_UNITS:
-                _LOGGER.info(f'UNIT name: {sensor_name}  mapping:{mapping}')
+#                _LOGGER.info(f'UNIT name: {sensor_name}  mapping:{mapping}')
                 for alias, processor in self._postprocess_gen(mapping):
                     try:
                         result[alias] = getattr(self, processor)(result[alias])
         #                result[alias] = processor(result[alias])
-                        _LOGGER.info(f'Sensor: {alias}  PROCESSED:{result[alias]}')
+#                        _LOGGER.info(f'Sensor: {alias}  PROCESSED:{result[alias]}')
                     except (TypeError) as error:
                         _LOGGER.error(f"map_response {sensor_name} failed: {repr(error)}")
                         raise ValueError(f'{sensor_group} sensor {sensor_name} bad processor: {processor}')
@@ -90,8 +90,8 @@ class BatterieSensors:
                     (_, alias, *processors) = mapping
                     if alias is None:
                         mapping = (mapping[0], sensor_name, mapping[2])
-            sensors[sensor_name] = (sensor_group, mapping)
-            _LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
+                sensors[sensor_name] = (sensor_group, mapping)
+#                _LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
         return sensors
 
     def _postprocess_gen(
@@ -152,7 +152,7 @@ class BatterieSensors:
                         unit = Measurement(Units.NONE, False)
                 sensors[alias] = (idx, unit, sensor_name, sensor_group, option)
                 idx += 1
-        _LOGGER.info(f'SENSOR_Map:{sensors}')
+#        _LOGGER.info(f'SENSOR_Map:{sensors}')
         return sensors
 
     # Post processors for UNITS measurements
