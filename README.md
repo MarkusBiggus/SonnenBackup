@@ -38,12 +38,14 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 |battery_activity_state|string|sonnenbackup_state|
 |battery_cycle_count|integer|battery_cycle_count|
 |battery_full_charge_capacity_wh|Wh|full_charge_capacity|
-|status_remaining_capacity_wh|Wh|remaining_capacity|
+|usable_remaining_capacity_wh|Wh|usable_capacity|
+|battery_unusable_capacity_wh|Wh|unusable_capacity|
+|remaining_capacity_wh|Wh|remaining_capacity|
+|battery_average_current|A|battery_average_current|
 |capacity_until_reserve|Wh|capacity_until_reserve|
 |capacity_to_reserve|Wh|capacity_to_reserve|
 |backup_buffer_capacity_wh|Wh|reserve_capacity|
 |used_capacity|Wh|used_capacity|
-|battery_unusable_capacity_wh|Wh|unusable_capacity|
 |kwh_consumed|kWh|kwh_consumed|
 |kwh_produced|kWh|kwh_produced|
 |status_frequency|hertz|frequency|
@@ -66,19 +68,19 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 |battery_max_cell_temp|celsius|max_battery_temp|
 |state_bms|string|state_bms|
 |state_inverter|string|state_inverter|
-|seconds_since_full|integer|seconds_since_full|
-|seconds_until_fully_charged|integer|seconds_until_fully_charged|
-|seconds_until_fully_discharged|integer|seconds_until_fully_discharged|
-|seconds_until_reserve|integer|seconds_until_reserve|
 |system_status_timestamp|timestamp|status_timestamp|
 |fully_charged_at|timestamp|fully_charged_at|
 |fully_discharged_at|timestamp|fully_discharged_at|
-|backup_reserve_at|timestamp|backup_reserve_at|
+|backup_reserve_at|timestamp|reserve_at|
 |last_time_full|timestamp|last_time_full|
+|time_since_full|deltatime|interval_since_full|
 |last_updated|timestamp|last_updated|
 |status_battery_charging|bool|is_charging|
 |status_battery_discharging|bool|is_discharging|
 |configuration_em_operatingmode|enum|operating_mode|
+|microgrid_enabled|bool|microgrid_enabled|
+|mg_minimum_soc_reached|bool|microgrid_minimum_soc|
+|dc_minimum_rsoc_reached|bool|dc_minimum_rsoc|
 
 
 Some sensors have enumerated values:
@@ -105,7 +107,7 @@ Only one element will be True, that element, with brightness, is returned as a s
 e.g 'Pulsing White 100%'
 ```
 "Eclipse Led":{
-    "Blinking Red":true,   # undocumented
+    "Blinking Red":true,   # undocumented - call installer
     "Brightness":100,
     "Pulsing Green":true,  # Off Grid, in backup mode
     "Pulsing Orange":true, # no internet connection
@@ -119,7 +121,7 @@ Only one key maybe True at a time. All values False indicates Off Grid operation
 The batterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by
 sensor depth_of_discharge_limit. Depth of Discharge reserve is included in Relative State of Charge (RSoC) overall values, like full_charge_capacity. Specific usable values are based on Usable State of Charge (USoC).
 
-Importantly, the Backup Reserve Charge is based on USoC. eg when sensor sonnenbackup_state is 'standby' USoC equals Backup Reserve Charge, about 8 less than RSoC.
+Importantly, the Backup Reserve Charge is based on USoC. eg when sensor sonnenbackup_state is 'standby' USoC equals Backup Reserve Charge, about 4 less than RSoC.
 
 ## Recording
 Some sensor values do not change, some only change when configuration changes, some are of little value when not current. These sensors will waste space if recorded.

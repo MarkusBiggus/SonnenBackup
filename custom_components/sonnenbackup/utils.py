@@ -1,5 +1,7 @@
 """ Utility for processing battery response to sensor values"""
 
+from __future__ import annotations
+
 from numbers import Number
 from typing import List, Protocol, Tuple
 

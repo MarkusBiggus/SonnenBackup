@@ -65,3 +65,7 @@ async def test_batterieresponse(battery_charging: Batterie) -> None:
 #    print(f'since full: {strfdelta(since_full)}')
     assert _batterie.get_sensor_value('time_since_full') == since_full
     assert strfdelta(since_full) == '0d 01:02:00'
+
+    assert _batterie.get_sensor_value('microgrid_enabled') is False
+    assert _batterie.get_sensor_value('mg_minimum_soc_reached') is False
+    assert _batterie.get_sensor_value('dc_minimum_rsoc_reached') is False

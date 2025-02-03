@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 #from abc import abstractmethod
 from typing import Any, Callable, Dict, Generator, Optional, Tuple, Union, Unpack
 from datetime import timedelta, datetime
@@ -30,7 +32,6 @@ class BatterieSensors:
         Sensor names are mapped to SonnenBattery properties.
     """
 
-
     # pylint: enable=C0301
     _schema = vol.Schema({})  # type: vol.Schema
 
@@ -57,15 +58,16 @@ class BatterieSensors:
 
         result = {}
         for sensor_name, (sensor_group, mapping) in self.decoded_map.items():
-            (unit_or_measurement, alias, *_) = mapping
+            (unit_or_measurement, alias, *processors) = mapping
 
             result[alias] = self.batterieAPI.get_sensor_value(sensor_name)
-
             if sensor_group == SENSOR_GROUP_UNITS:
-                for sensor_name, processor in self._postprocess_gen():
-            #        print(f'{sensor_name}  processor: {processor}')
-                    result[alias] = processor(result[alias])
-                    _LOGGER.info(f'{alias}  processed result: {result[alias]}')
+                for alias, processor in self._postprocess_gen(mapping):
+                    try:
+                        result[alias] = processor(result[alias])
+                    except (TypeError) as error:
+                        _LOGGER.error(f"map_response {sensor_name} failed: {repr(error)}")
+                        raise ValueError(f'{sensor_group} sensor {sensor_name} bad processor: {processor}')
 
         return result
 
@@ -79,26 +81,29 @@ class BatterieSensors:
                 if sensor_name[:5] == "*skip": #and sensor_name[-1:] == "*":
                     continue
                 if len(mapping) == 1:
-                    mapping = (mapping[0], sensor_name) # add alias
-                sensors[sensor_name] = (sensor_group, mapping)
+                    mapping = (mapping[0], sensor_name) # add alias as sensor_name
+                elif len(mapping) > 2:
+                    (_, alias, *processors) = mapping
+                    if alias is None:
+                        mapping = (mapping[0], sensor_name, mapping[2])
+            sensors[sensor_name] = (sensor_group, mapping)
 #                _LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
         return sensors
 
     def _postprocess_gen(
-        self,
+        self, mapping
     ) -> Generator[Tuple[str, Callable[[Any], Any]], None, None]:
         """
         Return map of functions to be applied to each UNITS sensor measurement.
         """
 
-        for name, mapping in self._response_decoder.get(SENSOR_GROUP_UNITS).items():
-            if len(mapping) > 2:
-                (_, _, alias, *processors) = mapping
-                alias = name if alias is None else alias
-            else:
-                continue
-            for processor in processors:
-                yield alias, processor
+        if len(mapping) > 2:
+            (_, alias, *processors) = mapping
+        else:
+            return
+        for processor in processors:
+#            _LOGGER.info(f'{alias}  processor: {processor}')
+            yield alias, processor
 
 
     @classmethod

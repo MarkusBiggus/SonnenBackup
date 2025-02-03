@@ -21,7 +21,7 @@ def __mock_status_charging(*args)-> json:
         'Pac_total_W': -1394,
         'Production_W': 2972,
         'RSOC': 88,
-        'RemainingCapacity_Wh': 40181, #<- wrong value from device!
+        'RemainingCapacity_Wh': 40181,
         'Sac1': 99,
         'Sac2': None,
         'Sac3': None,
@@ -36,7 +36,7 @@ def __mock_status_charging(*args)-> json:
 
 def __mock_latest_charging(*args)-> json:
     return {
-        'FullChargeCapacity': 20683.490,
+        'FullChargeCapacity': 20187.086,
         'GridFeedIn_W': 0,
         'Production_W': 2972,
         'Consumption_W': 1578,
@@ -182,6 +182,7 @@ def __mock_battery(*args)-> json:
         "relativestateofcharge":88.0,
         "remainingcapacity":177.74,
         "systemalarm":0.0,
+        "systemaveragecurrent":0.035,
         "systemcurrent":0.0,
         "systemdcvoltage":208.3,
         "systemstatus":88.0,

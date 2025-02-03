@@ -1,5 +1,7 @@
 """Coordinator for the sonnenbackup integration."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime
 from sonnen_api_v2 import BatterieBackup, BatterieResponse
