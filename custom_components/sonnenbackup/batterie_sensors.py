@@ -79,6 +79,8 @@ class BatterieSensors:
         """Decode the map creating a single list of mappings used
             to hydrate sensors.
         """
+
+        _LOGGER.info('BatterieSensors _decode_map')
         sensors: Dict[str, SensorMap] = {}
         for sensor_group, sensor_map in self._response_decoder.items():
             for sensor_name, mapping in sensor_map.items():

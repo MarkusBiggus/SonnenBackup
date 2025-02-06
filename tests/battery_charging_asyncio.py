@@ -1,8 +1,9 @@
 """Fixture to load batterie charging responses
-    using all asyncio methods.
+    using all asyncio methods
 """
 import logging
 import pytest
+from freezegun import freeze_time
 from asyncmock import AsyncMock
 
 from sonnen_api_v2 import Batterie
@@ -14,11 +15,12 @@ LOGGER_NAME = "sonnenapiv2"
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 @pytest.fixture(name="battery_charging")
+@freeze_time("20-11-2023 17:00:00") # charging time
 async def fixture_battery_charging(mocker) -> Batterie:
     if LOGGER_NAME is not None:
         logging.basicConfig(filename=(f'/tests/logs/{LOGGER_NAME}.log'), level=logging.DEBUG)
         logger = logging.getLogger(LOGGER_NAME)
-        logger.info('Sonnen mock data async_update test.')
+        logger.info('Sonnen mock data battery_charging_asyncio test.')
 
     mocker.patch.object(Batterie, "async_fetch_status", AsyncMock(return_value=__mock_status_charging()))
     mocker.patch.object(Batterie, "async_fetch_latest_details", AsyncMock(return_value=__mock_latest_charging()))
