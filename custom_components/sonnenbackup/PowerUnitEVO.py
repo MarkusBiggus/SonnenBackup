@@ -79,15 +79,18 @@ class PowerUnitEVO(BatterieSensors):
                 "*skip4*": (BatteryCapacity, "usable_remaining_capacity"),
                 "kwh_consumed": (TotalKWH,), #Total(Units.KWH)),
                 "kwh_produced": (TotalKWH,), #Total(Units.KWH)),
-                "consumption_average" : (DailyTotalW,), #DailyTotal(Units.W)),
+                "consumption_average": (Units.W,), #DailyTotal(Units.W)),
                 "status_frequency": (Units.HZ, "frequency"),
                 "status_backup_buffer": (Units.PERCENT, "reserve_charge"),
                 # "battery_rsoc": (Units.PERCENT, "relative_state_of_charge"),
                 # "battery_usoc": (Units.PERCENT, "usable_state_of_charge"),
                 "r_soc": (Units.PERCENT, "relative_state_of_charge"),
                 "u_soc": (Units.PERCENT, "usable_state_of_charge"),
+
+            """These consumption/production daily numbers seem to be meaningless"""
                 "consumption_total_w": (Units.W, "consumption_daily"),
                 "production_total_w": (Units.W, "production_daily"),
+            #
                 "consumption": (Units.W, "consumption_now"),
                 "production": (Units.W, "production_now"),
                 "status_grid_export": (Units.W, "grid_export"),
