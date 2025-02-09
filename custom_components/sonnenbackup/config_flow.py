@@ -27,6 +27,7 @@ from homeassistant.exceptions import HomeAssistantError
 
 from .coordinator import SonnenBackupAPI
 from .const import (
+    LOGGER,
     DOMAIN,
     CONFIG_SCHEMA,
     OPTIONS_SCHEMA,
@@ -38,12 +39,10 @@ from .const import (
 
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
-_LOGGER = logging.getLogger(__name__)
-
 async def _validate_api(user_input) -> bool:
     """Validate credentials."""
 
-#    _LOGGER.info(" config_flow validate_api")
+#    LOGGER.info(" config_flow validate_api")
     _batterie = Batterie(
         user_input[CONF_API_TOKEN],
         user_input[CONF_IP_ADDRESS],
@@ -75,7 +74,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle user initial step."""
 
-#        _LOGGER.info(" config_flow user")
+#        LOGGER.info(" config_flow user")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 
@@ -109,7 +108,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = 'cannot_connect'
                 placeholders["error_detail"] = f'{str(error)}'
             except Exception as error:
-                _LOGGER.exception('Unexpected exception')
+                LOGGER.exception('Unexpected exception')
                 errors["base"] = "unknown"
                 placeholders["error_detail"] = f'{str(error)}'
             else:
@@ -139,7 +138,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle reconfiguration step."""
 
-#        _LOGGER.info(" config_flow reconfigure")
+#        LOGGER.info(" config_flow reconfigure")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
         reconfigure_entry = self._get_reconfigure_entry()
@@ -168,7 +167,7 @@ class SonnenBackupConfigFlow(ConfigFlow, domain=DOMAIN):
             errors["base"] = 'cannot_connect'
             placeholders["error_detail"] = f'{str(error)}'
         except Exception as error:
-            _LOGGER.exception(f'Unexpected exception: {str(error)}')
+            LOGGER.exception(f'Unexpected exception: {str(error)}')
             errors["base"] = "unknown"
             placeholders["error_detail"] = f'{str(error)}'
         else:
@@ -210,7 +209,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
     ) -> None:
         """Initialize options flow."""
 
-#        _LOGGER.info(' config_options')
+#        LOGGER.info(' config_options')
         self.options = dict(config_entry.options)
 
     async def async_step_init(
@@ -218,7 +217,7 @@ class SonnenBackupOptionsFlow(OptionsFlow):
     ) -> ConfigFlowResult:
         """Handle options flow."""
 
-#        _LOGGER.info(" config_options step_init")
+#        LOGGER.info(" config_options step_init")
         errors: dict[str, Any] = {}
         placeholders: dict[str, Any] = {}
 

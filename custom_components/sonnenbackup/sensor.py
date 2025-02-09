@@ -28,6 +28,7 @@ from homeassistant.const import (
 )
 from .const import (
     DOMAIN,
+    LOGGER,
     MANUFACTURER,
     SENSOR_DESCRIPTIONS,
     SENSOR_GROUP_UNITS,
@@ -38,11 +39,7 @@ from . import BatterieBackup
 from .coordinator import SonnenBackupAPI
 from .PowerUnitEVO import PowerUnitEVO, SonnenBackupSensorEntityDescription
 
-#from . import SonnenConfigEntry
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
-
-#DOMAIN = _DOMAIN
-_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -51,7 +48,7 @@ async def async_setup_entry(
 ) -> None:
     """Set up Batterie sensor based on a config entry."""
 
-    _LOGGER.info('Setup sensor entities')
+    LOGGER.info('Setup sensor entities')
 
 # from example, where is device defined before this call?
 #    device: ExampleDevice = hass.data[DOMAIN][config_entry.entry_id]
@@ -63,10 +60,10 @@ async def async_setup_entry(
     version = batterie_response.version
 #    hass_data = hass.data[DOMAIN][config_entry.entry_id]
     # hass_data = hass.data[DOMAIN] # setdefault(DOMAIN, {})
-    # _LOGGER.info(f'hass_data: {hass_data}')
+    # LOGGER.info(f'hass_data: {hass_data}')
     # hass_data_entry = hass_data.get(config_entry.entry_id)
-    # _LOGGER.debug(f'hass_data_entry: {hass_data_entry}')
-    # _LOGGER.debug(f'config rtd: {config_entry.runtime_data}')
+    # LOGGER.debug(f'hass_data_entry: {hass_data_entry}')
+    # LOGGER.debug(f'config rtd: {config_entry.runtime_data}')
     device_info = DeviceInfo(
         configuration_url=config_entry.runtime_data.api.url,
         identifiers={(DOMAIN, serial_number)},
@@ -81,7 +78,7 @@ async def async_setup_entry(
     entities: list[BatterieSensorEntity] = []
     for alias, (idx, measurement, sensor, group, options) in battery_sensors.mapped_sensors().items():
         if group == SENSOR_GROUP_UNITS:
-    #       _LOGGER.debug(f'{SENSOR_GROUP_UNITS}: {sensor}  idx:{idx}  measurement: {measurement}')
+    #       LOGGER.debug(f'{SENSOR_GROUP_UNITS}: {sensor}  idx:{idx}  measurement: {measurement}')
             description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_UNITS][(measurement.unit, measurement.is_monotonic)]
         elif group == SENSOR_GROUP_TIMESTAMP:
             description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_TIMESTAMP][(measurement.unit, measurement.is_monotonic)] # only (Units.NONE, False)
@@ -97,7 +94,7 @@ async def async_setup_entry(
             raise ValueError(f'Sensor {sensor} unknown group: {type(group)}')
 
         uid = f"BackupBatterie_{serial_number}-{idx}"
-    #    _LOGGER.info(f'sensor: {sensor}  uid:{uid}  description: {description}')
+    #    LOGGER.info(f'sensor: {sensor}  uid:{uid}  description: {description}')
         entities.append(
             BatterieSensorEntity(
                 config_entry,
@@ -119,7 +116,7 @@ async def async_setup_platform(
 ) -> None:
     """Set up the sensor platform."""
 
-    _LOGGER.info('Setup sensor platform') #######  NOT called!!!!!!!!!!!????
+    LOGGER.info('Setup sensor platform') #######  NOT called!!!!!!!!!!!????
 
 
 class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
@@ -174,7 +171,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         """Value of this sensor from mapped battery property."""
         # self.coordinator.data is last BatterieResponse from async_setup_entry._async_update
         self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) #self._batterybackup.get_sensor_value(self.key)
-    #    _LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
+    #    LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
         return self._attr_native_value
 
     @property
@@ -207,7 +204,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
 
     #         #self._attr_available = True
     #         # We don't need to check if device available here
-    #         _LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
+    #         LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
     #         self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) # data coordinator gets sensor_values from device
     #         # self._attr_native_value = self.entity_description.value_fn(
     #         #     self._device

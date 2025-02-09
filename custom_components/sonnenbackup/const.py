@@ -1,7 +1,8 @@
 """Constants for the sonnenbackup integration."""
 
 import voluptuous as vol
-from collections import namedtuple
+#from collections import namedtuple
+from logging import Logger, getLogger
 
 import homeassistant.helpers.config_validation as cv
 #from homeassistant.data_entry_flow import section

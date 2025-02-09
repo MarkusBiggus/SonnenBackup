@@ -42,7 +42,7 @@ class PowerUnitEVO(BatterieSensors):
 
     @classmethod
     def response_decoder(cls) -> dict:
-        """sonnen_api_v2 properties used as hass sensor values"""
+        """sonnen_api_v2 properties used as hass sensor values."""
 
         """format: api.property : (index, Units, Alias, Formatter)
             Alias is only used when api.property name is unsuitable as a sensor name.
@@ -82,14 +82,16 @@ class PowerUnitEVO(BatterieSensors):
                 "consumption_average": (Units.W,), #DailyTotal(Units.W)),
                 "status_frequency": (Units.HZ, "frequency"),
                 "status_backup_buffer": (Units.PERCENT, "reserve_charge"),
+
+#            """Latest data values seem to be adjusted to be consistent with related sensors"""
                 # "battery_rsoc": (Units.PERCENT, "relative_state_of_charge"),
                 # "battery_usoc": (Units.PERCENT, "usable_state_of_charge"),
                 "r_soc": (Units.PERCENT, "relative_state_of_charge"),
                 "u_soc": (Units.PERCENT, "usable_state_of_charge"),
 
-            """These consumption/production daily numbers seem to be meaningless"""
-                "consumption_total_w": (Units.W, "consumption_daily"),
-                "production_total_w": (Units.W, "production_daily"),
+#            """These consumption/production daily numbers seem to be meaningless"""
+                "*skip9*": (Units.W, "consumption_daily"),# "consumption_total_w"
+                "*skip0*": (Units.W, "production_daily"),# "production_total_w"
             #
                 "consumption": (Units.W, "consumption_now"),
                 "production": (Units.W, "production_now"),

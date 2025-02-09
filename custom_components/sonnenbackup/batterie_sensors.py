@@ -12,6 +12,7 @@ from sonnen_api_v2 import BatterieBackup
 from .utils import strfdelta # , PackerBuilderResult
 from .units import Measurement, Units, SensorUnit
 from .const import (
+    LOGGER,
     SENSOR_GROUP_UNITS,
     # SENSOR_GROUP_TIMESTAMP,
     SENSOR_GROUP_ENUM,
@@ -25,7 +26,6 @@ ResponseDecoder = Dict[
     str, SensorMap
 #    Tuple[SensorUnit,  Unpack[ProcessorTuple]],
 ]
-_LOGGER = logging.getLogger(__name__)
 
 class BatterieSensors:
     """Base functions for SonnenBatterie sensor maps.
@@ -40,13 +40,13 @@ class BatterieSensors:
             by extensions to this class.
         """
 
-        _LOGGER.info('Init BatterieSensors')
+        LOGGER.info('Init BatterieSensors')
         self._response_decoder = type(self).response_decoder()
         # self.manufacturer = MANUFACTURER
         # self._serial_number = serial_number
         self.batterieAPI = batterieAPI
         self.decoded_map = self._decode_map()
-#        _LOGGER.info(f'Decoded_Map:{self.decoded_map}')
+#        LOGGER.info(f'Decoded_Map:{self.decoded_map}')
 
     def map_response(self) -> Dict[str, Any]:
         """Called by sensor.async_setup_entry to prepare sensor definitions
@@ -62,16 +62,16 @@ class BatterieSensors:
             (unit_or_measurement, alias, *processors) = mapping
 
             result[alias] = self.batterieAPI.get_sensor_value(sensor_name)
-#            _LOGGER.info(f'Sensor: {alias}  value:{result[alias]}')
+#            LOGGER.info(f'Sensor: {alias}  value:{result[alias]}')
             if sensor_group == SENSOR_GROUP_UNITS:
-#                _LOGGER.info(f'UNIT name: {sensor_name}  mapping:{mapping}')
+#                LOGGER.info(f'UNIT name: {sensor_name}  mapping:{mapping}')
                 for alias, processor in self._postprocess_gen(mapping):
                     try:
                         result[alias] = getattr(self, processor)(result[alias])
         #                result[alias] = processor(result[alias])
-#                        _LOGGER.info(f'Sensor: {alias}  PROCESSED:{result[alias]}')
+#                        LOGGER.info(f'Sensor: {alias}  PROCESSED:{result[alias]}')
                     except (TypeError) as error:
-                        _LOGGER.error(f"map_response {sensor_name} failed: {repr(error)}")
+                        LOGGER.error(f"map_response {sensor_name} failed: {repr(error)}")
                         raise ValueError(f'{sensor_group} sensor {sensor_name} bad processor: {processor}')
         return result
 
@@ -80,7 +80,7 @@ class BatterieSensors:
             to hydrate sensors.
         """
 
-        _LOGGER.info('BatterieSensors _decode_map')
+        LOGGER.info('BatterieSensors _decode_map')
         sensors: Dict[str, SensorMap] = {}
         for sensor_group, sensor_map in self._response_decoder.items():
             for sensor_name, mapping in sensor_map.items():
@@ -93,7 +93,7 @@ class BatterieSensors:
                     if alias is None:
                         mapping = (mapping[0], sensor_name, mapping[2])
                 sensors[sensor_name] = (sensor_group, mapping)
-#                _LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
+#                LOGGER.info(f'decoded name: {sensor_name}  mapping:{mapping}')
         return sensors
 
     def _postprocess_gen(
@@ -108,7 +108,7 @@ class BatterieSensors:
         else:
             return
         for processor in processors:
-    #        _LOGGER.info(f'Alias: {alias}  processor: {processor}')
+    #        LOGGER.info(f'Alias: {alias}  processor: {processor}')
             yield alias, processor
 
 
@@ -117,7 +117,7 @@ class BatterieSensors:
         """
         Return sensor map to create BatterieSensorEntity in sensor.async_setup_entry.
         """
-        _LOGGER.info('BatterieSensors mapped_sensors')
+        LOGGER.info('BatterieSensors mapped_sensors')
 
         iidx = 0
         idx_groups = [0,100,200] # max 100 per group
@@ -154,7 +154,7 @@ class BatterieSensors:
                         unit = Measurement(Units.NONE, False)
                 sensors[alias] = (idx, unit, sensor_name, sensor_group, option)
                 idx += 1
-#        _LOGGER.info(f'SENSOR_Map:{sensors}')
+#        LOGGER.info(f'SENSOR_Map:{sensors}')
         return sensors
 
     # Post processors for UNITS measurements

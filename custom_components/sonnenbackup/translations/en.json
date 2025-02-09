@@ -69,6 +69,7 @@
     "entity": {
         "binary_sensor": {
             "offgrid": { "name": "Off Grid" },
+            "firmware_update": { "name": "Firmware Update" },
             "critical_error": { "name": "Critical Error" }
         },
         "sensor": {
@@ -95,11 +96,18 @@
             "system_status": {
                 "name": "System Status",
                 "state": {
+                    "init": "Init",
                     "ongrid": "On Grid",
                     "offgrid": "Off Grid",
                     "config": "Config",
                     "critical_error": "Critical Error"
                 }
+            },
+            "kwh_consumed": {
+                "name": "Consumption Total"
+            },
+            "kwh_produced": {
+                "name": "Production Total"
             },
             "status_timestamp": {
                 "name": "Status Timestamp"
@@ -110,11 +118,14 @@
             "fully_discharged_at": {
                 "name": "Fully Discharged at"
             },
+            "interval_since_full": {
+                "name": "Interval since Full"
+            },
             "status_backup_buffer": {
                 "name": "Backup Buffer%"
             },
             "battery_cycle_count": {
-                "name": "Charge cycles"
+                "name": "Full charge cycles"
             },
             "full_charge_capacity": {
                 "name": "Full Charge Capacity kWh"
@@ -126,7 +137,7 @@
                 "name": "Capacity until Reserve kWh"
             },
             "backup_reserve_at": {
-                "name": "Reserve Standby at"
+                "name": "Backup Standby at"
             },
             "backup_reserve_capacity": {
                 "name": "Backup Reserve Capacity kWh"
