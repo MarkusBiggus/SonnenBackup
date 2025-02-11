@@ -42,7 +42,7 @@ class SonnenBackupCoordinatorEntity(CoordinatorEntity[SonnenBackupUpdateCoordina
         # version = runtime_data.version
         serial_number=config_entry.data[CONF_DEVICE_ID],
         model=config_entry.data[CONF_MODEL],
-        version=coordinator.data.version,
+#        version=config_entry.data.version,
         self._attr_unique_id = config_entry.entry_id
         self._attr_name = model
 #        self._attr_available = device.available
@@ -52,7 +52,7 @@ class SonnenBackupCoordinatorEntity(CoordinatorEntity[SonnenBackupUpdateCoordina
             manufacturer=MANUFACTURER,
             model=model,
             name=f"BackupBatterie {serial_number}",
-            sw_version=version,
+#            sw_version=version,
         )
 
     @property

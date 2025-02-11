@@ -52,6 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     """Set up SonnenBackup from a config entry."""
 
     LOGGER.info("SonnenBackup setup by ConfigEntry")
+    _sensor_last_time_full = None
 
     try:
         _batterie = BatterieBackup(
@@ -82,8 +83,25 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
             ) from error
 #        finally:
 
-        _batterie_response = _entity.cache_repeating_values(_batterie_response)
+#        _batterie_response = cache_repeating_values(_batterie_response)
         return _batterie_response
+
+    def cache_repeating_values(batterie_response: BatterieResponse
+    ) -> BatterieResponse:
+        """Repeating values cached until new non-repeated value."""
+
+        """seconds_since_full is zero each update whilst battery is fully charged.
+            Cache the update time when first zero value until non-zero, then
+            clear cache and use response values.
+        """
+        if batterie_response.sensor_values.get('seconds_since_full') == 0:
+            if _sensor_last_time_full is None:
+                _sensor_last_time_full = batterie_response.sensor_values.get('last_updated')
+            batterie_response.sensor_values.put('last_time_full', _sensor_last_time_full)
+        elif _sensor_last_time_full is not None:
+            _sensor_last_time_full = None
+
+        return batterie_response
 
     # Could be a different response_decoder defined for each model
     _battery_sensors = PowerUnitEVO(_batterie)
@@ -97,17 +115,29 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         update_interval=SCAN_INTERVAL,
         update_method=_async_update,
     )
-#    await coordinator.async_config_entry_first_refresh()
+    await coordinator.async_config_entry_first_refresh()
     _entity = SonnenBackupCoordinatorEntity(coordinator)
-    await _entity.async_config_entry_first_refresh()
+#    await _entity.async_config_entry_first_refresh()
 
+
+
+    config_entry.runtime_data = SonnenBackupAPI(
+        api=_batterie,
+        coordinator=coordinator,
+#        coordinator=_entity,
+        serial_number=config_entry.data[CONF_DEVICE_ID],
+        model=config_entry.data[CONF_MODEL],
+        version=coordinator.data.version,
+        last_updated=coordinator.data.last_updated
+    )
+    await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
 
     device_registry = dr.async_get(hass)
     config = config_entry.runtime_data
     serial_number = config.serial_number
     device_registry.async_get_or_create(
         config_entry_id=config_entry.entry_id,
-        connections={(dr.CONNECTION_NETWORK_MAC, config.mac)},
+#        connections={(dr.CONNECTION_NETWORK_MAC, config.mac)},
         identifiers={(DOMAIN, serial_number)},
         manufacturer=MANUFACTURER,
 #        suggested_area="Household",
@@ -117,17 +147,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         sw_version=config.version,
 #        hw_version=config.hwversion,
     )
-
-    config_entry.runtime_data = SonnenBackupAPI(
-        api=_batterie,
-#        coordinator=coordinator,
-        coordinator=_entity,
-        serial_number=config_entry.data[CONF_DEVICE_ID],
-        model=config_entry.data[CONF_MODEL],
-        version=coordinator.data.version,
-        last_updated=coordinator.data.last_updated
-    )
-    await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
 
 #    hass_data = dict(config_entry.data[DOMAIN][config_entry.entry_id])
 #    LOGGER.info(f'ID: {config_entry.entry_id} data: {hass.data[DOMAIN]}  confdata: {config_entry.data}')
