@@ -67,7 +67,7 @@ class PowerUnitEVO(BatterieSensors):
                 "usable_remaining_capacity_wh": (BatteryCapacity, "usable_capacity"),
 #                "unusable_capacity_wh": (BatteryCapacity, "unusable_capacity"),
                 "battery_unusable_capacity_wh": (BatteryCapacity, "unusable_capacity"),
-                "battery_average_current": (Units.A,),
+                "battery_average_current": (Units.A,), # "mdi:flash-triangle-outline"
                 "*skip1*": (BatteryCapacity, "battery_remaining_capacity"),
                 "*skip2*": (BatteryCapacity, "unusable_capacity"),
 #                "battery_remaining_capacity_wh": (BatteryCapacity, "remaining_capacity"),
@@ -93,28 +93,28 @@ class PowerUnitEVO(BatterieSensors):
                 "*skip9*": (Units.W, "consumption_daily"),# "consumption_total_w"
                 "*skip0*": (Units.W, "production_daily"),# "production_total_w"
             #
-                "consumption": (Units.W, "consumption_now"),
+                "consumption": (Units.W, "consumption_now"), # "mdi:meter-electric-outline"
                 "production": (Units.W, "production_now"),
                 "status_grid_export": (Units.W, "grid_export"),
                 "status_grid_import": (Units.W, "grid_import"),
                 "inverter_pac_total": (Units.W, "ongrid_pac"),
                 "inverter_pac_microgrid": (Units.W, "offgrid_pac"),
                 "battery_min_cell_temp": (Units.C, "min_battery_temp"),
-                "battery_max_cell_temp": (Units.C, "max_battery_temp"),
+                "battery_max_cell_temp": (Units.C, "max_battery_temp"), # "mdi:thermometer-alert"
                 "state_bms": (Units.NONE,),
                 "state_inverter": (Units.NONE,),
-                "*skip5*": (Units.NONE,), #seconds_since_full
+                "seconds_since_full": (Units.NONE,), #seconds_since_full
                 "*skip6*": (Units.NONE,), #seconds_until_fully_charged
                 "*skip7*": (Units.NONE,), # seconds_until_fully_discharged
                 "*skip8*": (Units.NONE,), # seconds_until_reserve
                 "discharging": (Units.W, "discharge_power"),
                 "charging": (Units.W, "charge_power"),
                 "battery_dod_limit": (Units.PERCENT, "depth_of_discharge_limit"),
-                "battery_module_dc_voltage": (Units.V, "module_dc_voltage"),
+                "battery_module_dc_voltage": (Units.V, "module_dc_voltage"), # "mdi:current-ac"
                 "time_since_full": (Units.NONE,"interval_since_full", "_format_deltatime"),
                 "led_state_text": (Units.NONE,),
                 "battery_used_capacity_wh": (BatteryCapacity, "used_capacity"),
-                "status_grid_feedin": (Units.W, "grid_feedin"),
+                "status_grid_feedin": (Units.W, "grid_feedin"), #"mdi:transmission-tower-import"
                 "capacity_to_reserve": (BatteryCapacity,),
                 "configuration_em_operatingmode": (Units.NONE, "operating_mode", "_decode_operatingmode"),
 #       1082bytes         "dc_shutdown_reason": (Units.NONE,),
@@ -128,7 +128,7 @@ class PowerUnitEVO(BatterieSensors):
             },
 
             SENSOR_GROUP_TIMESTAMP: {
-                "system_status_timestamp": (Units.NONE, "status_timestamp"),
+                "system_status_timestamp": (Units.NONE, "status_timestamp"), # "mdi:battery-outline"
                 "fully_charged_at": (Units.NONE,),
                 "fully_discharged_at": (Units.NONE,),
                 "backup_reserve_at": (Units.NONE, "reserve_at"),

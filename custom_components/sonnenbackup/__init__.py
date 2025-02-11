@@ -9,6 +9,8 @@ import logging
 from sonnen_api_v2 import BatterieResponse, BatterieBackup, BatterieSensorError
 
 # from homeassistant.data_entry_flow import section
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.device_registry import  DeviceEntry
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_IP_ADDRESS,
@@ -21,13 +23,9 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed
-# from homeassistant.helpers import device_registry as dr
-# from homeassistant.helpers.device_registry import DeviceInfo
-# from homeassistant.helpers.entity import Entity
-# import homeassistant.helpers.config_validation as cv
 
 from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupAPI
-
+from .entity import SonnenBackupCoordinatorEntity
 from .const import (
     DOMAIN,
     LOGGER,
@@ -84,6 +82,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
             ) from error
 #        finally:
 
+        _batterie_response = _entity.cache_repeating_values(_batterie_response)
         return _batterie_response
 
     # Could be a different response_decoder defined for each model
@@ -98,11 +97,31 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         update_interval=SCAN_INTERVAL,
         update_method=_async_update,
     )
-    await coordinator.async_config_entry_first_refresh()
+#    await coordinator.async_config_entry_first_refresh()
+    _entity = SonnenBackupCoordinatorEntity(coordinator)
+    await _entity.async_config_entry_first_refresh()
+
+
+    device_registry = dr.async_get(hass)
+    config = config_entry.runtime_data
+    serial_number = config.serial_number
+    device_registry.async_get_or_create(
+        config_entry_id=config_entry.entry_id,
+        connections={(dr.CONNECTION_NETWORK_MAC, config.mac)},
+        identifiers={(DOMAIN, serial_number)},
+        manufacturer=MANUFACTURER,
+#        suggested_area="Household",
+        name=f"BackupBatterie {serial_number}",
+        model=config.model,
+        model_id=config.serial_number,
+        sw_version=config.version,
+#        hw_version=config.hwversion,
+    )
 
     config_entry.runtime_data = SonnenBackupAPI(
         api=_batterie,
-        coordinator=coordinator,
+#        coordinator=coordinator,
+        coordinator=_entity,
         serial_number=config_entry.data[CONF_DEVICE_ID],
         model=config_entry.data[CONF_MODEL],
         version=coordinator.data.version,
@@ -153,29 +172,7 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConf
 
     return unload_ok
 
-# class SonnenBackupEntity(Entity):
-#     """Base entity for SonnenBackup."""
-
-#     _attr_should_poll = False
-
-#     def __init__(self, device: BatterieBackup) -> None:
-#         """Initialize a SonnenBackup entity."""
-#         self._device = device
-#         self._attr_name = config_entry.model
-#         self._attr_available = device.available
-#         self._attr_unique_id = config_entry.serial_number
-#         self._device_name = config_entry.model
-#         self._device_manufacturer = MANUFACTURER
-#         self._device_id = config_entry.serial_number
-#         info = DeviceInfo(
-#             identifiers={(DOMAIN, str(device.unique_id))},
-#             manufacturer=MANUFACTURER,
-#             name=self._attr_name,
-# #            suggested_area=device.zone,
-#         )
-#         self._attr_device_info = info
-
-#     @property
-#     def available(self) -> bool:
-#         """Availability of the device."""
-#         return self._attr_available
+async def async_remove_config_entry_device(
+    hass: HomeAssistant, config_entry: ConfigEntry, device_entry: DeviceEntry
+) -> bool:
+    """Remove a config entry from a device."""
