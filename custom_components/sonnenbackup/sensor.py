@@ -46,7 +46,7 @@ async def async_setup_entry(
     config_entry: SonnenBackupConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Batterie sensor based on a config entry."""
+    """Set up Batterie sensors based on a config entry."""
 
     LOGGER.info('Setup sensor entities')
 
