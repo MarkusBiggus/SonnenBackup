@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from typing import Any, Dict
 import logging
 # import voluptuous as vol
 
@@ -24,8 +25,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
-from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupAPI
-from .entity import SonnenBackupCoordinatorEntity
+from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupRTData, BatterieData
+from .entity import SonnenBackupEntity
 from .const import (
     DOMAIN,
     LOGGER,
@@ -39,7 +40,7 @@ PLATFORM_SCHEMA= {}  #hassfest STFU
 
 SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 
-type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
+type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupRTData]
 
 
 async def async_setup(hass: HomeAssistant, config_entry: dict):
@@ -63,14 +64,17 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     except Exception as error:
         raise ConfigEntryNotReady from error
 
-    async def _async_update() -> BatterieResponse:
+    async def _async_update() -> BatterieData:
         """Update Batterie data caches & map sensor values."""
 
     #    LOGGER.debug("SonnenBackup component async_update")
         try:
-            _batterie_response = await _batterie.refresh_response() # returned into coordinator.data
-            _batterie_response = _batterie_response._replace(sensor_values = _battery_sensors.map_response())
-        #    LOGGER.debug(f"response: {_batterie_response.sensor_values} ")
+            await _batterie.refresh_response() # returned into coordinator.data
+#            _batterie_response = _batterie_response._replace(sensor_values = _battery_sensors.map_response())
+            data = BatterieData(
+                meters=_battery_sensors.map_response()
+            )
+        #    LOGGER.debug(f"response: {_batterie.meters} ")
         except (BatterieSensorError) as error:
             LOGGER.error(f"SonnenBackup async_update unknown Sensor: {repr(error)}")
             raise UpdateFailed from error
@@ -81,27 +85,32 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
                 translation_key="update_failed",
                 translation_placeholders={"unknown": repr(error)},
             ) from error
-#        finally:
 
 #        _batterie_response = cache_repeating_values(_batterie_response)
-        return _batterie_response
+#        return _batterie_response
+        return cache_repeating_values(data),
 
-    def cache_repeating_values(batterie_response: BatterieResponse
-    ) -> BatterieResponse:
+    def cache_repeating_values(batterie: BatterieData
+    ) -> BatterieData:
         """Repeating values cached until new non-repeated value."""
 
         """seconds_since_full is zero each update whilst battery is fully charged.
-            Cache the update time when first zero value until non-zero, then
+            Cache the update time when first zero value until non-zero. When non-zero,
             clear cache and use response values.
         """
-        if batterie_response.sensor_values.get('seconds_since_full') == 0:
+        hass_data = hass.data[DOMAIN].get(config_entry.entry_id, {})
+        serial_number = config_entry.runtime_data.serial_number
+        _sensor_last_time_full = hass_data.get(serial_number,{}).get('sensor_last_time_full')
+        if batterie.meters.get('seconds_since_full') == 0:
             if _sensor_last_time_full is None:
-                _sensor_last_time_full = batterie_response.sensor_values.get('last_updated')
-            batterie_response.sensor_values.put('last_time_full', _sensor_last_time_full)
+                _sensor_last_time_full = batterie.meters.get('last_updated')
+                hass_data[serial_number].put('sensor_last_time_full', _sensor_last_time_full)
+            batterie.meters.put('last_time_full', _sensor_last_time_full)
         elif _sensor_last_time_full is not None:
-            _sensor_last_time_full = None
+            hass_data[serial_number].put('sensor_last_time_full', None)
 
-        return batterie_response
+        hass.data[DOMAIN].put(config_entry.entry_id, hass_data)
+        return batterie
 
     # Could be a different response_decoder defined for each model
     _battery_sensors = PowerUnitEVO(_batterie)
@@ -116,12 +125,12 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         update_method=_async_update,
     )
     await coordinator.async_config_entry_first_refresh()
-    _entity = SonnenBackupCoordinatorEntity(coordinator)
+    _entity = SonnenBackupEntity(coordinator)
 #    await _entity.async_config_entry_first_refresh()
 
 
 
-    config_entry.runtime_data = SonnenBackupAPI(
+    config_entry.runtime_data = SonnenBackupRTData(
         api=_batterie,
         coordinator=coordinator,
 #        coordinator=_entity,
@@ -150,9 +159,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 
 #    hass_data = dict(config_entry.data[DOMAIN][config_entry.entry_id])
 #    LOGGER.info(f'ID: {config_entry.entry_id} data: {hass.data[DOMAIN]}  confdata: {config_entry.data}')
-    hass_data = hass.data[DOMAIN].get(config_entry.entry_id)
-    if hass_data is None:
-        hass_data = {}
+    hass_data = hass.data[DOMAIN].get(config_entry.entry_id, {})
+    # if hass_data is None:
+    #     hass_data = {}
 #    LOGGER.info(f'ID: {config_entry.entry_id} data: {hass.data[DOMAIN]}  hass_data: {hass_data}')
     # Registers update listener to update config entry when options are updated.
     unsub_options_update_listener = config_entry.add_update_listener(options_update_listener)

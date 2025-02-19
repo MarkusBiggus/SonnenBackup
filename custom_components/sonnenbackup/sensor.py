@@ -13,6 +13,11 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
+
 #from homeassistant import config_entries, core
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
@@ -26,20 +31,29 @@ from homeassistant.helpers.typing import (
 from homeassistant.const import (
     EntityCategory,
 )
+from homeassistant.const import (
+    PERCENTAGE,
+    UnitOfElectricCurrent,
+    UnitOfElectricPotential,
+    UnitOfEnergy,
+    UnitOfFrequency,
+    UnitOfPower,
+    UnitOfTemperature,
+)
+
 from .const import (
     DOMAIN,
     LOGGER,
     MANUFACTURER,
-    SENSOR_DESCRIPTIONS,
-    SENSOR_GROUP_UNITS,
-    SENSOR_GROUP_TIMESTAMP,
-    SENSOR_GROUP_ENUM,
 )
+
 from . import BatterieBackup
-from .coordinator import SonnenBackupAPI
+from .units import Units
+from .entity import SonnenBackupEntity
+from .coordinator import SonnenBackupRTData
 from .PowerUnitEVO import PowerUnitEVO, SonnenBackupSensorEntityDescription
 
-type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
+type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupRTData]
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -72,7 +86,6 @@ async def async_setup_entry(
         name=f"BackupBatterie {serial_number}",
         sw_version=version,
     )
-
 
     battery_sensors = PowerUnitEVO(api)
     entities: list[BatterieSensorEntity] = []
@@ -119,7 +132,7 @@ async def async_setup_platform(
     LOGGER.info('Setup sensor platform') #######  NOT called!!!!!!!!!!!????
 
 
-class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
+class BatterieSensorEntity(SonnenBackupEntity, SensorEntity):
     """Represent a battery sensor."""
 
     _attr_should_poll = False
@@ -189,23 +202,119 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         """Return True if entity is available."""
         return self._available
 
-### Was never called!
-### https://developers.home-assistant.io/docs/core/entity/#property-implementation
-    # def update(self) -> None:
-    #         """Update entity state."""
-    #         # try:
-    # #            self._attr_native_value self._batterybackup.get_sensor_value(self.key)
-    #         # except BatterieSensorError:
-    #         #     if self.available:  # Read current state, no need to prefix with _attr_
-    #         #         LOGGER.warning(f'Sensor {self.key} update failed! ID: {entity_id}')
-    #         #     self._attr_available = False  # Set property value
-    #         #     return
-    #         # self._attr_available = Ture
+class BatterieGridStatusSensor(SonnenBackupEntity, BinarySensorEntity):
+    """Representation of SonnenBackup grid status sensor."""
 
-    #         #self._attr_available = True
-    #         # We don't need to check if device available here
-    #         LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
-    #         self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) # data coordinator gets sensor_values from device
-    #         # self._attr_native_value = self.entity_description.value_fn(
-    #         #     self._device
-    #         # )
+    _attr_translation_key = "system_status"
+    _attr_device_class = BinarySensorDeviceClass.POWER
+
+    @property
+    def unique_id(self) -> str:
+        """Sensor UniqueID."""
+        return f"{self._unique_id}_system_status"
+
+    @property
+    def is_on(self) -> bool:
+        """Grid is online."""
+        return self.data.system_status != 'OffGrid'
+
+
+SENSOR_GROUP_UNITS = 'UNITS'
+SENSOR_GROUP_TIMESTAMP = 'TIMESTAMP'
+SENSOR_GROUP_ENUM = 'ENUM'
+
+SENSOR_DESCRIPTIONS: dict[str, dict[tuple[Units, bool], SensorEntityDescription]] = {
+    SENSOR_GROUP_UNITS: {
+        (Units.C, False): SensorEntityDescription(
+            key=f"{Units.C}_{False}",
+            device_class=SensorDeviceClass.TEMPERATURE,
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            suggested_display_precision = 1,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        (Units.KWH, False): SensorEntityDescription(
+            key=f"{Units.KWH}_{False}",
+            device_class=SensorDeviceClass.ENERGY_STORAGE,
+            native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+            suggested_display_precision = 2,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        (Units.KWH, True): SensorEntityDescription(
+            key=f"{Units.KWH}_{True}",
+            device_class=SensorDeviceClass.ENERGY,
+            native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+            suggested_display_precision = 2,
+            state_class=SensorStateClass.TOTAL,
+        ),
+        (Units.WH, False): SensorEntityDescription(
+            key=f"{Units.WH}_{False}",
+            device_class=SensorDeviceClass.ENERGY_STORAGE,
+            native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+            suggested_display_precision = 1,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        (Units.WH, True): SensorEntityDescription(
+            key=f"{Units.WH}_{True}",
+            device_class=SensorDeviceClass.ENERGY,
+            native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+            suggested_display_precision = 1,
+            state_class=SensorStateClass.TOTAL,
+        ),
+        (Units.V, False): SensorEntityDescription(
+            key=f"{Units.V}_{False}",
+            device_class=SensorDeviceClass.VOLTAGE,
+            native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+            suggested_display_precision = 1,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        (Units.A, False): SensorEntityDescription(
+            key=f"{Units.A}_{False}",
+            device_class=SensorDeviceClass.CURRENT,
+            native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+            suggested_display_precision = 1,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        (Units.W, False): SensorEntityDescription(
+            key=f"{Units.W}_{False}",
+            device_class=SensorDeviceClass.POWER,
+            native_unit_of_measurement=UnitOfPower.WATT,
+            suggested_display_precision = 0,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        (Units.PERCENT, False): SensorEntityDescription(
+            key=f"{Units.PERCENT}_{False}",
+            device_class=SensorDeviceClass.BATTERY,
+            native_unit_of_measurement=PERCENTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        (Units.HZ, False): SensorEntityDescription(
+            key=f"{Units.HZ}_{False}",
+            device_class=SensorDeviceClass.FREQUENCY,
+            native_unit_of_measurement=UnitOfFrequency.HERTZ,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        (Units.NONE, False): SensorEntityDescription(
+            key=f"{Units.NONE}_{False}",
+        ),
+    },
+#SENSOR_TIMESTAMP: dict[tuple[Units, bool], SensorEntityDescription] = {
+    SENSOR_GROUP_TIMESTAMP: {
+        (Units.NONE, False): SensorEntityDescription(
+            key=f"{Units.NONE}_{False}",
+            device_class=SensorDeviceClass.TIMESTAMP,
+        ),
+    },
+#SENSOR_ENUM: dict[tuple[Units, bool], SensorEntityDescription] = {
+    SENSOR_GROUP_ENUM: {
+        (Units.NONE, False): SensorEntityDescription(
+            key=f"{Units.NONE}_{False}",
+            device_class=SensorDeviceClass.ENUM, # all non-boolean enumerated types
+            options=[] # overriden when sensor created
+        ),
+        (Units.NONE, True): SensorEntityDescription(
+            key=f"{Units.NONE}_{True}",
+            device_class=SensorDeviceClass.ENUM,
+            options=[False,True] # special boolean description
+        ),
+    }
+}

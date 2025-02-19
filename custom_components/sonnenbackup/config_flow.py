@@ -25,7 +25,7 @@ from homeassistant.const import (
         )
 from homeassistant.exceptions import HomeAssistantError
 
-from .coordinator import SonnenBackupAPI
+from .coordinator import SonnenBackupRTData
 from .const import (
     LOGGER,
     DOMAIN,
@@ -37,7 +37,7 @@ from .const import (
     MAX_SCAN_INTERVAL,
     )
 
-type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
+type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupRTData]
 
 async def _validate_api(user_input) -> bool:
     """Validate credentials."""

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Dict
 from datetime import datetime
 import logging
 
@@ -14,7 +15,23 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 #     LOGGER,
 # )
 
-class SonnenBackupUpdateCoordinator(DataUpdateCoordinator[BatterieResponse]):
+
+#@dataclass(slots=True)
+class BatterieData:
+    """Poll data for the sonnenbackup integration.
+        extended by updatecorordinator.
+    """
+
+#    charge: float
+#    site_master: SiteMasterResponse
+    meters: Dict[str, Any] # from BatterieSensors.map_response
+#    grid_services_active: bool
+#    grid_status: str
+#    backup_reserve: float | None
+#    batteries: dict[str, BatterieResponse]
+
+#class SonnenBackupUpdateCoordinator(DataUpdateCoordinator[BatterieResponse]):
+class SonnenBackupUpdateCoordinator(DataUpdateCoordinator[BatterieData]):
     """DataUpdateCoordinator for sonnenbackup."""
 
     def __init__(self,
@@ -28,10 +45,11 @@ class SonnenBackupUpdateCoordinator(DataUpdateCoordinator[BatterieResponse]):
         super().__init__(hass, logger, **kwargs)
 
 
-
-@dataclass(slots=True)
-class SonnenBackupAPI:
-    """SonnenBackup Batterie API context."""
+#@dataclass(slots=True)
+class SonnenBackupRTData:
+    """SonnenBackup Batterie runtime data.
+        extended by config_entry.
+    """
 
     _attr_icon = "mdi:battery-outline"
 

@@ -7,6 +7,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import Entity
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.const import (
     # CONF_IP_ADDRESS,
     # CONF_API_TOKEN,
@@ -23,36 +24,30 @@ from .const import (
     MANUFACTURER,
     ATTRIBUTION,
 )
-from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupAPI
+from .coordinator import SonnenBackupUpdateCoordinator, SonnenBackupRTData, BatterieData
 
 
-class SonnenBackupCoordinatorEntity(CoordinatorEntity[SonnenBackupUpdateCoordinator]):
-    """SonnenBackupCoordinator Entity."""
+class SonnenBackupEntity(CoordinatorEntity[DataUpdateCoordinator[BatterieData]]):
+    """DataUpdateCoordinator SonnenBackupEntity."""
 
     _attr_attribution = ATTRIBUTION
     _sensor_last_time_full = None
 
-    def __init__(self, coordinator: SonnenBackupUpdateCoordinator) -> None:
-        """Initialize Coordinator Entity."""
+    def __init__(self, sonnenbackup: SonnenBackupRTData) -> None:
+        """Initialize Coordinator SonnenBackupEntity."""
 
-        super().__init__(coordinator)
-        config_entry = coordinator.config_entry
-        # runtime_data: SonnenBackupAPI = config_entry.runtime_data
-        # serial_number = runtime_data.serial_number
-        # version = runtime_data.version
-        serial_number=config_entry.data[CONF_DEVICE_ID],
-        model=config_entry.data[CONF_MODEL],
-#        version=config_entry.data.version,
-        self._attr_unique_id = config_entry.entry_id
-        self._attr_name = model
-#        self._attr_available = device.available
-#        self._attr_unique_id = config_entry.runtime_data.serial_number
+        super().__init__(sonnenbackup.coordinator)
+#        config_entry = sonnenbackup.coordinator.config_entry
+        model=sonnenbackup.model # config_entry.data[CONF_MODEL],
+        self._attr_unique_id = "SonnenBackup_Batteries" # config_entry.entry_id
+        self._attr_name = f"SonnenBackup {model}"
+        self._attr_available = True #device.available
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, serial_number)},
+            identifiers={(DOMAIN, self.unique_id)},
             manufacturer=MANUFACTURER,
             model=model,
-            name=f"BackupBatterie {serial_number}",
-#            sw_version=version,
+            name="SonnenBackup Batteries",
+#            sw_version=sonnenbackup.version,
         )
 
     @property
@@ -66,7 +61,7 @@ class SonnenBackupCoordinatorEntity(CoordinatorEntity[SonnenBackupUpdateCoordina
 
         """seconds_since_full is zero each update whilst battery is fully charged.
             Cache the update time when first zero value until non-zero, then
-            clear cache and use response values.
+            clear cache and use response values until zero again.
         """
         if batterie_response.sensor_values.get('seconds_since_full') == 0:
             if self._sensor_last_time_full is None:
@@ -76,6 +71,35 @@ class SonnenBackupCoordinatorEntity(CoordinatorEntity[SonnenBackupUpdateCoordina
             self._sensor_last_time_full = None
 
         return batterie_response
+
+class BatterieEntity(CoordinatorEntity[SonnenBackupUpdateCoordinator[BatterieData]]):
+    """Base class for SonnenBackup BatterieEntity."""
+
+    _attr_has_entity_name = True
+
+    def __init__(self, sonnenbackup: SonnenBackupRTData) -> None:
+        """Initialize the BatterieEntity."""
+
+        coordinator = sonnenbackup.coordinator
+        assert coordinator is not None
+        super().__init__(coordinator)
+        self.batterie = sonnenbackup.api
+        self.serial_number = sonnenbackup.serial_number
+        self._unique_id = f"BackupBatterie_{sonnenbackup.serial_number}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, self.unique_id)},
+            manufacturer=MANUFACTURER,
+            model=sonnenbackup.model,
+            name=self.unique_id, # f"BackupBatterie_{sonnenbackup.serial_number}",
+            sw_version=sonnenbackup.version,
+            # name=base_info.site_info.site_name,
+            # configuration_url=base_info.url,
+        )
+
+    @property
+    def data(self) -> BatterieData:
+        """Return the coordinator data."""
+        return self.coordinator.data
 
 
 
