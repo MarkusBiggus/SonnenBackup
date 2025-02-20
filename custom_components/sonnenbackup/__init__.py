@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 import logging
 # import voluptuous as vol
 
@@ -52,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     """Set up SonnenBackup from a config entry."""
 
     LOGGER.info("SonnenBackup setup by ConfigEntry")
-    _sensor_last_time_full = None
+    _sensor_last_time_full: datetime = None
 
     try:
         _batterie = BatterieBackup(
@@ -81,7 +81,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
                 translation_key="update_failed",
                 translation_placeholders={"unknown": repr(error)},
             ) from error
-#        finally:
 
 #        _batterie_response = cache_repeating_values(_batterie_response)
         return _batterie_response
@@ -96,7 +95,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         """
         if batterie_response.sensor_values.get('seconds_since_full') == 0:
             if _sensor_last_time_full is None:
-                _sensor_last_time_full = batterie_response.sensor_values.get('last_updated')
+                _sensor_last_time_full: datetime = batterie_response.sensor_values.get('status_timestamp')
+                LOGGER.debug(f"SonnenBackup _sensor_last_time_full {_sensor_last_time_full.strftime('%d.%b.%Y %H:%M')}")
             batterie_response.sensor_values.put('last_time_full', _sensor_last_time_full)
         elif _sensor_last_time_full is not None:
             _sensor_last_time_full = None
