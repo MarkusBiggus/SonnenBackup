@@ -1,14 +1,13 @@
-""" Utility for processing battery response to sensor values"""
+""" Utility for processing battery response to sensor values."""
 
 from __future__ import annotations
 
 from numbers import Number
-from typing import List, Protocol, Tuple
+from typing import List #, Protocol, Tuple
 
 from voluptuous import Invalid
 from string import Formatter
 from datetime import timedelta, datetime
-import tzlocal
 
 
 # class Packer(Protocol):  # pragma: no cover
@@ -62,14 +61,14 @@ def startswith(something):
     return inner
 
 
-def div10(val):
-     return val / 10
+# def div10(val):
+#      return val / 10
 
-def div100(val):
-     return val / 100
+# def div100(val):
+#      return val / 100
 
-def div1K(val):
-    return val / 1000
+# def div1K(val):
+#     return val / 1000
 
 # INT16_MAX = 0x7FFF
 # INT32_MAX = 0x7FFFFFFF

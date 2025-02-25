@@ -1,7 +1,8 @@
 """Constants for the sonnenbackup integration."""
 
 import voluptuous as vol
-from collections import namedtuple
+#from collections import namedtuple
+from logging import Logger, getLogger
 
 import homeassistant.helpers.config_validation as cv
 #from homeassistant.data_entry_flow import section
@@ -35,6 +36,7 @@ from custom_components.sonnenbackup.units import Units
 
 DOMAIN = "sonnenbackup"
 MANUFACTURER = "Sonnen"
+ATTRIBUTION = "Data provided by sonnen_api_v2 package"
 DEFAULT_SCAN_INTERVAL = 10
 MIN_SCAN_INTERVAL = 3
 MAX_SCAN_INTERVAL = 120
@@ -43,6 +45,8 @@ ATTR_SONNEN_DEBUG = "sonnenbackup_debug"
 DEFAULT_PORT = 80
 MIN_PORT = 1
 MAX_PORT = 49151 # below ephemeral range
+
+LOGGER: Logger = getLogger(__package__)
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 

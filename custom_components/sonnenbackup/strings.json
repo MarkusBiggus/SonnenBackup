@@ -81,8 +81,7 @@
           "discharging": "Discharging",
           "discharging_reserve": "Discharging Reserve",
           "charged": "Fully Charged",
-          "discharged" : "Fully Discharged",
-          "standby_reserve": "Standby Reserve"
+          "discharged" : "Fully Discharged"
         }
       },
       "operating_mode": {
@@ -97,6 +96,7 @@
       "system_status": {
         "name": "System Status",
         "state": {
+          "init": "Init",
           "ongrid": "On Grid",
           "offgrid": "Off Grid",
           "config": "Config",

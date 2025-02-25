@@ -20,8 +20,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.sonnenbackup.const import (
     DOMAIN,
-    DEFAULT_SCAN_INTERVAL,
-    DEFAULT_PORT
+    # DEFAULT_SCAN_INTERVAL,
+    # DEFAULT_PORT
 )
 from .mock_sonnenbatterie_v2_charging import __mock_status_charging, __mock_latest_charging, __mock_configurations, __mock_battery, __mock_powermeter, __mock_inverter
 
