@@ -10,8 +10,8 @@
   "loggers": ["sonnenbackup"],
   "quality_scale": "bronze",
   "requirements": [
-    "tzlocal",
-    "sonnen_api_v2>=0.5.14"
+    "tzlocal>=5.2",
+    "sonnen_api_v2 @ git+https://github.com/MarkusBiggus/sonnen_api_v2.git@dev"
   ],
   "version": "0.0.1"
 }

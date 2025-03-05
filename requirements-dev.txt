@@ -1,9 +1,10 @@
-# From our manifest.json for our custom component
-sonnen_api_v2>=0.5.14
+# From our manifest.json for custom component
+#sonnen_api_v2>=0.5.14
+sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git@dev"
+tzlocal>=5.2
+voluptuous>=0.13.1
+# DEV
 setuptools~=75.7
-tzlocal
-#voluptuous>=0.15.2
-
 # Strictly for tests
 pytest
 pytest-asyncio
