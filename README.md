@@ -31,56 +31,56 @@ HASS Sensor is the name used for Home Assistant from the driver package property
 
 | Package Sensor                | Unit  | HASS sensor        |
 |------------------------------:|------:|-------------------:|
+|battery_activity_state|string|sonnenbackup_state|
 |configuration_de_software|string|firmware_version|
+|configuration_em_operatingmode|string|operating_mode|
 |led_state|string|led_state|
 |led_state_text|string|led_state_text|
+|state_bms|string|state_bms|
+|state_inverter|string|state_inverter|
 |system_status|string|system_status|
-|battery_activity_state|string|sonnenbackup_state|
 |battery_cycle_count|integer|battery_cycle_count|
-|battery_full_charge_capacity_wh|Wh|full_charge_capacity|
-|usable_remaining_capacity_wh|Wh|usable_capacity|
-|battery_unusable_capacity_wh|Wh|unusable_capacity|
-|remaining_capacity_wh|Wh|remaining_capacity|
 |battery_average_current|A|battery_average_current|
-|capacity_until_reserve|Wh|capacity_until_reserve|
-|capacity_to_reserve|Wh|capacity_to_reserve|
 |backup_buffer_capacity_wh|Wh|reserve_capacity|
+|battery_full_charge_capacity_wh|Wh|full_charge_capacity|
+|battery_unusable_capacity_wh|Wh|unusable_capacity|
+|capacity_to_reserve|Wh|capacity_to_reserve|
+|capacity_until_reserve|Wh|capacity_until_reserve|
+|usable_remaining_capacity_wh|Wh|usable_capacity|
+|remaining_capacity_wh|Wh|remaining_capacity|
 |used_capacity|Wh|used_capacity|
 |kwh_consumed|kWh|kwh_consumed|
 |kwh_produced|kWh|kwh_produced|
 |status_frequency|hertz|frequency|
 |battery_dod_limit|percent|depth_of_discharge_limit|
-|status_backup_buffer|percent|reserve_charge|
 |battery_rsoc|percent|relative_state_of_charge|
 |battery_usoc|percent|usable_state_of_charge|
+|status_backup_buffer|percent|reserve_charge|
 |charging|watts|charge_power|
-|discharging|watts|discharge_power|
+|consumption|watts|consumption_now|
 |consumption_average |watts|consumption_average|
 |consumption_total_w|watts|consumption_daily|
-|production_total_w|watts|production_daily|
-|consumption|watts|consumption_now|
-|production|watts|production_now|
-|status_grid_export|watts|grid_export|
-|status_grid_import|watts|grid_import|
+|discharging|watts|discharge_power|
 |inverter_pac_total|watts|ongrid_pac|
 |inverter_pac_microgrid|watts|offgrid_pac|
+|production|watts|production_now|
+|production_total_w|watts|production_daily|
+|status_grid_export|watts|grid_export|
+|status_grid_import|watts|grid_import|
 |battery_min_cell_temp|celsius|min_battery_temp|
 |battery_max_cell_temp|celsius|max_battery_temp|
-|state_bms|string|state_bms|
-|state_inverter|string|state_inverter|
 |system_status_timestamp|timestamp|status_timestamp|
 |fully_charged_at|timestamp|fully_charged_at|
 |fully_discharged_at|timestamp|fully_discharged_at|
 |backup_reserve_at|timestamp|reserve_at|
 |last_time_full|timestamp|last_time_full|
-|time_since_full|deltatime|interval_since_full|
 |last_updated|timestamp|last_updated|
+|time_since_full|deltatime|interval_since_full|
+|dc_minimum_rsoc_reached|bool|dc_minimum_rsoc|
+|mg_minimum_soc_reached|bool|microgrid_minimum_soc|
+|microgrid_enabled|bool|microgrid_enabled|
 |status_battery_charging|bool|is_charging|
 |status_battery_discharging|bool|is_discharging|
-|configuration_em_operatingmode|enum|operating_mode|
-|microgrid_enabled|bool|microgrid_enabled|
-|mg_minimum_soc_reached|bool|microgrid_minimum_soc|
-|dc_minimum_rsoc_reached|bool|dc_minimum_rsoc|
 
 
 Some sensors have enumerated values:
@@ -93,35 +93,37 @@ operating_mode: {1: "Manual", 2: "Automatic", 6: "Extension module", 10: "Time o
 
 ### sonnenbackup_state
 "standby" indicates the battery is neither charging nor discharging.
-The battery could be fully charged, fully discharged, at reserve limit or no production available to charge.
+The battery could be fully charged, fully discharged or at back reserve limit.
 Must be read in conjuction with "relative_state_of_charge" to determine the reason for "standby".
 
 ### Timestamps
 Sensors fully charged, fully discharged & backup reserve are calculated on current consumption/production.
 When battery is in standby, these timestamp values are undefined, as will some when charging/discharging.
-Times are calculated relative to hass server time, which should match "system_status_timestamp".
+Times are calculated relative to Sonnen batterie server time, which is "system_status_timestamp".
+A slight discrpency will be apparent if hass server time and batterie time are different.
 
 ### led_state
 Sensor indicates the state of the status LED on the side of the battery.
-Only one element will be True, that element, with brightness, is returned as a string.
+Only one element may be True, that element, with brightness, is returned as a string.
 e.g 'Pulsing White 100%'
 ```
 "Eclipse Led":{
     "Blinking Red":true,   # undocumented - call installer
     "Brightness":100,
-    "Pulsing Green":true,  # Off Grid, in backup mode
+    "Pulsing Green":true,  # Off Grid, in MicroGrid (backup) mode
     "Pulsing Orange":true, # no internet connection
     "Pulsing White":true,  # normal operation
     "Solid Red":true       # serious problem - call installer
 }
 ```
-Only one key maybe True at a time. All values False indicates Off Grid operation, the string "Off Grid." is returned.
+All values False indicates Off Grid operation, the string "Off Grid." is returned.
 
 ### State of Charge
 The batterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by
-sensor depth_of_discharge_limit. Depth of Discharge reserve is included in Relative State of Charge (RSoC) overall values, like full_charge_capacity. Specific usable values are based on Usable State of Charge (USoC).
+sensor depth_of_discharge_limit. Depth of Discharge reserve is included in Relative State of Charge (RSoC) overall values, like full_charge_capacity.
+Specific usable values are based on Usable State of Charge (USoC), like usable_capacity.
 
-Importantly, the Backup Reserve Charge is based on USoC. eg when sensor sonnenbackup_state is 'standby' USoC equals Backup Reserve Charge, about 4 less than RSoC.
+Importantly, the reserve_charge percent for backup buffer is based on USoC. eg when sensor sonnenbackup_state is 'standby' USoC equals Backup Reserve Charge, a little less than RSoC.
 
 ## Recording
 Some sensor values do not change, some only change when configuration changes, some are of little value when not current. These sensors will waste space if recorded.
@@ -130,7 +132,7 @@ Suggested recording exclusions in configuration.yaml:
 ```
 # Recorder filter to exclude specified entities, change placeholder names
 # your actual sensor names. eg "sonnenbackup.backupbatterie_nnnnnn_sonnenbackup_full_charge_capacity"
-where 'nnnnnn' is the battery serial number entered on the config form.
+#   where 'nnnnnn' is the battery serial number entered on the config form.
 recorder:
   exclude:
     entities:

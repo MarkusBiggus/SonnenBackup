@@ -1,8 +1,10 @@
-# From our manifest.json for our custom component
-sonnen_api_v2>=0.5.13
-setuptools~=75.7.0
-voluptuous>=0.15.2
-
+# From our manifest.json for custom component
+#sonnen_api_v2>=0.5.14
+sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git@dev"
+tzlocal>=5.2
+voluptuous>=0.13.1
+# DEV
+setuptools~=75.7
 # Strictly for tests
 pytest
 pytest-asyncio
@@ -10,10 +12,9 @@ pytest-cov
 pytest-mock
 coverage>=7.2.1
 pytest-homeassistant-custom-component
-freezegun~=1.5.1
+freezegun~=1.5
 asyncmock>=0.4.2
 requests~=2.32
 responses
 urllib3_mock
 load_dotenv>=0.1.0
-tzlocal

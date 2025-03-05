@@ -15,10 +15,10 @@ setuptools.setup(
     url="https://github.com/markusbiggus/sonnenbackup",
     packages=setuptools.find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
-        "voluptuous>=0.15.2",
-        "tzlocal",
-        "sonnen_api_v2>=0.5.13",
-        "setuptools~=75.7.0",
+        'sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git@dev"',
+#        "sonnen_api_v2>=0.5.14",
+        "tzlocal>=5.2",
+        "voluptuous>=0.13.1",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
