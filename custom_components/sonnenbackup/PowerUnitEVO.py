@@ -2,22 +2,10 @@
 
 from dataclasses import dataclass
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntity,
     SensorEntityDescription,
-    SensorStateClass,
-)
-from homeassistant.const import (
-    PERCENTAGE,
-    EntityCategory,
-    UnitOfApparentPower,
-    UnitOfElectricCurrent,
-    UnitOfElectricPotential,
-    UnitOfEnergy,
-    UnitOfFrequency,
-    UnitOfPower,
-    UnitOfReactivePower,
-    UnitOfTemperature,
+    # SensorDeviceClass,
+    # SensorEntity,
+    # SensorStateClass,
 )
 from homeassistant.helpers.typing import StateType
 
@@ -28,7 +16,7 @@ from .const import (
     SENSOR_GROUP_TIMESTAMP,
     SENSOR_GROUP_ENUM,
     )
-from .units import Units, BatteryCapacity, DailyTotal, TotalKWH, DailyTotalW #Total
+from .units import Units, BatteryCapacity, TotalKWH #, DailyTotal, DailyTotalW, Total
 from .batterie_sensors import BatterieSensors
 
 class PowerUnitEVO(BatterieSensors):
@@ -49,7 +37,7 @@ class PowerUnitEVO(BatterieSensors):
             Assigned index is unique for each group - they become one list of sensors, eventually.
             Add new sensors only to the end of a group.
             Deleting will create new sensors for all after that point.
-            Use *skip* to preserve index sequence for a deleted sensor, or
+            Use *skipN* to preserve index sequence for a deleted sensor, or
             Replace inline to remove a sensor.
         """
         return {
@@ -119,12 +107,6 @@ class PowerUnitEVO(BatterieSensors):
                 "configuration_em_operatingmode": (Units.NONE, "operating_mode", "_decode_operatingmode"),
 #       1082bytes         "dc_shutdown_reason": (Units.NONE,),
 #       394bytes          "microgrid_status": (Units.NONE,),
-
-                # "Total Yield": (pack_u16(22, 23), Total(Units.KWH), div10),
-                # "Daily Yield": (24, DailyTotal(Units.KWH), div10),
-                # "Feed-in Power ": (pack_u16(72, 73), Units.W, to_signed32),
-                # "Total Feed-in Energy": (pack_u16(74, 75), Total(Units.KWH), div100),
-                # "Total Consumption": (pack_u16(76, 77), Total(Units.KWH), div100),
             },
 
             SENSOR_GROUP_TIMESTAMP: {
@@ -153,133 +135,3 @@ class SonnenBackupSensorEntityDescription(SensorEntityDescription):
     default_value: StateType | None = None
     invalid_when_falsy: bool = False
     response_key: str | None = None
-#    value_fn: Callable[[StateType], StateType] | None = None
-
-
-# @classmethod
-# def battery_sensors(cls) -> dict:
-#     """sonnen_api_v2 properties used as sensor values"""
-
-#     return BATTERY_ENTITY_DESCRIPTIONS
-
-
-# BATTERY_ENTITY_DESCRIPTIONS: list[SonnenBackupSensorEntityDescription] = [
-#     SonnenBackupSensorEntityDescription(
-#         key="kwh_produced",
-#         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-#         device_class=SensorDeviceClass.ENERGY,
-#         state_class=SensorStateClass.TOTAL_INCREASING,
-#     ),
-#     SonnenBackupSensorEntityDescription(
-#         key="kwh_consumed",
-#         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-#         device_class=SensorDeviceClass.ENERGY,
-#         state_class=SensorStateClass.TOTAL_INCREASING,
-#     ),
-#     SonnenBackupSensorEntityDescription(
-#         key="consumption_average",
-#         native_unit_of_measurement=UnitOfPower.WATT,
-#         device_class=SensorDeviceClass.POWER,
-#         state_class=SensorStateClass.MEASUREMENT,
-#     ),
-#     SonnenBackupSensorEntityDescription(
-#         key="status_frequency",
-#         default_value=0,
-#         native_unit_of_measurement=UnitOfFrequency.HERTZ,
-#         device_class=SensorDeviceClass.FREQUENCY,
-#         state_class=SensorStateClass.MEASUREMENT,
-#     #    entity_registry_enabled_default=False,
-#     ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="current_ac",
-    #     default_value=0,
-    #     native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-    #     device_class=SensorDeviceClass.CURRENT,
-    #     state_class=SensorStateClass.MEASUREMENT,
-    # ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="current_dc",
-    #     default_value=0,
-    #     native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-    #     device_class=SensorDeviceClass.CURRENT,
-    #     state_class=SensorStateClass.MEASUREMENT,
-    # ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="current_dc_2",
-    #     default_value=0,
-    #     native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-    #     device_class=SensorDeviceClass.CURRENT,
-    #     state_class=SensorStateClass.MEASUREMENT,
-    # ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="power_ac",
-    #     default_value=0,
-    #     native_unit_of_measurement=UnitOfPower.WATT,
-    #     device_class=SensorDeviceClass.POWER,
-    #     state_class=SensorStateClass.MEASUREMENT,
-    # ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="voltage_ac",
-    #     default_value=0,
-    #     native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-    #     device_class=SensorDeviceClass.VOLTAGE,
-    #     state_class=SensorStateClass.MEASUREMENT,
-    #     entity_registry_enabled_default=False,
-    # ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="voltage_dc",
-    #     default_value=0,
-    #     native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-    #     device_class=SensorDeviceClass.VOLTAGE,
-    #     state_class=SensorStateClass.MEASUREMENT,
-    # ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="voltage_dc_2",
-    #     default_value=0,
-    #     native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-    #     device_class=SensorDeviceClass.VOLTAGE,
-    #     state_class=SensorStateClass.MEASUREMENT,
-    # ),
-    # device status entities
-    # SonnenBackupSensorEntityDescription(
-    #     key="system_status",
-    #     entity_category=EntityCategory.DIAGNOSTIC,
-    # ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="system_status_timestamp",
-    #     entity_category=EntityCategory.DIAGNOSTIC,
-    #     device_class=SensorDeviceClass.TIMESTAMP,
-#        entity_registry_enabled_default=False,
-    # ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="error_message",
-    #     response_key="error_code",
-    #     entity_category=EntityCategory.DIAGNOSTIC,
-    #     device_class=SensorDeviceClass.ENUM,
-    #     options=list(dict.fromkeys(BATTERY_ERROR_CODES.values())),
-    #     value_fn=BATTERY_ERROR_CODES.get,  # type: ignore[arg-type]
-    # ),
-#     SonnenBackupSensorEntityDescription(
-#         key="battery_activity_state",
-#         entity_category=EntityCategory.DIAGNOSTIC,
-# #        entity_registry_enabled_default=False,
-#     ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="status_message",
-    #     response_key="status_code",
-    #     entity_category=EntityCategory.DIAGNOSTIC,
-    #     device_class=SensorDeviceClass.ENUM,
-    #     options=[opt.value for opt in InverterStatusCodeOption],
-    #     value_fn=get_inverter_status_message,
-    # ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="led_state",
-    #     entity_category=EntityCategory.DIAGNOSTIC,
-    #     entity_registry_enabled_default=False,
-    # ),
-    # SonnenBackupSensorEntityDescription(
-    #     key="led_color",
-    #     entity_category=EntityCategory.DIAGNOSTIC,
-    #     entity_registry_enabled_default=False,
-    # ),
-# ]
