@@ -24,12 +24,33 @@ It does not support https (port 443) using a self-signed certificate.
 
 ## Usage
 
-install sonnenbackup with hacs
-HASS Sensor is the name used for Home Assistant from the driver package property call Package Sensor.
+Install sonnenbackup with hacs.  \
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MarkusBiggus&repository=https%3A%2F%2Fgithub.com%2FMarkusBiggus%2FSonnenBackup&category=integration)
+
+### Manual Integration to HACS
+
+Open HACS -> Home Assistant Community Store page
+From Overflow Menu: 3 vertical dots upper right, choose custom repositories.
+Enter github URL: https://github.com/MarkusBiggus/SonnenBackup
+The component is added to HACS and the form redisplayed - click cancel to return to HACS.
+
+Search HACS for the component just added, SonnenBackup.
+Click the Integration to see its details page (readme file).
+On the component details page click the download button lower right.
+Return to HACS (upper left arrow) where "Pending Restart" is displayed.
+
+Restart HASS from Settings/System restart button, upper far right.
+
+### Add Integration to HASS
+
+From Settings/Devices&Services click Add Integration, lower right
+
 
 ## Sensors
 
-| Package Sensor                | Unit  | HASS sensor        |
+HASS Sensor is the name used for Home Assistant from the sonnen_api_v2 package property.
+
+| Package Property                | Unit  | HASS Sensor        |
 |------------------------------:|------:|-------------------:|
 |battery_activity_state|string|sonnenbackup_state|
 |configuration_de_software|string|firmware_version|
@@ -144,23 +165,20 @@ recorder:
       - sonnenbackup.backup_reserve_percent
       - sonnenbackup.state_bms
       - sonnenbackup.state_inverter
+      - sonnenbackup.interval_since_full
       - sonnenbackup.seconds_since_full
-      - sonnenbackup.seconds_until_fully_charged
-      - sonnenbackup.seconds_until_fully_discharged
-      - sonnenbackup.seconds_until_reserve
       - sonnenbackup.system_status_timestamp
       - sonnenbackup.fully_charged_at
       - sonnenbackup.fully_discharged_at
       - sonnenbackup.backup_reserve_at
       - sonnenbackup.last_time_full
       - sonnenbackup.last_updated
-      - sonnenbackup.time_since_full
       - sonnenbackup.operating_mode
 ```
 
 ## Confirmed Supported Batteries
 
 These batteries have been tested and confirmed to be working. If your batterie is not listed below, this library may still work provided your battery admin portal can generate an API read token and responds to Sonnen API V2 endpoints.
-API token will return status 401 if used with V1 of the API. Use Weltmyer sonnenbatterie package if user/password authentication is required.
+API token will return status 401 if used with V1 of the API. Use Weltmeyer/ha_sonnenbatterie package if user/password authentication is required.
 
 * Power unit Evo IP56
