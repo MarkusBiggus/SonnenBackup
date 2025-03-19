@@ -16,7 +16,7 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
         'sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git@dev"',
-#        "sonnen_api_v2>=0.5.14",
+#        "sonnen_api_v2>=0.5.15",
         "tzlocal>=5.2",
         "voluptuous>=0.13.1",
     ],

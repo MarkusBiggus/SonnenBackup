@@ -10,6 +10,17 @@ Use Sonnen Batterie web portal or mobile app to set Backup Reserve percent.
 * Backup reserve, time to reserve, time to fully discharged.
 * Temperature and batterie health.
 
+## Why use this package
+This Home Assistant component helps manage Sonnen batterie backup reserve, particularly whilst batterie is 'OffGrid'.
+
+The official Sonnen mobile app normally used to monitor the batterie relies on the cloud service the batterie reports to.  \
+When grid power is out, there is a possibility Internet may also be out either due to the same event or because power
+has been out long enough to deplete ISP equipment emergency power.
+
+Without Internet access, Home Assistant server requires only the local home network to continue functioning using the Sonnen batterie backup reserve charge.  \
+It is recommended to have an independant (small) UPS running off Sonnen batterie power for the LAN & Home Assistant server. There is a momentary power drop
+when Sonnen batterie switch to microGrid mode when grid power drops. A small UPS will prevent Home Assistant server from rebooting at the very moment
+it needs to alert you to the batterie going into microGrid mode.
 
 ## HACS
 
@@ -218,7 +229,7 @@ These batteries have been tested and confirmed to be working. If your batterie i
 Newer Sonnen Batteries are not provisoned with user accounts for API access.
 Whilst the installer account could be used, that is not a wise cybersecurity choice to use those credentials for this purpose.
 
+* Power unit Evo IP56
+
 
 API token will return status 401 if used with V1 of the API. Use Weltmeyer/ha_sonnenbatterie package if user/password authentication is required.
-
-* Power unit Evo IP56

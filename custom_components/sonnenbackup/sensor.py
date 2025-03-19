@@ -69,7 +69,7 @@ async def async_setup_entry(
         identifiers={(DOMAIN, serial_number)},
         manufacturer=MANUFACTURER,
         model=config_entry.runtime_data.model,
-        name=f"BackupBatterie {serial_number}",
+        name=f"SonnenBackup {serial_number}",
         sw_version=version,
     )
 
@@ -91,9 +91,9 @@ async def async_setup_entry(
                     options=options
                 )
         else:
-            raise ValueError(f'Sensor {sensor} unknown group: {type(group)}')
+            raise ValueError(f'Sensor {sensor} unknown group: {group}')
 
-        uid = f"BackupBatterie_{serial_number}-{idx}"
+        uid = f"SonnenBackup_{serial_number}-{idx}"
     #    LOGGER.info(f'sensor: {sensor}  uid:{uid}  description: {description}')
         entities.append(
             BatterieSensorEntity(

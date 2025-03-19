@@ -92,9 +92,9 @@ class PowerUnitEVO(BatterieSensors):
                 "state_bms": (Units.NONE,),
                 "state_inverter": (Units.NONE,),
                 "seconds_since_full": (Units.NONE,), #seconds_since_full
-                "*skip6*": (Units.NONE,), #seconds_until_fully_charged
-                "*skip7*": (Units.NONE,), # seconds_until_fully_discharged
-                "*skip8*": (Units.NONE,), # seconds_until_reserve
+                "time_to_fully_charged": (Units.NONE, "interval_to_fully_charged", "_format_deltatime"), #seconds_until_fully_charged
+                "time_to_fully_discharged": (Units.NONE, "interval_to_fully_discharged", "_format_deltatime"), # seconds_until_fully_discharged
+                "time_to_reserve": (Units.NONE, "interval_to_reserve", "_format_deltatime"), # seconds_until_reserve
                 "discharging": (Units.W, "discharge_power"),
                 "charging": (Units.W, "charge_power"),
                 "battery_dod_limit": (Units.PERCENT, "depth_of_discharge_limit"),

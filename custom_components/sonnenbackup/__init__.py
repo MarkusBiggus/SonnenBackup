@@ -1,9 +1,9 @@
-"""The SonnenBackup batterie component."""
+"""SonnenBackup batterie component."""
 
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-import logging
+#import logging
 # import voluptuous as vol
 
 from sonnen_api_v2 import BatterieResponse, BatterieBackup, BatterieSensorError
@@ -40,6 +40,8 @@ PLATFORM_SCHEMA= {}  #hassfest STFU
 SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
+
+__version__ = '0.1.0'
 
 
 async def async_setup(hass: HomeAssistant, config_entry: dict):
@@ -141,7 +143,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
         identifiers={(DOMAIN, serial_number)},
         manufacturer=MANUFACTURER,
 #        suggested_area="Household",
-        name=f"BackupBatterie {serial_number}",
+        name=f"SonnenBackup {serial_number}",
         model=config.model,
         model_id=config.serial_number,
         sw_version=config.version,
@@ -195,3 +197,6 @@ async def async_remove_config_entry_device(
     hass: HomeAssistant, config_entry: ConfigEntry, device_entry: DeviceEntry
 ) -> bool:
     """Remove a config entry from a device."""
+
+    """todo"""
+    return True
