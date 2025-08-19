@@ -45,7 +45,7 @@ class PowerUnitEVO(BatterieSensors):
                 "configuration_de_software": (Units.NONE, "firmware_version"),
                 "led_state": (Units.NONE,),
                 "system_status": (Units.NONE,),
-                "battery_activity_state": (Units.NONE, "sonnenbackup_state"),
+                "battery_activity_state": (Units.NONE, "activity_state"),
                 "battery_cycle_count": (Units.NONE,),
                 "*skip*": ("deleted sensor: index is skipped", "replace later with a new sensor"),
                 "installed_capacity": (BatteryCapacity,),

@@ -63,7 +63,7 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 
 | Package Property              | Unit  | HASS Sensor        |
 |------------------------------:|:-----:|:-------------------|
-|battery_activity_state|string|sonnenbackup_state|
+|battery_activity_state|string|activity_state|
 |configuration_de_software|string|firmware_version|
 |configuration_em_operatingmode|string|operating_mode|
 |led_state|string|led_state|
@@ -119,11 +119,11 @@ Some sensors have enumerated values:
 
 ```
 system_status: ["Config", "OnGrid", "OffGrid", "Critical Error"]
-sonnenbackup_state: ["standby", "charging", "discharging", "discharging reserve", "charged", "discharged"]
+activity_state: ["standby", "charging", "discharging", "discharging reserve", "charged", "discharged"]
 operating_mode: {1: "Manual", 2: "Automatic", 6: "Extension module", 10: "Time of Use"}
 ```
 
-### sonnenbackup_state
+### activity_state
 "standby" indicates the battery is neither charging nor discharging.
 The battery could be fully charged, fully discharged or at back reserve limit.
 Must be read in conjuction with "relative_state_of_charge" to determine the reason for "standby".
@@ -155,7 +155,7 @@ The batterie reports two State of Charge values, Relative and Usable. The differ
 sensor depth_of_discharge_limit (DoD). Depth of Discharge reserve is included in Relative State of Charge (RSoC) overall values, like full_charge_capacity.
 Specific usable values are based on Usable State of Charge (USoC), like usable_capacity, which do not include the DoD limit reported by sensor unusable_capacity.
 
-Importantly, the reserve_charge percent for backup buffer is based on USoC. eg when sensor sonnenbackup_state is 'standby' USoC equals Backup Reserve Charge, a little less than RSoC.
+Importantly, the reserve_charge percent for backup buffer is based on USoC. eg when sensor activity_state is 'standby' USoC equals Backup Reserve Charge, a little less than RSoC.
 
 ## Recording
 Some sensor values do not change, some only change when configuration changes, some are of little value when not current. These sensors will waste space if recorded.

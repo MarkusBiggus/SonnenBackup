@@ -73,7 +73,7 @@
       "critical_error": { "name": "Critical Error" }
     },
     "sensor": {
-      "sonnenbackup_state": {
+      "activity_state": {
         "name": "Batterie State",
         "state": {
           "standby": "Standby",
