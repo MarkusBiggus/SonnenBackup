@@ -41,7 +41,7 @@ SCAN_INTERVAL = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
 
 type SonnenBackupConfigEntry = ConfigEntry[SonnenBackupAPI]
 
-__version__ = '0.1.0'
+__version__ = "0.1.0"
 
 
 async def async_setup(hass: HomeAssistant, config_entry: dict):

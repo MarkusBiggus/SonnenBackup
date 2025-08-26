@@ -154,7 +154,7 @@ class BatterieSensors:
                         unit = Measurement(Units.NONE, False)
                 sensors[alias] = (idx, unit, sensor_name, sensor_group, option)
                 idx += 1
-#        LOGGER.info(f'SENSOR_Map:{sensors}')
+        LOGGER.debug(f'SENSOR_Map:{sensors}')
         return sensors
 
     # Post processors for UNITS measurements
