@@ -15,6 +15,7 @@ from .const import (
     LOGGER,
     SENSOR_GROUP_UNITS,
     # SENSOR_GROUP_TIMESTAMP,
+    SENSOR_GROUP_DELTATIME,
     SENSOR_GROUP_ENUM,
     )
 
@@ -46,7 +47,7 @@ class BatterieSensors:
         # self._serial_number = serial_number
         self.batterieAPI = batterieAPI
         self.decoded_map = self._decode_map()
-#        LOGGER.info(f'Decoded_Map:{self.decoded_map}')
+        LOGGER.info(f'Decoded_Map:{self.decoded_map}')
 
     def map_response(self) -> Dict[str, Any]:
         """Called by sensor.async_setup_entry to prepare sensor definitions
@@ -54,7 +55,8 @@ class BatterieSensors:
             There are 3 sensor groups:
             UNITS: All sensors that have units of measurment
             TIMESTAMPS: All timestamps
-            ENUM: All that have a set of possible values. Bool is a special case here.
+            DELTATIME: All deltatime to be converted to string
+            ENUM: All that have a set of possible values. Bool is a special case here, as are plain strings.
         """
 
         result = {}
@@ -62,14 +64,14 @@ class BatterieSensors:
             (unit_or_measurement, alias, *processors) = mapping
 
             result[alias] = self.batterieAPI.get_sensor_value(sensor_name)
-#            LOGGER.info(f'Sensor: {alias}  value:{result[alias]}')
-            if sensor_group == SENSOR_GROUP_UNITS:
+            LOGGER.info(f'Sensor: {alias}  value:{result[alias]}')
+            if sensor_group == SENSOR_GROUP_DELTATIME: # SENSOR_GROUP_UNITS:
 #                LOGGER.info(f'UNIT name: {sensor_name}  mapping:{mapping}')
                 for alias, processor in self._postprocess_gen(mapping):
                     try:
                         result[alias] = getattr(self, processor)(result[alias])
         #                result[alias] = processor(result[alias])
-#                        LOGGER.info(f'Sensor: {alias}  PROCESSED:{result[alias]}')
+                        LOGGER.info(f'Sensor: {alias}  PROCESSED:{result[alias]}')
                     except (TypeError) as error:
                         LOGGER.error(f"map_response {sensor_name} failed: {repr(error)}")
                         raise ValueError(f'{sensor_group} sensor {sensor_name} bad processor: {processor}')
@@ -108,7 +110,7 @@ class BatterieSensors:
         else:
             return
         for processor in processors:
-    #        LOGGER.info(f'Alias: {alias}  processor: {processor}')
+#            LOGGER.info(f'Alias: {alias}  processor: {processor}')
             yield alias, processor
 
 
@@ -120,7 +122,7 @@ class BatterieSensors:
         LOGGER.info('BatterieSensors mapped_sensors')
 
         iidx = 0
-        idx_groups = [0,100,200] # max 100 per group
+        idx_groups = [0,100,200, 300] # max 100 per group
         sensors: Dict[str, Tuple[int, Measurement]] = {}
         for sensor_group, sensor_map in cls.response_decoder().items():
             idx = idx_groups[iidx]
@@ -152,6 +154,8 @@ class BatterieSensors:
                         unit = Measurement(Units.NONE, is_monotonic = option)
                     else:
                         unit = Measurement(Units.NONE, False)
+#                elif sensor_group == SENSOR_GROUP_DELTATIME:
+
                 sensors[alias] = (idx, unit, sensor_name, sensor_group, option)
                 idx += 1
         LOGGER.debug(f'SENSOR_Map:{sensors}')

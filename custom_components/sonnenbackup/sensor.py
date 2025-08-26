@@ -33,6 +33,7 @@ from .const import (
     SENSOR_DESCRIPTIONS,
     SENSOR_GROUP_UNITS,
     SENSOR_GROUP_TIMESTAMP,
+    SENSOR_GROUP_DELTATIME,
     SENSOR_GROUP_ENUM,
 )
 from . import BatterieBackup
@@ -82,6 +83,8 @@ async def async_setup_entry(
             description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_UNITS][(measurement.unit, measurement.is_monotonic)]
         elif group == SENSOR_GROUP_TIMESTAMP:
             description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_TIMESTAMP][(measurement.unit, measurement.is_monotonic)] # only (Units.NONE, False)
+        elif group == SENSOR_GROUP_DELTATIME:
+            description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_DELTATIME][(measurement.unit, measurement.is_monotonic)] # only (Units.NONE, False)
         elif group == SENSOR_GROUP_ENUM:
             description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_ENUM][(measurement.unit, measurement.is_monotonic)]
             if description.options is None:

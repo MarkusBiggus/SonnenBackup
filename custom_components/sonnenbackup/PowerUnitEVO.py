@@ -14,6 +14,7 @@ from homeassistant.helpers.typing import StateType
 from .const import (
     SENSOR_GROUP_UNITS,
     SENSOR_GROUP_TIMESTAMP,
+    SENSOR_GROUP_DELTATIME,
     SENSOR_GROUP_ENUM,
     )
 from .units import Units, BatteryCapacity, TotalKWH #, DailyTotal, DailyTotalW, Total
@@ -92,14 +93,14 @@ class PowerUnitEVO(BatterieSensors):
                 "state_bms": (Units.NONE,),
                 "state_inverter": (Units.NONE,),
                 "seconds_since_full": (Units.NONE,), #seconds_since_full
-                "time_to_fully_charged": (Units.NONE, "interval_to_fully_charged", "_format_deltatime"), #seconds_until_fully_charged
-                "time_to_fully_discharged": (Units.NONE, "interval_to_fully_discharged", "_format_deltatime"), # seconds_until_fully_discharged
-                "time_to_reserve": (Units.NONE, "interval_to_reserve", "_format_deltatime"), # seconds_until_reserve
+                "*skip10*": (Units.NONE, "interval_to_fully_charged", "_format_deltatime"), #seconds_until_fully_charged
+                "*skip20*": (Units.NONE, "interval_to_fully_discharged", "_format_deltatime"), # seconds_until_fully_discharged
+                "*skip30*": (Units.NONE, "interval_to_reserve", "_format_deltatime"), # seconds_until_reserve
                 "discharging": (Units.W, "discharge_power"),
                 "charging": (Units.W, "charge_power"),
                 "battery_dod_limit": (Units.PERCENT, "depth_of_discharge_limit"),
                 "battery_module_dc_voltage": (Units.V, "module_dc_voltage"), # "mdi:current-ac"
-                "time_since_full": (Units.NONE,"interval_since_full", "_format_deltatime"),
+                "*skip40*": (Units.NONE,"interval_since_full", "_format_deltatime"),
                 "led_state_text": (Units.NONE,),
                 "battery_used_capacity_wh": (BatteryCapacity, "used_capacity"),
                 "status_grid_feedin": (Units.W, "grid_feedin"), #"mdi:transmission-tower-import"
@@ -116,6 +117,13 @@ class PowerUnitEVO(BatterieSensors):
                 "backup_reserve_at": (Units.NONE, "reserve_at"),
                 "last_time_full": (Units.NONE,),
                 "last_updated": (Units.NONE,),
+            },
+
+            SENSOR_GROUP_DELTATIME: {
+                "time_to_fully_charged": (Units.NONE, "interval_to_fully_charged", "_format_deltatime"), #seconds_until_fully_charged
+                "time_to_fully_discharged": (Units.NONE, "interval_to_fully_discharged", "_format_deltatime"), # seconds_until_fully_discharged
+                "time_to_reserve": (Units.NONE, "interval_to_reserve", "_format_deltatime"), # seconds_until_reserve
+                "time_since_full": (Units.NONE,"interval_since_full", "_format_deltatime"),
             },
 
             SENSOR_GROUP_ENUM: {
