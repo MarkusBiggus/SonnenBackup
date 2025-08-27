@@ -1,5 +1,8 @@
 """pytest tests/test_batterieresponse.py -s -v -x -k test_batterieoffgridresponse
 1. Async update called from an async method.
+
+    These tests ensure the underlying sonnen_api_v2 module is installed
+    and working correctly for sonnenbackup integration.
 """
 import datetime
 import os
@@ -16,6 +19,7 @@ from sonnen_api_v2 import Batterie, BatterieResponse, BatterieBackup
 
 from custom_components.sonnenbackup.utils import strfdelta
 from .battery_charging_asyncio import fixture_battery_charging
+from .battery_discharging_asyncio import fixture_battery_discharging
 #from .battery_discharging_reserve_asyncio import fixture_battery_discharging_reserve
 from .battery_discharging_offgrid_asyncio import fixture_battery_discharging_offgrid
 
@@ -45,8 +49,10 @@ if LOGGER_NAME is not None:
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("battery_charging")
 @freeze_time("20-11-2023 17:00:00")
-async def test_batterieresponse(battery_charging: Batterie) -> None:
-    """BatterieBackup Response charging using mock data."""
+async def test_batteriechargeresponse(battery_charging: Batterie) -> None:
+    """BatterieBackup Response charging using mock data.
+        Charging above backup reserve capacity.
+    """
 
     _batterie = BatterieBackup('fakeToken', 'fakeHost')
 
@@ -73,13 +79,24 @@ async def test_batterieresponse(battery_charging: Batterie) -> None:
     assert _batterie.get_sensor_value('mg_minimum_soc_reached') is False
     assert _batterie.get_sensor_value('dc_minimum_rsoc_reached') is False
 
-    assert _batterie.get_sensor_value('interval_to_fully_charged') == "0d 00:00:00"
+    assert _batterie.get_sensor_value('configuration_em_reenable_microgrid') is True
+    assert _batterie.get_sensor_value('configuration_blackstart_time1') == "08:00"
+    assert _batterie.get_sensor_value('configuration_blackstart_time2') == "09:05"
+    assert _batterie.get_sensor_value('configuration_blackstart_time3') == "10:10"
+
+#    assert _batterie.get_sensor_value('interval_to_fully_charged') == "0d 00:00:00"
+    assert _batterie.get_sensor_value('time_to_fully_charged') == datetime.timedelta(seconds=6412)
+    assert _batterie.get_sensor_value('time_to_reserve') is None
+    assert _batterie.get_sensor_value('capacity_until_reserve') == 12314.1
+    assert _batterie.get_sensor_value('capacity_to_reserve') is None
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("battery_discharging")
 @freeze_time("20-11-2023 17:00:00")
 async def test_batteriedischargeresponse(battery_discharging: Batterie) -> None:
-    """BatterieBackup Response discharging using mock data."""
+    """BatterieBackup Response discharging using mock data.
+        Discharging above backup reserve capacity.
+    """
 
     _batterie = BatterieBackup('fakeToken', 'fakeHost')
 
@@ -95,12 +112,12 @@ async def test_batteriedischargeresponse(battery_discharging: Batterie) -> None:
     )
 
     assert _batterie.get_sensor_value('installed_capacity') == 20000
-    assert _batterie.get_sensor_value('seconds_since_full') == 9574
-    since_full = datetime.timedelta(seconds=9574)
+    assert _batterie.get_sensor_value('seconds_since_full') == 574
+    since_full = datetime.timedelta(seconds=574)
 
 #    print(f'since full: {strfdelta(since_full)}')
     assert _batterie.get_sensor_value('time_since_full') == since_full
-    assert strfdelta(since_full) == '0d 02:39:34'
+    assert strfdelta(since_full) == '0d 00:09:34'
 
     assert _batterie.get_sensor_value('microgrid_enabled') is False
     assert _batterie.get_sensor_value('mg_minimum_soc_reached') is False
@@ -108,14 +125,19 @@ async def test_batteriedischargeresponse(battery_discharging: Batterie) -> None:
 
 #    assert _batterie.get_sensor_value('interval_to_fully_discharged') == "0d 00:00:00"
 #    assert _batterie.get_sensor_value('interval_to_reserve') == "0d 00:00:00"
-    assert _batterie.get_sensor_value('time_to_fully_discharged') == datetime.timedelta(seconds=6060)
-    assert _batterie.get_sensor_value('time_to_reserve') is None
+    assert _batterie.get_sensor_value('time_to_fully_discharged') == datetime.timedelta(seconds=37661)
+    assert _batterie.get_sensor_value('time_to_reserve') ==  datetime.timedelta(seconds=28362)
+    assert _batterie.get_sensor_value('capacity_until_reserve') == 12314.1
+    assert _batterie.get_sensor_value('capacity_to_reserve') is None
+
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("battery_discharging_offgrid")
 @freeze_time("20-11-2023 17:00:00")
 async def test_batterieoffgridresponse(battery_discharging_offgrid: Batterie) -> None:
-    """BatterieBackup Response OffGrid using mock data."""
+    """BatterieBackup Response OffGrid using mock data.
+        Discharging below backup reserve capacity.
+    """
 
     _batterie = BatterieBackup('fakeToken', 'fakeHost')
 
@@ -147,3 +169,5 @@ async def test_batterieoffgridresponse(battery_discharging_offgrid: Batterie) ->
 #    assert _batterie.get_sensor_value('interval_to_reserve') == "0d 00:00:00"
     assert _batterie.get_sensor_value('time_to_fully_discharged') == datetime.timedelta(seconds=6060)
     assert _batterie.get_sensor_value('time_to_reserve') is None
+    assert _batterie.get_sensor_value('capacity_until_reserve') is None
+    assert _batterie.get_sensor_value('capacity_to_reserve') == 1615.0

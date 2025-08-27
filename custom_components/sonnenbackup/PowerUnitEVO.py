@@ -57,15 +57,15 @@ class PowerUnitEVO(BatterieSensors):
 #                "unusable_capacity_wh": (BatteryCapacity, "unusable_capacity"),
                 "battery_unusable_capacity_wh": (BatteryCapacity, "unusable_capacity"),
                 "battery_average_current": (Units.A,), # "mdi:flash-triangle-outline"
-                "*skip1*": (BatteryCapacity, "battery_remaining_capacity"),
-                "*skip2*": (BatteryCapacity, "unusable_capacity"),
+                "configuration_blackstart_time1": (Units.NONE, "blackstart_time1"),
+                "configuration_blackstart_time2": (Units.NONE, "blackstart_time2"),
 #                "battery_remaining_capacity_wh": (BatteryCapacity, "remaining_capacity"),
                 "remaining_capacity_wh": (BatteryCapacity, "remaining_capacity"),
 #                "status_remaining_capacity_wh": (BatteryCapacity, "remaining_capacity"),
                 "capacity_until_reserve": (BatteryCapacity,),
                 "backup_buffer_capacity_wh": (BatteryCapacity, "reserve_capacity"),
 #                "status_usable_capacity_wh": (BatteryCapacity, "usable_remaining_capacity"),
-                "*skip4*": (BatteryCapacity, "usable_remaining_capacity"),
+                "configuration_blackstart_time3": (Units.NONE, "blackstart_time3"),
                 "kwh_consumed": (TotalKWH,), #Total(Units.KWH)),
                 "kwh_produced": (TotalKWH,), #Total(Units.KWH)),
                 "consumption_average": (Units.W,), #DailyTotal(Units.W)),
@@ -93,14 +93,14 @@ class PowerUnitEVO(BatterieSensors):
                 "state_bms": (Units.NONE,),
                 "state_inverter": (Units.NONE,),
                 "seconds_since_full": (Units.NONE,), #seconds_since_full
-                "*skip10*": (Units.NONE, "interval_to_fully_charged", "_format_deltatime"), #seconds_until_fully_charged
-                "*skip20*": (Units.NONE, "interval_to_fully_discharged", "_format_deltatime"), # seconds_until_fully_discharged
-                "*skip30*": (Units.NONE, "interval_to_reserve", "_format_deltatime"), # seconds_until_reserve
+                "time_to_fully_charged": (Units.NONE,), #seconds_until_fully_charged
+                "time_to_fully_discharged": (Units.NONE,), # seconds_until_fully_discharged
+                "time_to_reserve": (Units.NONE,), # seconds_until_reserve
                 "discharging": (Units.W, "discharge_power"),
                 "charging": (Units.W, "charge_power"),
                 "battery_dod_limit": (Units.PERCENT, "depth_of_discharge_limit"),
                 "battery_module_dc_voltage": (Units.V, "module_dc_voltage"), # "mdi:current-ac"
-                "*skip40*": (Units.NONE,"interval_since_full", "_format_deltatime"),
+                "time_since_full": (Units.NONE,),
                 "led_state_text": (Units.NONE,),
                 "battery_used_capacity_wh": (BatteryCapacity, "used_capacity"),
                 "status_grid_feedin": (Units.W, "grid_feedin"), #"mdi:transmission-tower-import"
@@ -119,20 +119,20 @@ class PowerUnitEVO(BatterieSensors):
                 "last_updated": (Units.NONE,),
             },
 
+            SENSOR_GROUP_ENUM: {
+                "status_battery_charging": (Units.NONE, "charging", True),
+                "status_battery_discharging": (Units.NONE, "discharging", True),
+                "configuration_em_reenable_microgrid": (Units.NONE, "blackstart_enabled", True),
+                "microgrid_enabled": (Units.NONE, None, True),
+                "mg_minimum_soc_reached": (Units.NONE, 'microgrid_minimum_soc', True),
+                "dc_minimum_rsoc_reached": (Units.NONE, 'dc_minimum_rsoc', True),
+            },
+
             SENSOR_GROUP_DELTATIME: {
                 "time_to_fully_charged": (Units.NONE, "interval_to_fully_charged", "_format_deltatime"), #seconds_until_fully_charged
                 "time_to_fully_discharged": (Units.NONE, "interval_to_fully_discharged", "_format_deltatime"), # seconds_until_fully_discharged
                 "time_to_reserve": (Units.NONE, "interval_to_reserve", "_format_deltatime"), # seconds_until_reserve
                 "time_since_full": (Units.NONE,"interval_since_full", "_format_deltatime"),
-            },
-
-            SENSOR_GROUP_ENUM: {
-                "status_battery_charging": (Units.NONE, "charging", True),
-                "status_battery_discharging": (Units.NONE, "discharging", True),
-                "*skip*": (Units.NONE, ), #"operating_mode", [1: "Manual",2: "Automatic",6: "Extension module",10: "Time of Use"]),
-                "microgrid_enabled": (Units.NONE, None, True),
-                "mg_minimum_soc_reached": (Units.NONE, 'microgrid_minimum_soc', True),
-                "dc_minimum_rsoc_reached": (Units.NONE, 'dc_minimum_rsoc', True),
             },
         }
 

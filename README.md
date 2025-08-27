@@ -14,24 +14,21 @@ Use Sonnen Batterie web portal or mobile app to set Backup Reserve percent.
 This Home Assistant component helps manage Sonnen batterie backup reserve, particularly whilst batterie is 'OffGrid'.
 
 The official Sonnen mobile app normally used to monitor the batterie relies on the cloud service the batterie reports to.  \
-When grid power is out, there is a possibility Internet may also be out either due to the same event or because power
-has been out long enough to deplete ISP equipment emergency power.
+When grid power is out, there is a possibility Internet may also be out either due to the same event or because power has been out long enough to deplete ISP equipment emergency power.
 
 Without Internet access, Home Assistant server requires only the local home network to continue functioning using the Sonnen batterie backup reserve charge.  \
-It is recommended to have an independant (small) UPS running off Sonnen batterie power for the LAN & Home Assistant server. There is a momentary power drop
-when Sonnen batterie switch to microGrid mode when grid power drops. A small UPS will prevent Home Assistant server from rebooting at the very moment
-it needs to alert you to the batterie going into microGrid mode.
+It is recommended to have an independant (small) UPS running off Sonnen batterie power for the LAN & Home Assistant server. There is a momentary power drop when Sonnen batterie switches to microGrid mode when grid power drops. A small UPS will prevent Home Assistant server from rebooting at the very moment it needs to alert you to the batterie going into microGrid mode.
 
 ## HACS
 
 Install SonnenBackup integration.
 
 Uses sonnen_api_v2 driver package which requires a readonly API Token created in the
-Sonnen management portal.
+Sonnen Batterie management portal.
 
 Configuration will require the IP address of the battery device and the readonly API token.  \
 If the Batterie portal uses a non-standard port, other than 80, that can be configured too.  \
-It does not support https (port 443) using a self-signed certificate.  \
+The API package does not support https (port 443) using a self-signed certificate.  \
 
 ## Usage
 
@@ -67,10 +64,13 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |configuration_de_software|string|firmware_version|
 |configuration_em_operatingmode|string|operating_mode|
 |led_state|string|led_state|
-|led_state_text|string|led_state_text|
 |state_bms|string|state_bms|
 |state_inverter|string|state_inverter|
 |system_status|string|system_status|
+|time_since_full|string|interval_since_full|
+|time_to_fully_charged|string|interval_to_fully_charged|
+|time_to_fully_discharged|string|interval_to_fully_discharged|
+|time_to_reserve|string|interval_to_reserve|
 |battery_cycle_count|integer|battery_cycle_count|
 |battery_average_current|A|battery_average_current|
 |backup_buffer_capacity_wh|Wh|reserve_capacity|
@@ -91,12 +91,10 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |charging|watts|charge_power|
 |consumption|watts|consumption_now|
 |consumption_average |watts|consumption_average|
-|consumption_total_w|watts|consumption_daily|
 |discharging|watts|discharge_power|
 |inverter_pac_total|watts|ongrid_pac|
 |inverter_pac_microgrid|watts|offgrid_pac|
 |production|watts|production_now|
-|production_total_w|watts|production_daily|
 |status_grid_export|watts|grid_export|
 |status_grid_import|watts|grid_import|
 |battery_min_cell_temp|celsius|min_battery_temp|
@@ -107,12 +105,19 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |backup_reserve_at|timestamp|reserve_at|
 |last_time_full|timestamp|last_time_full|
 |last_updated|timestamp|last_updated|
-|time_since_full|deltatime|interval_since_full|
+|time_since_full|deltatime|time_since_full|
+|time_to_fully_charged|deltatime|time_to_fully_charged|
+|time_to_fully_discharged|deltatime|time_to_fully_discharged|
+|time_to_reserve|deltatime|time_to_reserve|
 |dc_minimum_rsoc_reached|bool|dc_minimum_rsoc|
 |mg_minimum_soc_reached|bool|microgrid_minimum_soc|
 |microgrid_enabled|bool|microgrid_enabled|
-|status_battery_charging|bool|is_charging|
-|status_battery_discharging|bool|is_discharging|
+|status_battery_charging|bool|charging|
+|status_battery_discharging|bool|discharging|
+|configuration_em_reenable_microgrid|bool|blackstart_enabled|
+|configuration_blackstart_time1|bool|blackstart_time1|
+|configuration_blackstart_time2|bool|blackstart_time2|
+|configuration_blackstart_time3|bool|blackstart_time3|
 
 
 Some sensors have enumerated values:
@@ -125,14 +130,20 @@ operating_mode: {1: "Manual", 2: "Automatic", 6: "Extension module", 10: "Time o
 
 ### activity_state
 "standby" indicates the battery is neither charging nor discharging.
-The battery could be fully charged, fully discharged or at back reserve limit.
-Must be read in conjuction with "relative_state_of_charge" to determine the reason for "standby".
+The battery could be fully charged, fully discharged or at backup reserve limit.
+Must be read in conjuction with *relative_state_of_charge* to determine the reason for "standby".
 
 ### Timestamps
 Sensors fully charged, fully discharged & backup reserve are calculated on current consumption/production.
 When battery is in standby, these timestamp values are undefined, as will some when charging/discharging.
-Times are calculated relative to Sonnen batterie server time, which is "system_status_timestamp".
-A slight discrpency will be apparent if hass server time and batterie time are different.
+Times are calculated relative to Sonnen batterie server time, which is *system_status_timestamp*.
+A slight discrepency will be apparent if HASS server time and batterie time are different.
+
+### Deltatimes
+Sensors prefixed with 'Interval' are deltatimes presented as a string format "D HH:MM:SS".
+Home assistant doesn't handle deltatimes well, use these strings for logbook recording.
+Sensors prefixed with 'time_to' or 'time_since' are delatime objects.
+Sensors with 'seconds_' prefix are the values used to create the deltatime objects.
 
 ### led_state
 Sensor indicates the state of the status LED on the side of the battery.
@@ -151,11 +162,12 @@ e.g 'Pulsing White 100%'
 All values False indicates Off Grid operation, the string "Off Grid." is returned.
 
 ### State of Charge
-The batterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by
-sensor depth_of_discharge_limit (DoD). Depth of Discharge reserve is included in Relative State of Charge (RSoC) overall values, like full_charge_capacity.
-Specific usable values are based on Usable State of Charge (USoC), like usable_capacity, which do not include the DoD limit reported by sensor unusable_capacity.
+The batterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by sensor *depth_of_discharge_limit* (DoD). Depth of Discharge reserve is included in *relative_state_of_charge* (RSoC) overall values, like *full_charge_capacity*.
+Specific usable values are based on *usable_state_of_charge* (USoC), like *usable_capacity*, which do not include the DoD limit reported by sensor *unusable_capacity*.
 
-Importantly, the reserve_charge percent for backup buffer is based on USoC. eg when sensor activity_state is 'standby' USoC equals Backup Reserve Charge, a little less than RSoC.
+Importantly, the *reserve_charge* percent for backup buffer is based on USoC. eg. when sensor *activity_state* is 'standby' USoC equals Backup Reserve Charge, a little less than RSoC.
+
+Sensors *capacity_to_reserve* & *capacity_until_reserve* are both zero when battery is in standby at reserve capacity. Otherwise, only one has a value depending on USoC being above or below *reserve_charge*.
 
 ## Recording
 Some sensor values do not change, some only change when configuration changes, some are of little value when not current. These sensors will waste space if recorded.
@@ -163,20 +175,19 @@ Some sensor values do not change, some only change when configuration changes, s
 Suggested recording exclusions in configuration.yaml:
 ```
 # Recorder filter to exclude specified entities, change placeholder names
-# your actual sensor names. eg "sonnenbackup.backupbatterie_nnnnnn_sonnenbackup_full_charge_capacity"
+# your actual sensor names.
+# eg. "backupbatterie_nnnnnn_sonnenbackup_full_charge_capacity"
 #   where 'nnnnnn' is the battery serial number entered on the config form.
 recorder:
   exclude:
     entities:
       - sonnenbackup.full_charge_capacity
       - sonnenbackup.led_state
-      - sonnenbackup.led_state_text
       - sonnenbackup.backup_reserve_capacity
-      - sonnenbackup.status_frequency
       - sonnenbackup.backup_reserve_percent
+      - sonnenbackup.status_frequency
       - sonnenbackup.state_bms
       - sonnenbackup.state_inverter
-      - sonnenbackup.interval_since_full
       - sonnenbackup.seconds_since_full
       - sonnenbackup.system_status_timestamp
       - sonnenbackup.fully_charged_at
@@ -185,6 +196,14 @@ recorder:
       - sonnenbackup.last_time_full
       - sonnenbackup.last_updated
       - sonnenbackup.operating_mode
+      - sonnenbackup.time_to_fully_charged
+      - sonnenbackup.time_to_fully_discharged
+      - sonnenbackup.time_to_reserve
+      - sonnenbackup.time_since_full
+      - sonnenbackup.interval_to_fully_charged
+      - sonnenbackup.interval_to_fully_discharged
+      - sonnenbackup.interval_to_reserve
+      - sonnenbackup.interval_since_full
 ```
 
 ## Config Energy Dashboard
@@ -233,3 +252,24 @@ Whilst the installer account could be used, that is not a wise cybersecurity cho
 
 
 API token will return status 401 if used with V1 of the API. Use Weltmeyer/ha_sonnenbatterie package if user/password authentication is required.
+
+## Strategies for managing backup reserve with Sonnen EVO batterie
+
+Sonnen EVO Batterie has a black start feature that will attemp to restart the batterie after depletion. A small reserve is kept to enable solar production at set times in the morning. Check the configuration AC Microgrid is enabled with reenabling times also set to times solar production is usually available.
+
+A weather event that will have no sunshine for several days, such as a cyclone, will exhaust black start retries before solar is available to charge the battery, leaving the battery off until grid power is restored.
+
+The Batterie must be configured for Recharge Strategy "Green charging" to only charge from solar production.
+![Recharge Strategy "Green"](Sonnen-EVO-RechargeStrategy.jpg)
+
+###Strategy #1 ###
+
+Isolate the battery from load before it turns itself off when USoC is low, under 15% or so. When solar production is available, enable the battery circuit and allow it to "green charge" normally.
+
+###Strategy #2 ###
+
+Have a generator option installed to your household powerboard to run the house from generator in absence of grid power for and extended period. Like, days after a severe weather event.
+
+Let Batterie deplete and rely on Black Start feature. When Black Start feature hasn't worked after solar production can resume, use generator power to restart the battery.
+
+*Do NOT use generator power to recharge the batterie without assurance from manufacturer that you have a supported configuration for your batterie with your model generator.*
