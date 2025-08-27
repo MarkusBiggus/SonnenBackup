@@ -154,7 +154,8 @@ class BatterieSensors:
                         unit = Measurement(Units.NONE, is_monotonic = option)
                     else:
                         unit = Measurement(Units.NONE, False)
-#                elif sensor_group == SENSOR_GROUP_DELTATIME:
+                elif sensor_group == SENSOR_GROUP_DELTATIME:
+                        unit = Measurement(Units.NONE, False)
 
                 sensors[alias] = (idx, unit, sensor_name, sensor_group, option)
                 idx += 1

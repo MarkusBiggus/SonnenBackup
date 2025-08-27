@@ -132,7 +132,7 @@ class PowerUnitEVO(BatterieSensors):
                 "time_to_fully_charged": (Units.NONE, "interval_to_fully_charged", "_format_deltatime"), #seconds_until_fully_charged
                 "time_to_fully_discharged": (Units.NONE, "interval_to_fully_discharged", "_format_deltatime"), # seconds_until_fully_discharged
                 "time_to_reserve": (Units.NONE, "interval_to_reserve", "_format_deltatime"), # seconds_until_reserve
-                "time_since_full": (Units.NONE,"interval_since_full", "_format_deltatime"),
+                "time_since_full": (Units.NONE, "interval_since_full", "_format_deltatime"), # seconds_since_full
             },
         }
 
