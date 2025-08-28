@@ -47,7 +47,7 @@ async def async_setup_entry(
     config_entry: SonnenBackupConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Batterie sensors based on a config entry."""
+    """Set up Batterie sensors based on config entry."""
 
     LOGGER.info('Setup sensor entities')
 
@@ -150,7 +150,8 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
 #        serial_number = config_entry.runtime_data.serial_number
         self._batterybackup = config_entry.runtime_data.api
         self._unique_id = uid
-        self._name = f"{DOMAIN} {alias}"
+#        self._name = f"{DOMAIN} {alias}"
+        self._name = alias
         self._has_entity_name = True
         self._native_unit_of_measurement = description.native_unit_of_measurement
         self._suggested_display_precision = description.suggested_display_precision
@@ -174,7 +175,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         """Value of this sensor from mapped battery property."""
         # self.coordinator.data is last BatterieResponse from async_setup_entry._async_update
         self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) #self._batterybackup.get_sensor_value(self.key)
-    #    LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
+        LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Sensor: {self.key} Name: {self._name}')
         return self._attr_native_value
 
     @property

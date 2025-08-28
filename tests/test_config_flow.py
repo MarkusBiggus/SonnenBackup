@@ -86,6 +86,7 @@ async def test_form_works(hass: HomeAssistant) -> None:
 #    print(f'config_data: {config_data}')
     assert config_data['model'] == CONFIG_DATA['model']
 #    assert len(mock_setup_entry.mock_calls) == 1
+    print(f'sensor_data: {hass.states.get("sensor.sonnenbackup_321123_led_state")}')
 
 
 @patch.object(urllib3.HTTPConnectionPool, 'urlopen', __battery_auth200)

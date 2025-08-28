@@ -47,12 +47,12 @@ class BatterieSensors:
         # self._serial_number = serial_number
         self.batterieAPI = batterieAPI
         self.decoded_map = self._decode_map()
-        LOGGER.info(f'Decoded_Map:{self.decoded_map}')
+#        LOGGER.info(f'Decoded_Map:{self.decoded_map}')
 
     def map_response(self) -> Dict[str, Any]:
         """Called by sensor.async_setup_entry to prepare sensor definitions
             for a particular device model's set of sensors.
-            There are 3 sensor groups:
+            There are 4 sensor groups:
             UNITS: All sensors that have units of measurment
             TIMESTAMPS: All timestamps
             DELTATIME: All deltatime to be converted to string
@@ -82,7 +82,7 @@ class BatterieSensors:
             to hydrate sensors.
         """
 
-        LOGGER.info('BatterieSensors _decode_map')
+        LOGGER.info('BatterieSensors: _decode_map')
         sensors: Dict[str, SensorMap] = {}
         for sensor_group, sensor_map in self._response_decoder.items():
             for sensor_name, mapping in sensor_map.items():
@@ -119,7 +119,7 @@ class BatterieSensors:
         """
         Return sensor map to create BatterieSensorEntity in sensor.async_setup_entry.
         """
-        LOGGER.info('BatterieSensors mapped_sensors')
+        LOGGER.info('BatterieSensors: mapped_sensors')
 
         iidx = 0
         idx_groups = [0,100,200, 300] # max 100 per group
@@ -159,7 +159,7 @@ class BatterieSensors:
 
                 sensors[alias] = (idx, unit, sensor_name, sensor_group, option)
                 idx += 1
-        LOGGER.debug(f'SENSOR_Map:{sensors}')
+#        LOGGER.debug(f'BatterieSensors SENSOR_Map: {sensors}')
         return sensors
 
     # Post processors for UNITS measurements

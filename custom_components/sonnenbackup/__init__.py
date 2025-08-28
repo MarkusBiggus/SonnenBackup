@@ -51,10 +51,10 @@ async def async_setup(hass: HomeAssistant, config_entry: dict):
     return True
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:
-    """Set up SonnenBackup from a config entry."""
+    """Set up SonnenBackup from config entry."""
 
-    LOGGER.info("SonnenBackup setup by ConfigEntry")
-    _sensor_last_time_full: datetime = None
+    LOGGER.info("SonnenBackup Setup from ConfigEntry")
+#    _sensor_last_time_full: datetime = None
 
     try:
         _batterie = BatterieBackup(
@@ -87,6 +87,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
 #        _batterie_response = cache_repeating_values(_batterie_response)
         return _batterie_response
 
+    '''
     def cache_repeating_values(batterie_response: BatterieResponse
     ) -> BatterieResponse:
         """Repeating values cached until new non-repeated value."""
@@ -104,6 +105,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
             _sensor_last_time_full = None
 
         return batterie_response
+    '''
 
     # Could be a different response_decoder defined for each model
     _battery_sensors = PowerUnitEVO(_batterie)
@@ -182,7 +184,7 @@ async def options_update_listener(hass: HomeAssistant, config_entry: SonnenBacku
 async def async_unload_entry(hass: HomeAssistant, config_entry: SonnenBackupConfigEntry) -> bool:
     """Unload a config entry."""
 
-    LOGGER.info("SonnenBackup unload ConfigEntry")
+    LOGGER.info("SonnenBackup Unload ConfigEntry")
     if unload_ok := await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS):
         # Remove config entry from domain.
         if config_entry.entry_id in hass.data[DOMAIN]:
@@ -198,5 +200,6 @@ async def async_remove_config_entry_device(
 ) -> bool:
     """Remove a config entry from a device."""
 
+    LOGGER.info("SonnenBackup Remove ConfigEntry")
     """todo"""
     return True
