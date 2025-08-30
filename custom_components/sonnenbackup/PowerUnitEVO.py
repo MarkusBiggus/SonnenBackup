@@ -47,7 +47,7 @@ class PowerUnitEVO(BatterieSensors):
                 "led_state": (Units.NONE,),
                 "system_status": (Units.NONE,),
                 "battery_activity_state": (Units.NONE, "activity_state"),
-                "battery_cycle_count": (Units.NONE,),
+                "battery_cycle_count": (Units.NONE, "cycle_count"),
                 "*skip*": ("deleted sensor: index is skipped", "replace later with a new sensor"),
                 "installed_capacity": (BatteryCapacity,),
 #                "full_charge_capacity": (BatteryCapacity,),
@@ -56,7 +56,7 @@ class PowerUnitEVO(BatterieSensors):
                 "usable_remaining_capacity_wh": (BatteryCapacity, "usable_capacity"),
 #                "unusable_capacity_wh": (BatteryCapacity, "unusable_capacity"),
                 "battery_unusable_capacity_wh": (BatteryCapacity, "unusable_capacity"),
-                "battery_average_current": (Units.A,), # "mdi:flash-triangle-outline"
+                "battery_average_current": (Units.A, "average_current"), # "mdi:flash-triangle-outline"
                 "configuration_blackstart_time1": (Units.NONE, "blackstart_time1"),
                 "configuration_blackstart_time2": (Units.NONE, "blackstart_time2"),
 #                "battery_remaining_capacity_wh": (BatteryCapacity, "remaining_capacity"),
@@ -86,8 +86,8 @@ class PowerUnitEVO(BatterieSensors):
                 "production": (Units.W, "production_now"),
                 "status_grid_export": (Units.W, "grid_export"),
                 "status_grid_import": (Units.W, "grid_import"),
-                "inverter_pac_total": (Units.W, "ongrid_pac"),
-                "inverter_pac_microgrid": (Units.W, "offgrid_pac"),
+                "inverter_pac_total": (Units.W, "ongrid_power"),
+                "inverter_pac_microgrid": (Units.W, "offgrid_power"),
                 "battery_min_cell_temp": (Units.C, "min_battery_temp"),
                 "battery_max_cell_temp": (Units.C, "max_battery_temp"), # "mdi:thermometer-alert"
                 "state_bms": (Units.NONE,),

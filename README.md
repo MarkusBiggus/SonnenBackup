@@ -20,6 +20,8 @@ When grid power is off, it is likely Internet may also be out either due to the 
 Without Internet access, Home Assistant server requires only the local home network to continue functioning using the Sonnen batterie backup reserve charge.  \
 It is recommended to have an independent (small) UPS running off Sonnen batterie power for the LAN & Home Assistant server. There is a momentary power drop when Sonnen batterie switches to MicroGrid mode when grid power drops. A small UPS will prevent Home Assistant server from rebooting at the very moment it needs to alert you to batterie *system_status* changed to "OffGrid".
 
+The excellent Weltmeyer/ha_sonnenbatterie package uses API v1 with user/password authentication. If you can't use a user account with API v1, this API v2 package can also be used to configure HASS Energy dashboard.
+
 ## HACS
 
 Install SonnenBackup integration.
@@ -58,67 +60,67 @@ From Settings/Devices & Services, click Add Integration button, lower right.
 
 HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package property.
 
-| Package Property              | Unit  | HASS Sensor        | When Valid        |
-|------------------------------:|:-----:|:-------------------|:-----------------:|
-|battery_activity_state|string|activity_state|always|
-|configuration_de_software|string|firmware_version|always|
-|configuration_em_operatingmode|string|operating_mode|always|
-|led_state|string|led_state|always|
-|led_state_text|string|led_state_text|always|
-|state_bms|string|state_bms|always|
-|state_inverter|string|state_inverter|always|
-|system_status|string|system_status|always|
-|time_since_full|string|interval_since_full|always|
-|time_to_fully_charged|string|interval_to_fully_charged|charging is true|
-|time_to_fully_discharged|string|interval_to_fully_discharged|discharging is true|
-|time_to_reserve|string|interval_to_reserve|*see notes below*|
-|configuration_blackstart_time1|string|blackstart_time1|when configured|
-|configuration_blackstart_time2|string|blackstart_time2|when configured|
-|configuration_blackstart_time3|string|blackstart_time3|when configured|
-|battery_cycle_count|integer|battery_cycle_count|always|
-|battery_average_current|A|battery_average_current|always|
-|backup_buffer_capacity_wh|Wh|reserve_capacity|always|
-|battery_full_charge_capacity_wh|Wh|full_charge_capacity|always|
-|battery_unusable_capacity_wh|Wh|unusable_capacity|always|
-|capacity_to_reserve|Wh|capacity_to_reserve|usable_capacity > reserve_capacity|
-|capacity_until_reserve|Wh|capacity_until_reserve|always|
-|usable_remaining_capacity_wh|Wh|usable_capacity|always|
-|remaining_capacity_wh|Wh|remaining_capacity|always|
-|used_capacity|Wh|used_capacity|always|
-|kwh_consumed|kWh|kwh_consumed|always|
-|kwh_produced|kWh|kwh_produced|always|
-|status_frequency|hertz|frequency|always|
-|battery_dod_limit|percent|depth_of_discharge_limit|always|
-|battery_rsoc|percent|relative_charge|always|
-|battery_usoc|percent|usable_charge|always|
-|status_backup_buffer|percent|reserve_charge|always|
-|charging|watts|charge_power|charging is true|
-|consumption|watts|consumption_now|always|
-|consumption_average |watts|consumption_average|always|
-|discharging|watts|discharge_power|discharging is true|
-|inverter_pac_total|watts|ongrid_pac|system_status is 'OnGrid'|
-|inverter_pac_microgrid|watts|offgrid_pac|system_status is 'OffGrid'|
-|production|watts|production_now|always|
-|status_grid_export|watts|grid_export|always|
-|status_grid_import|watts|grid_import|always|
-|battery_min_cell_temp|celsius|min_battery_temp|always|
-|battery_max_cell_temp|celsius|max_battery_temp|always|
-|system_status_timestamp|timestamp|status_timestamp|always|
-|fully_charged_at|timestamp|fully_charged_at|charging is true|
-|fully_discharged_at|timestamp|fully_discharged_at|discharging is true|
-|backup_reserve_at|timestamp|reserve_at|*see notes below*|
-|last_time_full|timestamp|last_time_full|always|
-|last_updated|timestamp|last_updated|always|
-|time_since_full|deltatime|time_since_full|always|
-|time_to_fully_charged|deltatime|time_to_fully_charged|charging is true|
-|time_to_fully_discharged|deltatime|time_to_fully_discharged|discharging is true|
-|time_to_reserve|deltatime|time_to_reserve|*see notes below*e|
-|microgrid_enabled|bool|microgrid_enabled|system_status is 'OffGrid'|
-|dc_minimum_rsoc_reached|bool|dc_minimum_rsoc|microgrid_enabled is true|
-|mg_minimum_soc_reached|bool|microgrid_minimum_soc|microgrid_enabled is true|
-|status_battery_charging|bool|charging|always|
-|status_battery_discharging|bool|discharging|always|
-|configuration_em_reenable_microgrid|bool|blackstart_enabled|when configured|
+| HASS Sensor        | Package Property              | Type  | When Valid        |
+|:-------------------|------------------------------:|:-----:|:-----------------:|
+|activity_state|battery_activity_state|string|always|
+|blackstart_time1|configuration_blackstart_time1|string|when configured|
+|blackstart_time2|configuration_blackstart_time2|string|when configured|
+|blackstart_time3|configuration_blackstart_time3|string|when configured|
+|firmware_version|configuration_de_software|string|always|
+|interval_since_full|time_since_full|string|always|
+|interval_to_fully_charged|time_to_fully_charged|string|charging is true|
+|interval_to_fully_discharged|time_to_fully_discharged|string|discharging is true|
+|interval_to_reserve|time_to_reserve|string|*see notes below*|
+|led_state|led_state|string|always|
+|led_state_text|led_state_text|string|always|
+|operating_mode|configuration_em_operatingmode|string|always|
+|state_bms|state_bms|string|always|
+|state_inverter|state_inverter|string|always|
+|system_status|system_status|string|always|
+|cycle_count|battery_cycle_count|integer|always|
+|average_current|battery_average_current|Amps|always|
+|unusable_capacity|battery_unusable_capacity_wh|Wh|always|
+|capacity_to_reserve|capacity_to_reserve|Wh|usable_capacity => reserve_capacity|
+|capacity_until_reserve|capacity_until_reserve|Wh|usable_capacity <= reserve_capacity|
+|full_charge_capacity|battery_full_charge_capacity_wh|Wh|always|
+|remaining_capacity|remaining_capacity_wh|Wh|always|
+|reserve_capacity|backup_buffer_capacity_wh|Wh|always|
+|usable_capacity|usable_remaining_capacity_wh|Wh|always|
+|used_capacity|used_capacity|Wh|always|
+|frequency|status_frequency|hertz|always|
+|kwh_consumed|kwh_consumed|kWh|always|
+|kwh_produced|kwh_produced|kWh|always|
+|depth_of_discharge_limit|battery_dod_limit|percent|always|
+|relative_charge|battery_rsoc|percent|always|
+|usable_charge|battery_usoc|percent|always|
+|reserve_charge|status_backup_buffer|percent|always|
+|charge_power|charging|watts|charging is true|
+|consumption_average|consumption_average |watts|always|
+|consumption_now|consumption|watts|always|
+|discharge_power|discharging|watts|discharging is true|
+|grid_export|status_grid_export|watts|always|
+|grid_import|status_grid_import|watts|always|
+|offgrid_power|inverter_pac_microgrid|watts|system_status is 'OffGrid'|
+|ongrid_power|inverter_pac_total|watts|system_status is 'OnGrid'|
+|production_now|production|watts|always|
+|max_battery_temp|battery_max_cell_temp|celsius|always|
+|min_battery_temp|battery_min_cell_temp|celsius|always|
+|fully_charged_at|fully_charged_at|timestamp|charging is true|
+|fully_discharged_at|fully_discharged_at|timestamp|discharging is true|
+|last_time_full|last_time_full|timestamp|always|
+|last_updated|last_updated|timestamp|always|
+|reserve_at|backup_reserve_at|timestamp|*see notes below*|
+|status_timestamp|system_status_timestamp|timestamp|always|
+|time_since_full|time_since_full|deltatime|always|
+|time_to_fully_charged|time_to_fully_charged|deltatime|charging is true|
+|time_to_fully_discharged|time_to_fully_discharged|deltatime|discharging is true|
+|time_to_reserve|time_to_reserve|deltatime|*see notes below*e|
+|blackstart_enabled|configuration_em_reenable_microgrid|bool|when configured|
+|microgrid_enabled|microgrid_enabled|bool|system_status is 'OffGrid'|
+|charging|status_battery_charging|bool|always|
+|discharging|status_battery_discharging|bool|always|
+|dc_minimum_rsoc|dc_minimum_rsoc_reached|bool|microgrid_enabled is true|
+|microgrid_minimum_soc|mg_minimum_soc_reached|bool|microgrid_enabled is true|
 
 
 Some sensors have enumerated values:
@@ -162,18 +164,19 @@ Only one element may be True, that element, with brightness, is returned as a st
 e.g 'Pulsing White 100%'
 ```
 "Eclipse Led":{
-    "Blinking Red":true,   # undocumented - call installer
+    "Blinking Red":true,   # Error - call installer!
     "Brightness":100,
-    "Pulsing Green":true,  # Off Grid, in MicroGrid (backup) mode
-    "Pulsing Orange":true, # no internet connection
-    "Pulsing White":true,  # normal operation
-    "Solid Red":true       # serious problem - call installer
+    "Pulsing Green":true,  # Off Grid.
+    "Pulsing Orange":true, # No Internet connection!
+    "Pulsing White":true,  # Normal Operation.
+    "Solid Red":true       # Critical Error - call installer!
 }
 ```
 All values False indicates Off Grid operation, the string "Off Grid." is returned.
 
 ### led_state_text
-The meaning of the current LED state as defined in the batterie user manual.  \
+The meaning of the current LED state as defined in the user manual.  \
+Comments in example are text string returned.  \
 eg. "Normal Operation." is returned for LED state 'Pulsing White 100%'
 
 ### State of Charge
@@ -196,40 +199,40 @@ Suggested recording exclusions in configuration.yaml:
 recorder:
   exclude:
     entities:
-      - sensor.sonnenbackup_nnnnnn_full_charge_capacity
-      - sensor.sonnenbackup_nnnnnn_unusable_capacity
-      - sensor.sonnenbackup_nnnnnn_led_state
-      - sensor.sonnenbackup_nnnnnn_reserve_charge
-      - sensor.sonnenbackup_nnnnnn_backup_reserve_percent
-      - sensor.sonnenbackup_nnnnnn_depth_of_discharge_limit
-      - sensor.sonnenbackup_nnnnnn_status_frequency
-      - sensor.sonnenbackup_nnnnnn_state_bms
-      - sensor.sonnenbackup_nnnnnn_state_inverter
-      - sensor.sonnenbackup_nnnnnn_seconds_since_full
-      - sensor.sonnenbackup_nnnnnn_system_status_timestamp
-      - sensor.sonnenbackup_nnnnnn_fully_charged_at
-      - sensor.sonnenbackup_nnnnnn_fully_discharged_at
       - sensor.sonnenbackup_nnnnnn_backup_reserve_at
-      - sensor.sonnenbackup_nnnnnn_last_time_full
-      - sensor.sonnenbackup_nnnnnn_last_updated
-      - sensor.sonnenbackup_nnnnnn_operating_mode
-      - sensor.sonnenbackup_nnnnnn_time_to_fully_charged
-      - sensor.sonnenbackup_nnnnnn_time_to_fully_discharged
-      - sensor.sonnenbackup_nnnnnn_time_to_reserve
-      - sensor.sonnenbackup_nnnnnn_time_since_full
-      - sensor.sonnenbackup_nnnnnn_interval_to_fully_charged
-      - sensor.sonnenbackup_nnnnnn_interval_to_fully_discharged
-      - sensor.sonnenbackup_nnnnnn_interval_to_reserve
-      - sensor.sonnenbackup_nnnnnn_interval_since_full
+      - sensor.sonnenbackup_nnnnnn_backup_reserve_percent
       - sensor.sonnenbackup_nnnnnn_blackstart_enabled
       - sensor.sonnenbackup_nnnnnn_blackstart_time1
       - sensor.sonnenbackup_nnnnnn_blackstart_time2
       - sensor.sonnenbackup_nnnnnn_blackstart_time3
+      - sensor.sonnenbackup_nnnnnn_depth_of_discharge_limit
+      - sensor.sonnenbackup_nnnnnn_full_charge_capacity
+      - sensor.sonnenbackup_nnnnnn_fully_charged_at
+      - sensor.sonnenbackup_nnnnnn_fully_discharged_at
+      - sensor.sonnenbackup_nnnnnn_interval_to_fully_charged
+      - sensor.sonnenbackup_nnnnnn_interval_to_fully_discharged
+      - sensor.sonnenbackup_nnnnnn_interval_to_reserve
+      - sensor.sonnenbackup_nnnnnn_interval_since_full
+      - sensor.sonnenbackup_nnnnnn_led_state
+      - sensor.sonnenbackup_nnnnnn_last_time_full
+      - sensor.sonnenbackup_nnnnnn_last_updated
+      - sensor.sonnenbackup_nnnnnn_operating_mode
+      - sensor.sonnenbackup_nnnnnn_reserve_charge
+      - sensor.sonnenbackup_nnnnnn_seconds_since_full
+      - sensor.sonnenbackup_nnnnnn_state_bms
+      - sensor.sonnenbackup_nnnnnn_state_inverter
+      - sensor.sonnenbackup_nnnnnn_status_frequency
+      - sensor.sonnenbackup_nnnnnn_system_status_timestamp
+      - sensor.sonnenbackup_nnnnnn_time_to_fully_charged
+      - sensor.sonnenbackup_nnnnnn_time_to_fully_discharged
+      - sensor.sonnenbackup_nnnnnn_time_to_reserve
+      - sensor.sonnenbackup_nnnnnn_time_since_full
+      - sensor.sonnenbackup_nnnnnn_unusable_capacity
 ```
 
-## Config Energy Dashboard
+# Config Energy Dashboard
 
-### Create Helpers for Energy dashboard
+## Create Helpers for Energy dashboard
 Go to Settings then Devices & Services then select Helpers from the top menu.
 Create each of the 6 integrals by clicking “+ CREATE HELPER”, lower right.
 
@@ -250,7 +253,7 @@ XXXXX will be the Batterie serial number entered on the configuration form.  \
 Metric prefix is blank, all package sensor integer values are single units.  \
 Use default time unit Hours for all integrals.
 
-### Use Helpers to Configure Energy Dashboard
+## Use Helpers to Configure Energy Dashboard
 
 |  Energy Dashboard Metric      |  Helper Sensor     |
 |------------------------------:|:-------------------|
@@ -263,34 +266,37 @@ Use default time unit Hours for all integrals.
 Solar production may also be provided by a sensor from your solar inverter component.
 Given Sonnen batterie is AC coupled, the Sonnen production value will be slightly less and so a more realistic value to use.
 
-## Confirmed Supported Batteries
+# Managing backup reserve with Sonnen EVO batterie
 
-These batteries have been tested and confirmed to be working. If your batterie is not listed below, this library may still work provided your battery admin portal can generate an API read token and responds to Sonnen API V2 endpoints.
-Newer Sonnen Batteries are not provisoned with user accounts for API access.
+Sonnen EVO Batterie has a black start feature that will attemp to restart the batterie after depletion. A small reserve is kept to enable solar production at set times in the morning. Check configuration AC Microgrid is enabled with reenabling times also set to times solar production is usually available.
+
+A weather event that will cause no sunshine for several days, such as a cyclone/hurricane, will exhaust black start retries before solar is available to charge the battery leaving the battery off until grid power is restored.
+
+Have a generator option installed to your household powerboard to run the house from generator in absence of grid power for an extended period. Like, days after a severe weather event. For both strategies below, rely on generator for household power whilst battery is unavailable.
+
+The Batterie must be configured for Recharge Strategy "Green charging" to only charge from solar production.
+![Recharge Strategy "Green"](Sonnen-EVO-RechargeStrategy.jpg)
+
+## Strategy #1
+### Anticipated long duration power outage
+Isolate the battery from load before it turns itself off when USoC is low, under 15% or so. When solar production is available, enable the battery circuit and allow it to "green charge" normally.
+
+## Strategy #2
+### Unanticipated long duration power outage
+
+Let Batterie deplete and rely on Black Start feature.  \
+Should Black Start feature not work after solar production can resume, use generator power to restart the battery. "Green charging" recharge strategy will not charge the battery from generator power.
+
+*Do NOT use generator power to recharge the batterie without assurance from manufacturer that you have a supported configuration for your Sonnen Batterie with your model generator.*
+
+
+# Confirmed Supported Batteries
+
+These batteries have been tested and confirmed to be working. If your batterie is not listed below, this library may still work provided your battery admin portal can generate an API read token and responds to Sonnen API v2 endpoints.
+Newer Sonnen Batteries are not provisoned with user accounts for API v1 access.
 Whilst the installer account could be used, that is not a wise cybersecurity choice to use those credentials for this purpose.
 
 * Power unit Evo IP56
 
 
-API token will return status 401 if used with V1 of the API. Use Weltmeyer/ha_sonnenbatterie package if user/password authentication is required.
-
-## Strategies for managing backup reserve with Sonnen EVO batterie
-
-Sonnen EVO Batterie has a black start feature that will attemp to restart the batterie after depletion. A small reserve is kept to enable solar production at set times in the morning. Check the configuration AC Microgrid is enabled with reenabling times also set to times solar production is usually available.
-
-A weather event that will have no sunshine for several days, such as a cyclone, will exhaust black start retries before solar is available to charge the battery, leaving the battery off until grid power is restored.
-
-The Batterie must be configured for Recharge Strategy "Green charging" to only charge from solar production.
-![Recharge Strategy "Green"](Sonnen-EVO-RechargeStrategy.jpg)
-
-###Strategy #1 ###
-
-Isolate the battery from load before it turns itself off when USoC is low, under 15% or so. When solar production is available, enable the battery circuit and allow it to "green charge" normally.
-
-###Strategy #2 ###
-
-Have a generator option installed to your household powerboard to run the house from generator in absence of grid power for and extended period. Like, days after a severe weather event.
-
-Let Batterie deplete and rely on Black Start feature. When Black Start feature hasn't worked after solar production can resume, use generator power to restart the battery.
-
-*Do NOT use generator power to recharge the batterie without assurance from manufacturer that you have a supported configuration for your batterie with your model generator.*
+API token will return status 401 if used with API v1. Use Weltmeyer/ha_sonnenbatterie package if user/password authentication is required.
