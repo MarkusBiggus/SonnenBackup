@@ -58,6 +58,8 @@ def auto_enable_custom_integrations(enable_custom_integrations):
 @pytest.fixture(autouse=True)
 def mock_batterie_async(mocker):
     """Batterie charging using mock data for BackupBatterie.refresh_response()"""
+### TODO ###
+### replace async_fetch_configurations patch with aiohttp mock IO - similar to sync tests using mock Request
     mocker.patch.object(Batterie, "async_fetch_configurations", AsyncMock(return_value=__mock_configurations()))
     mocker.patch.object(Batterie, "async_fetch_status", AsyncMock(return_value=__mock_status_charging()))
     mocker.patch.object(Batterie, "async_fetch_latest_details", AsyncMock(return_value=__mock_latest_charging()))

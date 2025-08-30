@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 #from abc import abstractmethod
-from typing import Any, Callable, Dict, Generator, Tuple, Unpack #, Optional, Union
+from typing import Any, Callable, Dict, Generator, Tuple, Unpack, Optional
 from datetime import timedelta, datetime
 
 import voluptuous as vol
@@ -41,7 +41,7 @@ class BatterieSensors:
             by extensions to this class.
         """
 
-        LOGGER.info('Init BatterieSensors')
+#        LOGGER.info('Init BatterieSensors')
         self._response_decoder = type(self).response_decoder()
         # self.manufacturer = MANUFACTURER
         # self._serial_number = serial_number
@@ -64,7 +64,7 @@ class BatterieSensors:
             (unit_or_measurement, alias, *processors) = mapping
 
             result[alias] = self.batterieAPI.get_sensor_value(sensor_name)
-            LOGGER.info(f'Sensor: {alias}  value:{result[alias]}')
+#            LOGGER.info(f'Sensor: {alias}  value:{result[alias]}')
             if sensor_group == SENSOR_GROUP_DELTATIME: # SENSOR_GROUP_UNITS:
 #                LOGGER.info(f'UNIT name: {sensor_name}  mapping:{mapping}')
                 for alias, processor in self._postprocess_gen(mapping):
@@ -82,7 +82,7 @@ class BatterieSensors:
             to hydrate sensors.
         """
 
-        LOGGER.info('BatterieSensors: _decode_map')
+#        LOGGER.info('BatterieSensors: _decode_map')
         sensors: Dict[str, SensorMap] = {}
         for sensor_group, sensor_map in self._response_decoder.items():
             for sensor_name, mapping in sensor_map.items():
@@ -119,7 +119,7 @@ class BatterieSensors:
         """
         Return sensor map to create BatterieSensorEntity in sensor.async_setup_entry.
         """
-        LOGGER.info('BatterieSensors: mapped_sensors')
+#        LOGGER.info('BatterieSensors: mapped_sensors')
 
         iidx = 0
         idx_groups = [0,100,200, 300] # max 100 per group
@@ -175,13 +175,13 @@ class BatterieSensors:
         }.get(operating_mode, f"unknown: {operating_mode}")
 
     @classmethod
-    def _format_datetime(cls, TimeStamp: datetime = None) -> str:
+    def _format_datetime(cls, TimeStamp: datetime = None) -> Optional[str]:
         """Return datime formatted: d-m-Y H:M:S."""
 
-        return TimeStamp.strftime("%d-%b-%Y %H:%M:%S") if TimeStamp is not None else 'na'
+        return TimeStamp.strftime("%d-%b-%Y %H:%M:%S") if TimeStamp is not None else None
 
     @classmethod
-    def _format_deltatime(cls, DeltaTimeStamp: int | timedelta | None) -> str:
+    def _format_deltatime(cls, DeltaTimeStamp: int | timedelta | None) -> Optional[str]:
         """Return delta time formatted: D H:M:S."""
 
-        return strfdelta(DeltaTimeStamp) if DeltaTimeStamp is not None else 'na'
+        return strfdelta(DeltaTimeStamp) if DeltaTimeStamp is not None else None

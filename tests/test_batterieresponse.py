@@ -163,7 +163,7 @@ async def test_batterieoffgridresponse(battery_discharging_offgrid: Batterie) ->
     assert _batterie.get_sensor_value('microgrid_enabled') is True
     assert _batterie.get_sensor_value('mg_minimum_soc_reached') is False
     assert _batterie.get_sensor_value('dc_minimum_rsoc_reached') is False
-    assert _batterie.get_sensor_value('last_time_full') == datetime.datetime(2023, 11, 20, 14, 21, 16, tzinfo=tzlocal.get_localzone())
+    assert _batterie.get_sensor_value('last_time_full') == FakeDatetime(2023, 11, 20, 14, 21, 25, tzinfo=tzlocal.get_localzone())
 
 #    assert _batterie.get_sensor_value('interval_to_fully_discharged') == "0d 00:00:00"
 #    assert _batterie.get_sensor_value('interval_to_reserve') == "0d 00:00:00"

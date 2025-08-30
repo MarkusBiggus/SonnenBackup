@@ -1,5 +1,6 @@
 """Tests for the sensor module.
     Uses config_flow test to instantiate HASS and test sensor values.
+    Relies on conftest.py to setup default mock data for tests.
 
     pytest tests/test_sensors.py -s -v -x  -k test_form_works
 """
@@ -9,6 +10,8 @@ from unittest.mock import patch
 import logging
 
 import urllib3
+from freezegun.api import FakeDatetime
+import tzlocal
 
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntryState, ConfigEntry
