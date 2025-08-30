@@ -73,10 +73,10 @@ class PowerUnitEVO(BatterieSensors):
                 "status_backup_buffer": (Units.PERCENT, "reserve_charge"),
 
 #            """Latest data values seem to be adjusted to be consistent with related sensors"""
-                # "battery_rsoc": (Units.PERCENT, "relative_state_of_charge"),
-                # "battery_usoc": (Units.PERCENT, "usable_state_of_charge"),
-                "r_soc": (Units.PERCENT, "relative_state_of_charge"),
-                "u_soc": (Units.PERCENT, "usable_state_of_charge"),
+                # "battery_rsoc": (Units.PERCENT, "relative_charge"),
+                # "battery_usoc": (Units.PERCENT, "usable_charge"),
+                "r_soc": (Units.PERCENT, "relative_charge"),
+                "u_soc": (Units.PERCENT, "usable_charge"),
 
 #            """These consumption/production daily numbers seem to be meaningless"""
                 "*skip9*": (Units.W, "consumption_daily"),# "consumption_total_w"

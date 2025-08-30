@@ -172,10 +172,10 @@
       "offgrid_pac": {
         "name": "OffGrid PAC"
       },
-      "relative_state_of_charge": {
+      "relative_charge": {
         "name": "Relative State of Charge"
       },
-      "usable_state_of_charge": {
+      "usable_charge": {
         "name": "Usable State of Charge"
       }
     }

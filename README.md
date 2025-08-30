@@ -7,24 +7,24 @@ Use Sonnen Batterie web portal or mobile app to set Backup Reserve percent.
 * System state On Grid, Off Grid or Critical Error.
 * Real time power, current and voltage.
 * Battery levels, Charge/Discharge rate, time to fully charged.
-* Backup reserve, time to reserve, time to fully discharged.
+* Backup reserve, time to reserve, time to fully discharge.
+* MicroGrid status when Offgrid & Blackstart settings.
 * Temperature and batterie health.
 
 ## Why use this package
 This Home Assistant component helps manage Sonnen batterie backup reserve, particularly whilst batterie is 'OffGrid'.
 
 The official Sonnen mobile app normally used to monitor the batterie relies on the cloud service the batterie reports to.  \
-When grid power is out, there is a possibility Internet may also be out either due to the same event or because power has been out long enough to deplete ISP equipment emergency power.
+When grid power is off, it is likely Internet may also be out either due to the same event or eventually power is out long enough to deplete ISP equipment emergency power.
 
 Without Internet access, Home Assistant server requires only the local home network to continue functioning using the Sonnen batterie backup reserve charge.  \
-It is recommended to have an independant (small) UPS running off Sonnen batterie power for the LAN & Home Assistant server. There is a momentary power drop when Sonnen batterie switches to microGrid mode when grid power drops. A small UPS will prevent Home Assistant server from rebooting at the very moment it needs to alert you to the batterie going into microGrid mode.
+It is recommended to have an independant (small) UPS running off Sonnen batterie power for the LAN & Home Assistant server. There is a momentary power drop when Sonnen batterie switches to MicroGrid mode when grid power drops. A small UPS will prevent Home Assistant server from rebooting at the very moment it needs to alert you to the batterie going into MicroGrid mode.
 
 ## HACS
 
 Install SonnenBackup integration.
 
-Uses sonnen_api_v2 driver package which requires a readonly API Token created in the
-Sonnen Batterie management portal.
+Uses sonnen_api_v2 driver package which requires a readonly API Token created in the Sonnen Batterie management portal.
 
 Configuration will require the IP address of the battery device and the readonly API token.  \
 If the Batterie portal uses a non-standard port, other than 80, that can be configured too.  \
@@ -58,67 +58,67 @@ From Settings/Devices & Services, click Add Integration button, lower right.
 
 HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package property.
 
-| Package Property              | Unit  | HASS Sensor        |
-|------------------------------:|:-----:|:-------------------|
-|battery_activity_state|string|activity_state|
-|configuration_de_software|string|firmware_version|
-|configuration_em_operatingmode|string|operating_mode|
-|led_state|string|led_state|
-|led_state_text|string|led_state_text|
-|state_bms|string|state_bms|
-|state_inverter|string|state_inverter|
-|system_status|string|system_status|
-|time_since_full|string|interval_since_full|
-|time_to_fully_charged|string|interval_to_fully_charged|
-|time_to_fully_discharged|string|interval_to_fully_discharged|
-|time_to_reserve|string|interval_to_reserve|
-|battery_cycle_count|integer|battery_cycle_count|
-|battery_average_current|A|battery_average_current|
-|backup_buffer_capacity_wh|Wh|reserve_capacity|
-|battery_full_charge_capacity_wh|Wh|full_charge_capacity|
-|battery_unusable_capacity_wh|Wh|unusable_capacity|
-|capacity_to_reserve|Wh|capacity_to_reserve|
-|capacity_until_reserve|Wh|capacity_until_reserve|
-|usable_remaining_capacity_wh|Wh|usable_capacity|
-|remaining_capacity_wh|Wh|remaining_capacity|
-|used_capacity|Wh|used_capacity|
-|kwh_consumed|kWh|kwh_consumed|
-|kwh_produced|kWh|kwh_produced|
-|status_frequency|hertz|frequency|
-|battery_dod_limit|percent|depth_of_discharge_limit|
-|battery_rsoc|percent|relative_state_of_charge|
-|battery_usoc|percent|usable_state_of_charge|
-|status_backup_buffer|percent|reserve_charge|
-|charging|watts|charge_power|
-|consumption|watts|consumption_now|
-|consumption_average |watts|consumption_average|
-|discharging|watts|discharge_power|
-|inverter_pac_total|watts|ongrid_pac|
-|inverter_pac_microgrid|watts|offgrid_pac|
-|production|watts|production_now|
-|status_grid_export|watts|grid_export|
-|status_grid_import|watts|grid_import|
-|battery_min_cell_temp|celsius|min_battery_temp|
-|battery_max_cell_temp|celsius|max_battery_temp|
-|system_status_timestamp|timestamp|status_timestamp|
-|fully_charged_at|timestamp|fully_charged_at|
-|fully_discharged_at|timestamp|fully_discharged_at|
-|backup_reserve_at|timestamp|reserve_at|
-|last_time_full|timestamp|last_time_full|
-|last_updated|timestamp|last_updated|
-|time_since_full|deltatime|time_since_full|
-|time_to_fully_charged|deltatime|time_to_fully_charged|
-|time_to_fully_discharged|deltatime|time_to_fully_discharged|
-|time_to_reserve|deltatime|time_to_reserve|
-|dc_minimum_rsoc_reached|bool|dc_minimum_rsoc|
-|mg_minimum_soc_reached|bool|microgrid_minimum_soc|
-|microgrid_enabled|bool|microgrid_enabled|
-|status_battery_charging|bool|charging|
-|status_battery_discharging|bool|discharging|
-|configuration_em_reenable_microgrid|bool|blackstart_enabled|
-|configuration_blackstart_time1|bool|blackstart_time1|
-|configuration_blackstart_time2|bool|blackstart_time2|
-|configuration_blackstart_time3|bool|blackstart_time3|
+| Package Property              | Unit  | HASS Sensor        | When Valid        |
+|------------------------------:|:-----:|:-------------------|:-----------------:|
+|battery_activity_state|string|activity_state|always|
+|configuration_de_software|string|firmware_version|always|
+|configuration_em_operatingmode|string|operating_mode|always|
+|led_state|string|led_state|always|
+|led_state_text|string|led_state_text|always|
+|state_bms|string|state_bms|always|
+|state_inverter|string|state_inverter|always|
+|system_status|string|system_status|always|
+|time_since_full|string|interval_since_full|always|
+|time_to_fully_charged|string|interval_to_fully_charged|charging is true|
+|time_to_fully_discharged|string|interval_to_fully_discharged|discharging is true|
+|time_to_reserve|string|interval_to_reserve|*see notes below*|
+|configuration_blackstart_time1|string|blackstart_time1|when configured|
+|configuration_blackstart_time2|string|blackstart_time2|when configured|
+|configuration_blackstart_time3|string|blackstart_time3|when configured|
+|battery_cycle_count|integer|battery_cycle_count|always|
+|battery_average_current|A|battery_average_current|always|
+|backup_buffer_capacity_wh|Wh|reserve_capacity|always|
+|battery_full_charge_capacity_wh|Wh|full_charge_capacity|always|
+|battery_unusable_capacity_wh|Wh|unusable_capacity|always|
+|capacity_to_reserve|Wh|capacity_to_reserve|always|
+|capacity_until_reserve|Wh|capacity_until_reserve|always|
+|usable_remaining_capacity_wh|Wh|usable_capacity|always|
+|remaining_capacity_wh|Wh|remaining_capacity|always|
+|used_capacity|Wh|used_capacity|always|
+|kwh_consumed|kWh|kwh_consumed|always|
+|kwh_produced|kWh|kwh_produced|always|
+|status_frequency|hertz|frequency|always|
+|battery_dod_limit|percent|depth_of_discharge_limit|always|
+|battery_rsoc|percent|relative_charge|always|
+|battery_usoc|percent|usable_charge|always|
+|status_backup_buffer|percent|reserve_charge|always|
+|charging|watts|charge_power|charging is true|
+|consumption|watts|consumption_now|always|
+|consumption_average |watts|consumption_average|always|
+|discharging|watts|discharge_power|discharging is true|
+|inverter_pac_total|watts|ongrid_pac|system_status is 'OnGrid'|
+|inverter_pac_microgrid|watts|offgrid_pac|system_status is 'OffGrid'|
+|production|watts|production_now|always|
+|status_grid_export|watts|grid_export|always|
+|status_grid_import|watts|grid_import|always|
+|battery_min_cell_temp|celsius|min_battery_temp|always|
+|battery_max_cell_temp|celsius|max_battery_temp|always|
+|system_status_timestamp|timestamp|status_timestamp|always|
+|fully_charged_at|timestamp|fully_charged_at|charging is true|
+|fully_discharged_at|timestamp|fully_discharged_at|discharging is true|
+|backup_reserve_at|timestamp|reserve_at|*see notes below*|
+|last_time_full|timestamp|last_time_full|always|
+|last_updated|timestamp|last_updated|always|
+|time_since_full|deltatime|time_since_full|always|
+|time_to_fully_charged|deltatime|time_to_fully_charged|charging is true|
+|time_to_fully_discharged|deltatime|time_to_fully_discharged|discharging is true|
+|time_to_reserve|deltatime|time_to_reserve|*see notes below*e|
+|microgrid_enabled|bool|microgrid_enabled|system_status is 'OffGrid'|
+|dc_minimum_rsoc_reached|bool|dc_minimum_rsoc|microgrid_enabled is true|
+|mg_minimum_soc_reached|bool|microgrid_minimum_soc|microgrid_enabled is true|
+|status_battery_charging|bool|charging|always|
+|status_battery_discharging|bool|discharging|always|
+|configuration_em_reenable_microgrid|bool|blackstart_enabled|when configured|
 
 
 Some sensors have enumerated values:
@@ -129,10 +129,18 @@ activity_state: ["standby", "charging", "discharging", "discharging reserve", "c
 operating_mode: {1: "Manual", 2: "Automatic", 6: "Extension module", 10: "Time of Use"}
 ```
 
+### Backup Reserve sensors
+Sensors that estimate when Reserve capacity will be reached are not always defined.  \
+Calculations to Reserve capacity are only valid when:  \
+     *usable_charge* is above *reserve_charge* whilst *discharging* is true  \
+     *usable_charge* is below *reserve_charge* whilst *charging* is true   \
+in both cases *time_to_reserve* is estimated using current *charge_power* or *discharge_power* values.
+
+
 ### activity_state
 "standby" indicates the battery is neither charging nor discharging.
 The battery could be fully charged, fully discharged or at backup reserve limit.
-Must be read in conjuction with *relative_state_of_charge* to determine the reason for "standby".
+Must be read in conjuction with *relative_charge* to determine the reason for "standby".
 
 ### Timestamps
 Sensors fully charged, fully discharged & backup reserve are calculated on current consumption/production.
@@ -148,7 +156,7 @@ Sensors with 'seconds_' prefix are the values used to create the deltatime objec
 
 ### led_state
 Sensor indicates the state of the status LED on the side of the battery.
-Only one element may be True, that element, with brightness, is returned as a string.
+Only one element may be True, that element, with brightness, is returned as a string.  \
 e.g 'Pulsing White 100%'
 ```
 "Eclipse Led":{
@@ -162,13 +170,17 @@ e.g 'Pulsing White 100%'
 ```
 All values False indicates Off Grid operation, the string "Off Grid." is returned.
 
+### led_state_text
+The meaning of the current LED state as defined in the batterie user manual.  \
+eg. "Normal Operation." is returned for LED state 'Pulsing White 100%'
+
 ### State of Charge
-The batterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by sensor *depth_of_discharge_limit* (DoD). Depth of Discharge reserve is included in *relative_state_of_charge* (RSoC) overall values, like *full_charge_capacity*.
-Specific usable values are based on *usable_state_of_charge* (USoC), like *usable_capacity*, which do not include the DoD limit reported by sensor *unusable_capacity*.
+Sonnen batterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by sensor *depth_of_discharge_limit* (DoD). Depth of Discharge reserve is included in *relative_charge* (RSoC) overall values, like *full_charge_capacity*.
+Specific usable values are based on *usable_charge* (USoC), like *usable_capacity*, which do not include the DoD limit reported by sensor *unusable_capacity*.
 
 Importantly, the *reserve_charge* percent for backup buffer is based on USoC. eg. when sensor *activity_state* is 'standby' USoC equals Backup Reserve Charge, a little less than RSoC.
 
-Sensors *capacity_to_reserve* & *capacity_until_reserve* are both zero when battery is in standby at reserve capacity. Otherwise, only one has a value depending on USoC being above or below *reserve_charge*.
+Sensors *capacity_to_reserve* & *capacity_until_reserve* are both zero when battery is in standby at *reserve_capacity*. Otherwise, only one has a value depending on USoC being above or below *reserve_charge*.
 
 ## Recording
 Some sensor values do not change, some only change when configuration changes, some are of little value when not current. These sensors will waste space if recorded.
@@ -177,34 +189,40 @@ Suggested recording exclusions in configuration.yaml:
 ```
 # Recorder filter to exclude specified entities, change placeholder names
 # your actual sensor names.
-# eg. "backupbatterie_nnnnnn_sonnenbackup_full_charge_capacity"
+# eg. "sonnenbackup_nnnnnn_full_charge_capacity"
 #   where 'nnnnnn' is the battery serial number entered on the config form.
 recorder:
   exclude:
     entities:
-      - sonnenbackup.full_charge_capacity
-      - sonnenbackup.led_state
-      - sonnenbackup.backup_reserve_capacity
-      - sonnenbackup.backup_reserve_percent
-      - sonnenbackup.status_frequency
-      - sonnenbackup.state_bms
-      - sonnenbackup.state_inverter
-      - sonnenbackup.seconds_since_full
-      - sonnenbackup.system_status_timestamp
-      - sonnenbackup.fully_charged_at
-      - sonnenbackup.fully_discharged_at
-      - sonnenbackup.backup_reserve_at
-      - sonnenbackup.last_time_full
-      - sonnenbackup.last_updated
-      - sonnenbackup.operating_mode
-      - sonnenbackup.time_to_fully_charged
-      - sonnenbackup.time_to_fully_discharged
-      - sonnenbackup.time_to_reserve
-      - sonnenbackup.time_since_full
-      - sonnenbackup.interval_to_fully_charged
-      - sonnenbackup.interval_to_fully_discharged
-      - sonnenbackup.interval_to_reserve
-      - sonnenbackup.interval_since_full
+      - sensor.sonnenbackup_nnnnnn_full_charge_capacity
+      - sensor.sonnenbackup_nnnnnn_unusable_capacity
+      - sensor.sonnenbackup_nnnnnn_led_state
+      - sensor.sonnenbackup_nnnnnn_reserve_charge
+      - sensor.sonnenbackup_nnnnnn_backup_reserve_percent
+      - sensor.sonnenbackup_nnnnnn_depth_of_discharge_limit
+      - sensor.sonnenbackup_nnnnnn_status_frequency
+      - sensor.sonnenbackup_nnnnnn_state_bms
+      - sensor.sonnenbackup_nnnnnn_state_inverter
+      - sensor.sonnenbackup_nnnnnn_seconds_since_full
+      - sensor.sonnenbackup_nnnnnn_system_status_timestamp
+      - sensor.sonnenbackup_nnnnnn_fully_charged_at
+      - sensor.sonnenbackup_nnnnnn_fully_discharged_at
+      - sensor.sonnenbackup_nnnnnn_backup_reserve_at
+      - sensor.sonnenbackup_nnnnnn_last_time_full
+      - sensor.sonnenbackup_nnnnnn_last_updated
+      - sensor.sonnenbackup_nnnnnn_operating_mode
+      - sensor.sonnenbackup_nnnnnn_time_to_fully_charged
+      - sensor.sonnenbackup_nnnnnn_time_to_fully_discharged
+      - sensor.sonnenbackup_nnnnnn_time_to_reserve
+      - sensor.sonnenbackup_nnnnnn_time_since_full
+      - sensor.sonnenbackup_nnnnnn_interval_to_fully_charged
+      - sensor.sonnenbackup_nnnnnn_interval_to_fully_discharged
+      - sensor.sonnenbackup_nnnnnn_interval_to_reserve
+      - sensor.sonnenbackup_nnnnnn_interval_since_full
+      - sensor.sonnenbackup_nnnnnn_blackstart_enabled
+      - sensor.sonnenbackup_nnnnnn_blackstart_time1
+      - sensor.sonnenbackup_nnnnnn_blackstart_time2
+      - sensor.sonnenbackup_nnnnnn_blackstart_time3
 ```
 
 ## Config Energy Dashboard
@@ -218,12 +236,12 @@ use Left rule for conservative values, Trapezoidal rule for more realistic value
 
 |  Helper Name       |    SonnenBackup Input Sensor                               | Rule |Precision | Interval |
 |-------------------:|:-----------------------------------------------------------|:----:|:--------:|:--------:|
-| PowerConsumption   | sensor.backupbatterie_XXXXX_sonnenbackup_consumption_now| Trapezoidal | 1 | 10 seconds|
-| PowerProduction| sensor.backupbatterie_XXXXX_sonnenbackup_production_now| Trapezoidal | 1 | 10 seconds|
-| GridImport| sensor.backupbatterie_XXXXX_sonnenbackup_grid_import| Trapezoidal | 1 | 10 seconds|
-| GridExport| sensor.backupbatterie_XXXXX_sonnenbackup_grid_export| Trapezoidal | 1 | 10 seconds|
-| BatteryInput| sensor.backupbatterie_XXXXX_sonnenbackup_charging| Trapezoidal | 1 | 10 seconds|
-| BatteryOutput| sensor.backupbatterie_XXXXX_sonnenbackup_discharging| Trapezoidal | 1 | 10 seconds|
+| PowerConsumption   | sensor.sonnenbackup_nnnnnn_consumption_now| Trapezoidal | 1 | 10 seconds|
+| PowerProduction| sensor.sonnenbackup_nnnnnn_production_now| Trapezoidal | 1 | 10 seconds|
+| GridImport| sensor.sonnenbackup_nnnnnn_grid_import| Trapezoidal | 1 | 10 seconds|
+| GridExport| sensor.sonnenbackup_nnnnnn_grid_export| Trapezoidal | 1 | 10 seconds|
+| BatteryInput| sensor.sonnenbackup_nnnnnn_charging| Trapezoidal | 1 | 10 seconds|
+| BatteryOutput| sensor.sonnenbackup_nnnnnn_discharging| Trapezoidal | 1 | 10 seconds|
 
 
 XXXXX will be the Batterie serial number entered on the configuration form.  \
