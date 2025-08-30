@@ -132,8 +132,7 @@ operating_mode: {1: "Manual", 2: "Automatic", 6: "Extension module", 10: "Time o
 ```
 
 ### Backup Reserve sensors
-Sensors *time_to_reserve* & *interval_to_reserve* are the same measurement with different datatypes. HASS has problems with delatime format sensors so a string format with prefix 'interval' is also provided. Use the string format in things like LogBooks and anywhere deltatime values don't work as expected.
-
+Sensors *time_to_reserve* & *interval_to_reserve* are the same measurement with different datatypes.
 ```
 Calculations to Reserve capacity are only valid when:
   *usable_charge* is above *reserve_charge* whilst *discharging* is true
@@ -155,9 +154,9 @@ A slight discrepency will be apparent if HASS server time and batterie time are 
 
 ### Deltatimes
 Deltatimes are datetime.deltatime objects.  \
-Sensors prefixed with 'time_to' or 'time_since' are delatime objects.
-Sensors prefixed with 'interval' are deltatimes presented as a string format "D HH:MM:SS".
-Home assistant doesn't handle deltatimes well, use interval strings for logbook recording.
+Sensors prefixed with 'time_to' or 'time_since' are delatime objects.  \
+Sensors prefixed with 'interval' are deltatimes presented as string format "D HH:MM:SS".  \
+HASS has problems with delatime object sensors, so use the string format in things like LogBooks and anywhere deltatime object sensors don't work as expected.  \
 Sensors with 'seconds_' prefix are the values used to create the deltatime objects.
 
 ### led_state
