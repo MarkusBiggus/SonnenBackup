@@ -18,7 +18,7 @@ The official Sonnen mobile app normally used to monitor the batterie relies on t
 When grid power is off, it is likely Internet may also be out either due to the same event or eventually power is out long enough to deplete ISP equipment emergency power.
 
 Without Internet access, Home Assistant server requires only the local home network to continue functioning using the Sonnen batterie backup reserve charge.  \
-It is recommended to have an independant (small) UPS running off Sonnen batterie power for the LAN & Home Assistant server. There is a momentary power drop when Sonnen batterie switches to MicroGrid mode when grid power drops. A small UPS will prevent Home Assistant server from rebooting at the very moment it needs to alert you to the batterie going into MicroGrid mode.
+It is recommended to have an independent (small) UPS running off Sonnen batterie power for the LAN & Home Assistant server. There is a momentary power drop when Sonnen batterie switches to MicroGrid mode when grid power drops. A small UPS will prevent Home Assistant server from rebooting at the very moment it needs to alert you to batterie *system_status* changed to "OffGrid".
 
 ## HACS
 
@@ -80,7 +80,7 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |backup_buffer_capacity_wh|Wh|reserve_capacity|always|
 |battery_full_charge_capacity_wh|Wh|full_charge_capacity|always|
 |battery_unusable_capacity_wh|Wh|unusable_capacity|always|
-|capacity_to_reserve|Wh|capacity_to_reserve|always|
+|capacity_to_reserve|Wh|capacity_to_reserve|usable_capacity > reserve_capacity|
 |capacity_until_reserve|Wh|capacity_until_reserve|always|
 |usable_remaining_capacity_wh|Wh|usable_capacity|always|
 |remaining_capacity_wh|Wh|remaining_capacity|always|
@@ -141,8 +141,8 @@ in both cases, *time_to_reserve* is estimated using current *charge_power* or *d
 
 ### activity_state
 "standby" indicates the battery is neither charging nor discharging.
-The battery could be fully charged, fully discharged or at backup reserve limit.
-Must be read in conjuction with *relative_charge* to determine the reason for "standby".
+The battery could be fully charged, fully discharged or at backup reserve charge.
+Must be read in conjuction with *usable_charge* to determine the reason for "standby".
 
 ### Timestamps
 Sensors fully charged, fully discharged & backup reserve are calculated on current consumption/production.
