@@ -130,12 +130,14 @@ operating_mode: {1: "Manual", 2: "Automatic", 6: "Extension module", 10: "Time o
 ```
 
 ### Backup Reserve sensors
-Sensors that estimate when Reserve capacity will be reached are not always defined.  \
-Calculations to Reserve capacity are only valid when:  \
-     *usable_charge* is above *reserve_charge* whilst *discharging* is true  \
-     *usable_charge* is below *reserve_charge* whilst *charging* is true   \
-in both cases *time_to_reserve* is estimated using current *charge_power* or *discharge_power* values.
+Sensors *time_to_reserve* & *interval_to_reserve* are the same measurement with different datatypes. HASS has problems with delatime format sensors so a string format with prefix 'interval' is also provided. Use the string format in things like LogBooks and anywhere deltatime values don't work as expected.
 
+```
+Calculations to Reserve capacity are only valid when:
+  *usable_charge* is above *reserve_charge* whilst *discharging* is true
+  *usable_charge* is below *reserve_charge* whilst *charging* is true
+in both cases, *time_to_reserve* is estimated using current *charge_power* or *discharge_power* values.
+```
 
 ### activity_state
 "standby" indicates the battery is neither charging nor discharging.
