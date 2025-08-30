@@ -147,15 +147,17 @@ The battery could be fully charged, fully discharged or at backup reserve charge
 Must be read in conjuction with *usable_charge* to determine the reason for "standby".
 
 ### Timestamps
-Sensors fully charged, fully discharged & backup reserve are calculated on current consumption/production.
-When battery is in standby, these timestamp values are undefined, as will some when charging/discharging.
-Times are calculated relative to Sonnen batterie server time, which is *system_status_timestamp*.
+Timestamps are datetime.datetime objects.  \
+Sensors *fully_charged_at*, *fully_discharged_at* & *backup_reserve_at* are calculated on current *charge_power* or *discharge_power* values.
+When battery *activity_state* is 'standby', these timestamp values are undefined.
+Times are calculated relative to Sonnen batterie server time *system_status_timestamp*.
 A slight discrepency will be apparent if HASS server time and batterie time are different.
 
 ### Deltatimes
-Sensors prefixed with 'Interval' are deltatimes presented as a string format "D HH:MM:SS".
-Home assistant doesn't handle deltatimes well, use these strings for logbook recording.
+Deltatimes are datetime.deltatime objects.  \
 Sensors prefixed with 'time_to' or 'time_since' are delatime objects.
+Sensors prefixed with 'interval' are deltatimes presented as a string format "D HH:MM:SS".
+Home assistant doesn't handle deltatimes well, use interval strings for logbook recording.
 Sensors with 'seconds_' prefix are the values used to create the deltatime objects.
 
 ### led_state
