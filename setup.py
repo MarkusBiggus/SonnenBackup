@@ -7,7 +7,7 @@ setuptools.setup(
     name="sonnenbackup",
     use_scm_version=True,
     author="@MarkusBiggus",
-    author_email="",
+    author_email="6531552+MarkusBiggus@users.noreply.github.com",
     description="SonnenBackup Batterie V2 API component",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -16,9 +16,9 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
         'sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git@dev"',
-#        "sonnen_api_v2>=0.5.14",
+#        "sonnen_api_v2>=0.5.15",
         "tzlocal>=5.2",
-        "voluptuous>=0.13.1",
+        "voluptuous>=0.15.2",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -1,4 +1,4 @@
-"""Coordinator for the sonnenbackup integration."""
+"""Coordinator for sonnenbackup integration."""
 
 from __future__ import annotations
 
@@ -10,9 +10,9 @@ from sonnen_api_v2 import BatterieBackup, BatterieResponse
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-# from .const import (
-#     LOGGER,
-# )
+from .const import (
+    LOGGER,
+)
 
 class SonnenBackupUpdateCoordinator(DataUpdateCoordinator[BatterieResponse]):
     """DataUpdateCoordinator for sonnenbackup."""
@@ -24,7 +24,7 @@ class SonnenBackupUpdateCoordinator(DataUpdateCoordinator[BatterieResponse]):
     ) -> None:
         """Initialize SonnenBackupUpdateCoordinator Entity."""
 
-        logger.info('Setup SonnenBackupUpdateCoordinator entity')
+        LOGGER.info('Setup SonnenBackupUpdateCoordinator entity')
         super().__init__(hass, logger, **kwargs)
 
 

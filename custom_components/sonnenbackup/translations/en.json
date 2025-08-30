@@ -73,8 +73,8 @@
             "critical_error": { "name": "Critical Error" }
         },
         "sensor": {
-            "sonnenbackup_state": {
-                "name": "Batterie State",
+            "activity_state": {
+                "name": "Activity State",
                 "state": {
                     "standby": "Reserve Standby",
                     "charging": "Charging",
@@ -148,10 +148,10 @@
             "frequency": {
                 "name": "Frequency Hz"
             },
-            "relative_state_of_charge": {
+            "relative_charge": {
                 "name": "Relative State of Charge%"
             },
-            "usable_state_of_charge": {
+            "usable_charge": {
                 "name": "Usable State of Charge%"
             }
         }

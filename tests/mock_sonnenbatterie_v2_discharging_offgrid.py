@@ -1,50 +1,49 @@
-"""Mock batterie data also used in package sonnenbatterie_api_v2 & ha component sonnenenbatterie"""
 import json
-def __mock_status_charging(*args)-> json:
+def __mock_status_discharging(*args)-> json:
     return {
-        'Apparent_output': 98,
+        'Apparent_output': 438,
         'BackupBuffer': '20',
-        'BatteryCharging': True,
-        'BatteryDischarging': False,
-        'Consumption_Avg': 486,
-        'Consumption_W': 1578,
-        'Fac': 50.05781555175781,
-        'FlowConsumptionBattery': False,
+        'BatteryCharging': False,
+        'BatteryDischarging': True,
+        'Consumption_Avg': 563,
+        'Consumption_W': 541,
+        'Fac': 50.0167121887207,
+        'FlowConsumptionBattery': True,
         'FlowConsumptionGrid': False,
         'FlowConsumptionProduction': True,
         'FlowGridBattery': False,
-        'FlowProductionBattery': True,
+        'FlowProductionBattery': False,
         'FlowProductionGrid': False,
         'GridFeedIn_W': 0,
         'IsSystemInstalled': 1,
         'OperatingMode': '2',
-        'Pac_total_W': -1394,
-        'Production_W': 2972,
-        'RSOC': 88,
-        'RemainingCapacity_Wh': 40181,
-        'Sac1': 99,
+        'Pac_total_W': 438,
+        'Production_W': 102,
+        'RSOC': 18,
+        'RemainingCapacity_Wh': 5048,
+        'Sac1': 438,
         'Sac2': None,
         'Sac3': None,
-        'SystemStatus': 'OnGrid',
-        'Timestamp': '2023-11-20 17:00:55',
-        'USOC': 81,
-        'Uac': 235,
-        'Ubat': 212,
+        'SystemStatus': 'OffGrid',
+        'Timestamp': '2023-11-20 17:00:59',
+        'USOC': 12,
+        'Uac': 237,
+        'Ubat': 211,
         'dischargeNotAllowed': False,
         'generator_autostart': False
     }
 
-def __mock_latest_charging(*args)-> json:
+def __mock_latest_discharging(*args)-> json:
     return {
         'FullChargeCapacity': 20187.086,
         'GridFeedIn_W': 0,
-        'Production_W': 2972,
-        'Consumption_W': 1578,
-        'Pac_total_W': -1394,
-        'RSOC': 88,
-        'SetPoint_W': -145,
-        'Timestamp': '2023-11-20 17:00:55',
-        'USOC': 81,
+        'Pac_total_W': 1439,
+        'Consumption_W': 1541,
+        'Production_W': 102,
+        'RSOC': 18,
+        'SetPoint_W': 439,
+        'Timestamp': '2023-11-20 17:00:59',
+        'USOC': 12,
         'UTC_Offet': 2,
         'ic_status': {
             'DC Shutdown Reason': {
@@ -78,10 +77,9 @@ def __mock_latest_charging(*args)-> json:
             },
             'Eclipse Led': {
                 'Blinking Red': False,
-                "Brightness":100,
-                'Pulsing Green': False,
+                'Pulsing Green': True,
                 'Pulsing Orange': False,
-                'Pulsing White': True,
+                'Pulsing White': False,
                 'Solid Red': False
             },
             'MISC Status Bits': {
@@ -97,7 +95,7 @@ def __mock_latest_charging(*args)-> json:
                 'Low Temperature': False,
                 'Max System SOC': False,
                 'Max User SOC': False,
-                'Microgrid Enabled': False,
+                'Microgrid Enabled': True,
                 'Min System SOC': False,
                 'Min User SOC': False,
                 'Over Charge Current': False,
@@ -124,41 +122,15 @@ def __mock_latest_charging(*args)-> json:
                 'Self test successful finished': False
             },
             'nrbatterymodules': 4,
-            'secondssincefullcharge': 3720,
+            'secondssincefullcharge': 9574,
             'statebms': 'ready',
-            'statecorecontrolmodule': 'ongrid',
+            'statecorecontrolmodule': 'offgrid',
             'stateinverter': 'running',
-            'timestamp': 'Mon Nov 20 17:00:55 2023'
+            'timestamp': 'Mon Nov 20 17:00:59 2023'
         }
     }
 
-def __mock_configurations(*args)-> json:
-# Economical Charging (default)
-    return {
-        "EM_RE_ENABLE_MICROGRID": "1",
-        "NVM_PfcIsFixedCosPhiActive": 0,
-        "NVM_PfcFixedCosPhi": 0.8,
-        "IC_BatteryModules": 4,
-        "EM_ToU_Schedule": [],
-        "DE_Software":"1.14.5",
-        "EM_USER_INPUT_TIME_ONE": "08:00",
-        "NVM_PfcIsFixedCosPhiLagging": 0,
-        "EM_Prognosis_Charging": 1,
-        "EM_USOC": 20,
-        "EM_USER_INPUT_TIME_TWO": "09:05",
-        "EM_OperatingMode": "2",
-        "SH_HeaterTemperatureMax": 80,
-        "SH_HeaterOperatingMode": 0,
-        "IC_InverterMaxPower_w": 5000,
-        "SH_HeaterTemperatureMin": 0 ,
-        "CM_MarketingModuleCapacity": 5000,
-        "EM_USER_INPUT_TIME_THREE": "10:10",
-        "CN_CascadingRole": "none",
-        "EM_US_GEN_POWER_SET_POINT": 0,
-        "DepthOfDischargeLimit": 93
-    }
-
-def __mock_battery(*args)-> json:
+def __mock_battery_discharging(*args)-> json:
     return {
         "balancechargerequest":0.0,
         "chargecurrentlimit":39.97,
@@ -179,76 +151,26 @@ def __mock_battery(*args)-> json:
         "minimummoduledcvoltage":104.15,
         "minimummoduletemperature":-273.15,
         "nominalmoduledcvoltage":102.4,
-        "relativestateofcharge":88.0,
-        "remainingcapacity":177.74,
+        "relativestateofcharge":18.0,
+        "remainingcapacity":36.3564,
         "systemalarm":0.0,
         "systemaveragecurrent":0.035,
         "systemcurrent":0.0,
         "systemdcvoltage":208.3,
-        "systemstatus":88.0,
+        "systemstatus":49,
         "systemtime":0.0,
         "systemwarning":0.0,
-        "usableremainingcapacity":163.60
+        "usableremainingcapacity":24.2376
     }
 
-def __mock_powermeter(*args)-> json:
-    return [
-        {
-            'a_l1': 2.4730000495910645,
-            'a_l2': 0,
-            'a_l3': 0,
-            'channel': 1,
-            'deviceid': 4,
-            'direction': 'production',
-            'error': 0,
-            'kwh_exported': 0,
-            'kwh_imported': 3969.800048828125,
-            'v_l1_l2': 0,
-            'v_l1_n': 246.60000610351562,
-            'v_l2_l3': 0,
-            'v_l2_n': 0,
-            'v_l3_l1': 0,
-            'v_l3_n': 0,
-            'va_total': 609.5,
-            'var_total': 0,
-            'w_l1': 609.5,
-            'w_l2': 0,
-            'w_l3': 0,
-            'w_total': 609.5
-        },
-        {
-            'a_l1': 2.0929999351501465,
-            'a_l2': 0,
-            'a_l3': 0,
-            'channel': 2,
-            'deviceid': 4,
-            'direction': 'consumption',
-            'error': 0,
-            'kwh_exported': 0,
-            'kwh_imported': 816.5,
-            'v_l1_l2': 0,
-            'v_l1_n': 246.6999969482422,
-            'v_l2_l3': 0,
-            'v_l2_n': 0,
-            'v_l3_l1': 0,
-            'v_l3_n': 0,
-            'va_total': 516.2000122070312,
-            'var_total': -512.7999877929688,
-            'w_l1': 59.29999923706055,
-            'w_l2': 0,
-            'w_l3': 0,
-            'w_total': 59.29999923706055
-        }
-    ]
-
-def __mock_inverter(*args)-> json:
+def __mock_inverter_discharging(*args)-> json:
     return {
         "fac": 0.0,
         "iac_total": 0.39,
         "ibat": 0.01,
         "ipv": 0.0,
-        "pac_microgrid": 0.0,
-        "pac_total": -1394.33,
+        "pac_microgrid": 1438.67,
+        "pac_total": 0.0,
         "pbat": -0.14,
         "phi": -0.82,
         "ppv": 0.0,

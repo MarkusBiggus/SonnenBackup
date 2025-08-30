@@ -33,6 +33,7 @@ from .const import (
     SENSOR_DESCRIPTIONS,
     SENSOR_GROUP_UNITS,
     SENSOR_GROUP_TIMESTAMP,
+    SENSOR_GROUP_DELTATIME,
     SENSOR_GROUP_ENUM,
 )
 from . import BatterieBackup
@@ -46,7 +47,7 @@ async def async_setup_entry(
     config_entry: SonnenBackupConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Batterie sensors based on a config entry."""
+    """Set up Batterie sensors based on config entry."""
 
     LOGGER.info('Setup sensor entities')
 
@@ -69,7 +70,7 @@ async def async_setup_entry(
         identifiers={(DOMAIN, serial_number)},
         manufacturer=MANUFACTURER,
         model=config_entry.runtime_data.model,
-        name=f"BackupBatterie {serial_number}",
+        name=f"SonnenBackup {serial_number}",
         sw_version=version,
     )
 
@@ -82,6 +83,8 @@ async def async_setup_entry(
             description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_UNITS][(measurement.unit, measurement.is_monotonic)]
         elif group == SENSOR_GROUP_TIMESTAMP:
             description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_TIMESTAMP][(measurement.unit, measurement.is_monotonic)] # only (Units.NONE, False)
+        elif group == SENSOR_GROUP_DELTATIME:
+            description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_DELTATIME][(measurement.unit, measurement.is_monotonic)] # only (Units.NONE, False)
         elif group == SENSOR_GROUP_ENUM:
             description = SENSOR_DESCRIPTIONS[SENSOR_GROUP_ENUM][(measurement.unit, measurement.is_monotonic)]
             if description.options is None:
@@ -91,9 +94,9 @@ async def async_setup_entry(
                     options=options
                 )
         else:
-            raise ValueError(f'Sensor {sensor} unknown group: {type(group)}')
+            raise ValueError(f'Sensor {sensor} unknown group: {group}')
 
-        uid = f"BackupBatterie_{serial_number}-{idx}"
+        uid = f"SonnenBackup_{serial_number}-{idx}"
     #    LOGGER.info(f'sensor: {sensor}  uid:{uid}  description: {description}')
         entities.append(
             BatterieSensorEntity(
@@ -147,7 +150,8 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
 #        serial_number = config_entry.runtime_data.serial_number
         self._batterybackup = config_entry.runtime_data.api
         self._unique_id = uid
-        self._name = f"{DOMAIN} {alias}"
+#        self._name = f"{DOMAIN} {alias}"
+        self._name = alias
         self._has_entity_name = True
         self._native_unit_of_measurement = description.native_unit_of_measurement
         self._suggested_display_precision = description.suggested_display_precision
@@ -171,7 +175,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         """Value of this sensor from mapped battery property."""
         # self.coordinator.data is last BatterieResponse from async_setup_entry._async_update
         self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) #self._batterybackup.get_sensor_value(self.key)
-    #    LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Native: {self.key}')
+        LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Sensor: {self.key} Name: {self._name}')
         return self._attr_native_value
 
     @property

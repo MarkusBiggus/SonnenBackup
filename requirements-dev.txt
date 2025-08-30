@@ -1,20 +1,24 @@
 # From our manifest.json for custom component
-#sonnen_api_v2>=0.5.14
-sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git@dev"
+#sonnen_api_v2>=0.5.15
+#sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git@dev"
 tzlocal>=5.2
 voluptuous>=0.13.1
+#setuptools==78.1.1
+
 # DEV
-setuptools~=75.7
+# for HA upgrade: pip install pytest-homeassistant-custom-component --upgrade
 # Strictly for tests
-pytest
+asyncmock>=0.4.2
+coverage>=7.2.1
+freezegun~=1.5.2
+load_dotenv>=0.1.0
+pytest==8.4.1
 pytest-asyncio
+#pytest-aiohttp
 pytest-cov
 pytest-mock
-coverage>=7.2.1
 pytest-homeassistant-custom-component
-freezegun~=1.5
-asyncmock>=0.4.2
-requests~=2.32
+#requests~=2.32
 responses
+tzlocal
 urllib3_mock
-load_dotenv>=0.1.0

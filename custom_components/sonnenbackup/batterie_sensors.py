@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 #from abc import abstractmethod
-from typing import Any, Callable, Dict, Generator, Optional, Tuple, Union, Unpack
+from typing import Any, Callable, Dict, Generator, Tuple, Unpack, Optional
 from datetime import timedelta, datetime
 
 import voluptuous as vol
-import logging
+#import logging
 
 from sonnen_api_v2 import BatterieBackup
 
@@ -15,6 +15,7 @@ from .const import (
     LOGGER,
     SENSOR_GROUP_UNITS,
     # SENSOR_GROUP_TIMESTAMP,
+    SENSOR_GROUP_DELTATIME,
     SENSOR_GROUP_ENUM,
     )
 
@@ -40,7 +41,7 @@ class BatterieSensors:
             by extensions to this class.
         """
 
-        LOGGER.info('Init BatterieSensors')
+#        LOGGER.info('Init BatterieSensors')
         self._response_decoder = type(self).response_decoder()
         # self.manufacturer = MANUFACTURER
         # self._serial_number = serial_number
@@ -51,10 +52,11 @@ class BatterieSensors:
     def map_response(self) -> Dict[str, Any]:
         """Called by sensor.async_setup_entry to prepare sensor definitions
             for a particular device model's set of sensors.
-            There are 3 sensor groups:
+            There are 4 sensor groups:
             UNITS: All sensors that have units of measurment
             TIMESTAMPS: All timestamps
-            ENUM: All that have a set of possible values. Bool is a special case here.
+            DELTATIME: All deltatime to be converted to string
+            ENUM: All that have a set of possible values. Bool is a special case here, as are plain strings.
         """
 
         result = {}
@@ -63,13 +65,13 @@ class BatterieSensors:
 
             result[alias] = self.batterieAPI.get_sensor_value(sensor_name)
 #            LOGGER.info(f'Sensor: {alias}  value:{result[alias]}')
-            if sensor_group == SENSOR_GROUP_UNITS:
+            if sensor_group == SENSOR_GROUP_DELTATIME: # SENSOR_GROUP_UNITS:
 #                LOGGER.info(f'UNIT name: {sensor_name}  mapping:{mapping}')
                 for alias, processor in self._postprocess_gen(mapping):
                     try:
                         result[alias] = getattr(self, processor)(result[alias])
         #                result[alias] = processor(result[alias])
-#                        LOGGER.info(f'Sensor: {alias}  PROCESSED:{result[alias]}')
+                        LOGGER.info(f'Sensor: {alias}  PROCESSED:{result[alias]}')
                     except (TypeError) as error:
                         LOGGER.error(f"map_response {sensor_name} failed: {repr(error)}")
                         raise ValueError(f'{sensor_group} sensor {sensor_name} bad processor: {processor}')
@@ -80,7 +82,7 @@ class BatterieSensors:
             to hydrate sensors.
         """
 
-        LOGGER.info('BatterieSensors _decode_map')
+#        LOGGER.info('BatterieSensors: _decode_map')
         sensors: Dict[str, SensorMap] = {}
         for sensor_group, sensor_map in self._response_decoder.items():
             for sensor_name, mapping in sensor_map.items():
@@ -108,7 +110,7 @@ class BatterieSensors:
         else:
             return
         for processor in processors:
-    #        LOGGER.info(f'Alias: {alias}  processor: {processor}')
+#            LOGGER.info(f'Alias: {alias}  processor: {processor}')
             yield alias, processor
 
 
@@ -117,10 +119,10 @@ class BatterieSensors:
         """
         Return sensor map to create BatterieSensorEntity in sensor.async_setup_entry.
         """
-        LOGGER.info('BatterieSensors mapped_sensors')
+#        LOGGER.info('BatterieSensors: mapped_sensors')
 
         iidx = 0
-        idx_groups = [0,100,200] # max 100 per group
+        idx_groups = [0,100,200, 300] # max 100 per group
         sensors: Dict[str, Tuple[int, Measurement]] = {}
         for sensor_group, sensor_map in cls.response_decoder().items():
             idx = idx_groups[iidx]
@@ -152,9 +154,12 @@ class BatterieSensors:
                         unit = Measurement(Units.NONE, is_monotonic = option)
                     else:
                         unit = Measurement(Units.NONE, False)
+                elif sensor_group == SENSOR_GROUP_DELTATIME:
+                        unit = Measurement(Units.NONE, False)
+
                 sensors[alias] = (idx, unit, sensor_name, sensor_group, option)
                 idx += 1
-#        LOGGER.info(f'SENSOR_Map:{sensors}')
+#        LOGGER.debug(f'BatterieSensors SENSOR_Map: {sensors}')
         return sensors
 
     # Post processors for UNITS measurements
@@ -170,13 +175,13 @@ class BatterieSensors:
         }.get(operating_mode, f"unknown: {operating_mode}")
 
     @classmethod
-    def _format_datetime(cls, TimeStamp: datetime = None) -> str:
+    def _format_datetime(cls, TimeStamp: datetime = None) -> Optional[str]:
         """Return datime formatted: d-m-Y H:M:S."""
 
-        return TimeStamp.strftime("%d-%b-%Y %H:%M:%S") if TimeStamp is not None else 'na'
+        return TimeStamp.strftime("%d-%b-%Y %H:%M:%S") if TimeStamp is not None else None
 
     @classmethod
-    def _format_deltatime(cls, DeltaTimeStamp: int | timedelta | None) -> str:
+    def _format_deltatime(cls, DeltaTimeStamp: int | timedelta | None) -> Optional[str]:
         """Return delta time formatted: D H:M:S."""
 
-        return strfdelta(DeltaTimeStamp) if DeltaTimeStamp is not None else 'na'
+        return strfdelta(DeltaTimeStamp) if DeltaTimeStamp is not None else None

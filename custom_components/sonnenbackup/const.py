@@ -81,6 +81,7 @@ OPTIONS_SCHEMA = vol.Schema(
 SENSOR_GROUP_UNITS = 'UNITS'
 SENSOR_GROUP_TIMESTAMP = 'TIMESTAMP'
 SENSOR_GROUP_ENUM = 'ENUM'
+SENSOR_GROUP_DELTATIME = 'DELTATIME'
 
 SENSOR_DESCRIPTIONS: dict[str, dict[tuple[Units, bool], SensorEntityDescription]] = {
     SENSOR_GROUP_UNITS: {
@@ -161,6 +162,12 @@ SENSOR_DESCRIPTIONS: dict[str, dict[tuple[Units, bool], SensorEntityDescription]
         (Units.NONE, False): SensorEntityDescription(
             key=f"{Units.NONE}_{False}",
             device_class=SensorDeviceClass.TIMESTAMP,
+        ),
+    },
+    SENSOR_GROUP_DELTATIME: {
+        (Units.NONE, False): SensorEntityDescription(
+            key=f"{Units.NONE}_{False}",
+            device_class=SensorDeviceClass.ENUM,
         ),
     },
 #SENSOR_ENUM: dict[tuple[Units, bool], SensorEntityDescription] = {
