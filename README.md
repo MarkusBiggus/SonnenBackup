@@ -14,10 +14,10 @@ Use Sonnen Batterie web portal or mobile app to set Backup Reserve percent.
 ## Why use this package
 This Home Assistant component helps manage Sonnen batterie backup reserve, particularly whilst batterie is 'OffGrid'.
 
-The official Sonnen mobile app normally used to monitor the batterie relies on the cloud service the batterie reports to.  \
-When grid power is off, it is likely Internet may also be out either due to the same event or eventually power is out long enough to deplete ISP equipment emergency power.
+The official Sonnen mobile app normally used to monitor the batterie relies on the cloud service the batterie reports to. When grid power is off, it is likely Internet may also be out either due to the same event or eventually power is out long enough to deplete ISP equipment emergency power.
 
-Without Internet access, Home Assistant server requires only the local home network to continue functioning using the Sonnen batterie backup reserve charge.  \
+Without Internet access, Home Assistant server requires only the local home network to continue functioning using the Sonnen batterie backup reserve charge.
+
 It is recommended to have an independent (small) UPS running off Sonnen batterie power for the LAN & Home Assistant server. There is a momentary power drop when Sonnen batterie switches to MicroGrid mode when grid power drops. A small UPS will prevent Home Assistant server from rebooting at the very moment it needs to alert you to batterie *system_status* changed to "OffGrid".
 
 The excellent Weltmeyer/ha_sonnenbatterie package uses API v1 with user/password authentication. If you can't use a user account with API v1, this API v2 package can also be used to configure HASS Energy dashboard.
@@ -30,7 +30,7 @@ Uses sonnen_api_v2 driver package which requires a readonly API Token created in
 
 Configuration will require the IP address of the battery device and the readonly API token.  \
 If the Batterie portal uses a non-standard port, other than 80, that can be configured too.  \
-The API package does not support https (port 443) using a self-signed certificate.  \
+The API package does not support https (port 443) using a self-signed certificate.
 
 ## Usage
 
@@ -42,12 +42,12 @@ Install sonnenbackup with hacs.  \
 Open HACS -> Home Assistant Community Store page  \
 From Overflow Menu: 3 vertical dots upper right, choose custom repositories.  \
 Enter github URL: https://github.com/MarkusBiggus/SonnenBackup  \
-The component is added to HACS and the form redisplayed - click cancel to return to HACS.  \
+The component is added to HACS and the form redisplayed - click cancel to return to HACS.
 
 Search HACS for the component just added, SonnenBackup.  \
-Click the Integration to see its details page (readme file).  \
+Click the Integration to see its details page.  \
 On the component details page click the download button lower right.  \
-Return to HACS (upper left arrow) where "Pending Restart" is displayed.  \
+Return to HACS (upper left arrow) where "Pending Restart" is displayed.
 
 Restart HASS from Settings/System restart button, upper far right.
 
