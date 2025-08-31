@@ -175,7 +175,7 @@ class BatterieSensorEntity(CoordinatorEntity, SensorEntity):
         """Value of this sensor from mapped battery property."""
         # self.coordinator.data is last BatterieResponse from async_setup_entry._async_update
         self._attr_native_value = self.coordinator.data.sensor_values.get(self.alias) #self._batterybackup.get_sensor_value(self.key)
-        LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Sensor: {self.key} Name: {self._name}')
+#        LOGGER.debug(f'Alias: {self.alias} value: {self._attr_native_value} Sensor: {self.key} Name: {self._name}')
         return self._attr_native_value
 
     @property
