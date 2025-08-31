@@ -60,6 +60,11 @@ async def test_batteriechargeresponse(battery_charging: Batterie) -> None:
 
     #print(f'response: {response}')
 
+    # batterie firmware 1.18.x
+    assert battery_charging.led_state == "Pulsing White 100%"
+    assert battery_charging.led_state_text == "Normal Operation. [0x01 - ONGRID_READY]"
+    assert battery_charging.led_status == "0x01 - ONGRID_READY"
+
     assert isinstance(response, BatterieResponse) is True
     assert response == BatterieResponse(
         version='1.14.5',
