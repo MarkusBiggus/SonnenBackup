@@ -71,7 +71,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: SonnenBackupConfi
     #    LOGGER.debug("SonnenBackup component async_update")
         try:
             _batterie_response = await _batterie.refresh_response() # returned into coordinator.data
-            _batterie_response = _batterie_response._replace(sensor_values = _battery_sensors.map_response())
+            sensor_values = _battery_sensors.map_response()
+            LOGGER.info(f"map_response: {sensor_values} ")
+            _batterie_response = _batterie_response._replace(sensor_values)
         #    LOGGER.debug(f"response: {_batterie_response.sensor_values} ")
         except (BatterieSensorError) as error:
             LOGGER.error(f"SonnenBackup async_update unknown Sensor: {repr(error)}")
