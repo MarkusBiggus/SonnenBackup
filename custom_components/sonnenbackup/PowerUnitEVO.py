@@ -22,7 +22,7 @@ from .batterie_sensors import BatterieSensors
 
 class PowerUnitEVO(BatterieSensors):
     """Sonnen Power Unit EVO.
-        Could be a differnce response_decoder for each model with varying sensors.
+        Could be a different response_decoder for each model with varying sensors.
     """
 
     def __init__(self, *args, **kwargs):
