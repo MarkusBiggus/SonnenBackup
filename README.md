@@ -73,6 +73,7 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |interval_to_reserve|time_to_reserve|string|*see notes below*|
 |led_state|led_state|string|always|
 |led_state_text|led_state_text|string|always|
+|led_status|led_status|string|always|
 |operating_mode|configuration_em_operatingmode|string|always|
 |state_bms|state_bms|string|always|
 |state_inverter|state_inverter|string|always|
@@ -164,21 +165,24 @@ Sensor indicates the state of the status LED on the side of the battery.
 Only one element may be True, that element, with brightness, is returned as a string.  \
 e.g 'Pulsing White 100%'
 ```
-"Eclipse Led":{
-    "Blinking Red":true,   # Error - call installer!
-    "Brightness":100,
-    "Pulsing Green":true,  # Off Grid.
-    "Pulsing Orange":true, # No Internet connection!
-    "Pulsing White":true,  # Normal Operation.
-    "Solid Red":true       # Critical Error - call installer!
+"Eclipse Led": {
+  "Blinking Green":true, # undocumented - see "Eclipse Status"
+  "Blinking Red":true,   # Error - call installer!
+  "Brightness":100,
+  "Eclipse Status":"0x01 - ONGRID_READY",
+  "Pulsing Green":true,  # Off Grid.
+  "Pulsing Orange":true, # No Internet connection!
+  "Pulsing White":true,  # Normal Operation.
+  "Solid Red":true       # Critical Error - call installer!
 }
 ```
 All values False indicates Off Grid operation, the string "Off Grid." is returned.
 
 ### led_state_text
-The meaning of the current LED state as defined in the user manual.  \
+The meaning of the current LED state as defined in the user manual, including "Eclipse Status" text.  \
 Comments in example are text string returned.  \
-eg. "Normal Operation." is returned for LED state 'Pulsing White 100%'
+eg. "Normal Operation. [0x01 - ONGRID_READY]" is returned for LED state 'Pulsing White 100%'  \
+*led_status* returns "Eclipse Status" text.
 
 ### State of Charge
 Sonnen batterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by sensor *depth_of_discharge_limit* (DoD). Depth of Discharge reserve is included in *relative_charge* (RSoC) overall values, like *full_charge_capacity*.
