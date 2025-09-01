@@ -70,8 +70,7 @@ class BatterieSensors:
                 for alias, processor in self._postprocess_gen(mapping):
                     try:
                         result[alias] = getattr(self, processor)(result[alias])
-        #                result[alias] = processor(result[alias])
-                        LOGGER.info(f'Sensor: {alias}  PROCESSED:{result[alias]}')
+        #                LOGGER.info(f'Sensor: {alias}  PROCESSED:{result[alias]}')
                     except (TypeError) as error:
                         LOGGER.error(f"map_response {sensor_name} failed: {repr(error)}")
                         raise ValueError(f'{sensor_group} sensor {sensor_name} bad processor: {processor}')

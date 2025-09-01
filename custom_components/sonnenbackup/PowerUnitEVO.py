@@ -22,7 +22,7 @@ from .batterie_sensors import BatterieSensors
 
 class PowerUnitEVO(BatterieSensors):
     """Sonnen Power Unit EVO.
-        Could be a differnce response_decoder for each model with varying sensors.
+        Could be a different response_decoder for each model with varying sensors.
     """
 
     def __init__(self, *args, **kwargs):
@@ -37,8 +37,8 @@ class PowerUnitEVO(BatterieSensors):
             Alias is only used when api.property name is unsuitable as a sensor name.
             Assigned index is unique for each group - they become one list of sensors, eventually.
             Add new sensors only to the end of a group.
-            Deleting will create new sensors for all after that point.
-            Use *skipN* to preserve index sequence for a deleted sensor, or
+            Deleting a line will create new sensors for all after that point with new index.
+            Use *skipN* to preserve index sequence for sensors following a deleted sensor, or
             Replace inline to remove a sensor.
         """
         return {
@@ -48,7 +48,8 @@ class PowerUnitEVO(BatterieSensors):
                 "system_status": (Units.NONE,),
                 "battery_activity_state": (Units.NONE, "activity_state"),
                 "battery_cycle_count": (Units.NONE, "cycle_count"),
-                "*skip*": ("deleted sensor: index is skipped", "replace later with a new sensor"),
+            #    "*skip*": ("deleted sensor: index is skipped", "replace later with a new sensor"),
+                "led_status": (Units.NONE,),
                 "installed_capacity": (BatteryCapacity,),
 #                "full_charge_capacity": (BatteryCapacity,),
                 "battery_full_charge_capacity_wh": (BatteryCapacity, "full_charge_capacity"),
