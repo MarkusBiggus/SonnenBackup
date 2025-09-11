@@ -6,7 +6,7 @@ authors = [
     {name = "MarkusBiggus", email = "6531552+MarkusBiggus@users.noreply.github.com"},
 ]
 dependencies = [
-    'sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git"',
+    'sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git@0.5.15-RC1"',
 #       "sonnen_api_v2>=0.5.15",
     "tzlocal>=5.2",
     "voluptuous>=0.15.2",
