@@ -15,7 +15,7 @@ setuptools.setup(
     url="https://github.com/markusbiggus/sonnenbackup",
     packages=setuptools.find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
-        'sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git"',
+        'sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git@0.5.15-RC1"',
 #        "sonnen_api_v2>=0.5.15",
         "tzlocal>=5.2",
         "voluptuous>=0.15.2",
