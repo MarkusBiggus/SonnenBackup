@@ -11,7 +11,8 @@
   "quality_scale": "bronze",
   "requirements": [
     "tzlocal>=5.2",
-    "sonnen_api_v2 @ git+https://github.com/MarkusBiggus/sonnen_api_v2.git@dev"
+    "sonnen_api_v2 @ git+https://github.com/MarkusBiggus/sonnen_api_v2.git@0.5.15-RC1"
   ],
   "version": "0.0.1"
 }
+
