@@ -81,8 +81,8 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |cycle_count|battery_cycle_count|integer|always|
 |average_current|battery_average_current|Amps|always|
 |unusable_capacity|battery_unusable_capacity_wh|Wh|always|
-|capacity_to_reserve|capacity_to_reserve|Wh|usable_capacity => reserve_capacity|
-|capacity_until_reserve|capacity_until_reserve|Wh|usable_capacity <= reserve_capacity|
+|capacity_to_reserve|capacity_to_reserve|Wh|usable_capacity <= reserve_capacity|
+|capacity_until_reserve|capacity_until_reserve|Wh|usable_capacity => reserve_capacity|
 |full_charge_capacity|battery_full_charge_capacity_wh|Wh|always|
 |remaining_capacity|remaining_capacity_wh|Wh|always|
 |reserve_capacity|backup_buffer_capacity_wh|Wh|always|
@@ -114,7 +114,7 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |status_timestamp|system_status_timestamp|timestamp|always|
 |time_since_full|time_since_full|deltatime|always|
 |time_to_fully_charged|time_to_fully_charged|deltatime|charging is true|
-|time_to_fully_discharged|time_to_fully_discharged|deltatime|discharging is true|
+|time_until_fully_discharged|time_until_fully_discharged|deltatime|discharging is true|
 |time_to_reserve|time_to_reserve|deltatime|*see notes below*e|
 |blackstart_enabled|configuration_em_reenable_microgrid|bool|when configured|
 |microgrid_enabled|microgrid_enabled|bool|system_status is 'OffGrid'|
@@ -133,7 +133,7 @@ operating_mode: {1: "Manual", 2: "Automatic", 6: "Extension module", 10: "Time o
 ```
 
 ### Backup Reserve sensors
-Sensors *time_to_reserve* & *interval_to_reserve* are the same measurement with different datatypes.
+Sensors *time_to_reserve* & *interval_to_reserve* are the same measurement with different datatypes. Both are calculated from *seconds_to_reserve*.
 ```
 Calculations to Reserve capacity are only valid when:
   *usable_charge* is above *reserve_charge* whilst *discharging* is true
