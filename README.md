@@ -93,8 +93,8 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |kwh_consumed|kwh_consumed|kWh|always|
 |kwh_produced|kwh_produced|kWh|always|
 |depth_of_discharge_limit|battery_dod_limit|percent|always|
-|relative_charge|battery_rsoc|percent|always|
-|usable_charge|battery_usoc|percent|always|
+|relative_charge|r_soc|percent|always|
+|usable_charge|u_soc|percent|always|
 |reserve_charge|status_backup_buffer|percent|always|
 |charge_power|charging|watts|charging is true|
 |consumption_average|consumption_average |watts|always|
@@ -116,7 +116,7 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |time_since_full|time_since_full|deltatime|always|
 |time_to_fully_charged|time_to_fully_charged|deltatime|charging is true|
 |time_until_fully_discharged|time_until_fully_discharged|deltatime|discharging is true|
-|time_to_reserve|time_to_reserve|deltatime|*see notes below*e|
+|time_to_reserve|time_to_reserve|deltatime|*see notes below*|
 |blackstart_enabled|configuration_em_reenable_microgrid|bool|when configured|
 |microgrid_enabled|microgrid_enabled|bool|system_status is 'OffGrid'|
 |charging|status_battery_charging|bool|always|
