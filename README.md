@@ -75,6 +75,7 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |led_state_text|led_state_text|string|always|
 |led_status|led_status|string|always|
 |operating_mode|configuration_em_operatingmode|string|always|
+|seconds_to_reserve|seconds_to_reserve|string|charging or discharging is true|
 |state_bms|state_bms|string|always|
 |state_inverter|state_inverter|string|always|
 |system_status|system_status|string|always|
