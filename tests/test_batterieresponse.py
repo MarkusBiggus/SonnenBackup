@@ -62,7 +62,7 @@ async def test_batteriechargeresponse(battery_charging: Batterie) -> None:
 
     # batterie firmware 1.18.x
     assert battery_charging.led_state == "Pulsing White 100%"
-    assert battery_charging.led_state_text == "Normal Operation. [0x01 - ONGRID_READY]"
+    assert battery_charging.led_state_text == "Normal Operation."
     assert battery_charging.led_status == "0x01 - ONGRID_READY"
 
     assert isinstance(response, BatterieResponse) is True
@@ -130,7 +130,7 @@ async def test_batteriedischargeresponse(battery_discharging: Batterie) -> None:
 
 #    assert _batterie.get_sensor_value('interval_to_fully_discharged') == "0d 00:00:00"
 #    assert _batterie.get_sensor_value('interval_to_reserve') == "0d 00:00:00"
-    assert _batterie.get_sensor_value('time_to_fully_discharged') == datetime.timedelta(seconds=37661)
+    assert _batterie.get_sensor_value('time_until_fully_discharged') == datetime.timedelta(seconds=37661)
     assert _batterie.get_sensor_value('time_to_reserve') ==  datetime.timedelta(seconds=28362)
     assert _batterie.get_sensor_value('capacity_until_reserve') == 12314.1
     assert _batterie.get_sensor_value('capacity_to_reserve') is None
@@ -172,7 +172,7 @@ async def test_batterieoffgridresponse(battery_discharging_offgrid: Batterie) ->
 
 #    assert _batterie.get_sensor_value('interval_to_fully_discharged') == "0d 00:00:00"
 #    assert _batterie.get_sensor_value('interval_to_reserve') == "0d 00:00:00"
-    assert _batterie.get_sensor_value('time_to_fully_discharged') == datetime.timedelta(seconds=6060)
+    assert _batterie.get_sensor_value('time_until_fully_discharged') == datetime.timedelta(seconds=6060)
     assert _batterie.get_sensor_value('time_to_reserve') is None
     assert _batterie.get_sensor_value('capacity_until_reserve') is None
     assert _batterie.get_sensor_value('capacity_to_reserve') == 1615.0
