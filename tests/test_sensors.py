@@ -66,10 +66,6 @@ async def test_form_works(hass: HomeAssistant) -> None:
     assert result["step_id"] == "user"
     assert result["errors"] == {}
 
-    # with patch(
-    #     "custom_components.sonnenbackup.config_flow._validate_api",
-    #     return_value=True,
-    # ):
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
         CONFIG_DATA,
@@ -81,6 +77,9 @@ async def test_form_works(hass: HomeAssistant) -> None:
     config_data = config_entry.data
     assert config_data['model'] == CONFIG_DATA['model']
 #    assert len(mock_setup_entry.mock_calls) == 1
+
+    assert hass.states.get("sensor.sonnenbackup_321123_package_version").state == "0.5.15"
+    assert hass.states.get("sensor.sonnenbackup_321123_package_build").state == "48"
 
     print(f'sensor_data: {hass.states.get("sensor.sonnenbackup_321123_led_state").state}')
     assert hass.states.get("sensor.sonnenbackup_321123_led_state").state == "Pulsing White 100%"

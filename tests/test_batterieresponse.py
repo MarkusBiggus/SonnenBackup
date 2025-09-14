@@ -48,7 +48,7 @@ if LOGGER_NAME is not None:
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("battery_charging")
-@freeze_time("20-11-2023 17:00:00")
+@freeze_time("20-11-2023 17:00:00.543210")
 async def test_batteriechargeresponse(battery_charging: Batterie) -> None:
     """BatterieBackup Response charging using mock data.
         Charging above backup reserve capacity.
@@ -56,7 +56,7 @@ async def test_batteriechargeresponse(battery_charging: Batterie) -> None:
 
     _batterie = BatterieBackup('fakeToken', 'fakeHost')
 
-    response = await _batterie.refresh_response()
+    response:BatterieResponse = await _batterie.refresh_response()
 
     #print(f'response: {response}')
 
@@ -67,11 +67,15 @@ async def test_batteriechargeresponse(battery_charging: Batterie) -> None:
 
     assert isinstance(response, BatterieResponse) is True
     assert response == BatterieResponse(
-        version='1.14.5',
-        last_updated=datetime.datetime(2023, 11, 20, 17, 0, tzinfo=tzlocal.get_localzone()),
-        sensor_values={}
+        version='0.5.15',
+        last_updated=datetime.datetime(2023, 11, 20, 17, 0, 0, 543210, tzinfo=tzlocal.get_localzone()),
+        sensor_values={},
+        package_build = '48'
     )
 
+    assert response.version == '0.5.15'
+    assert response.package_build == '48'
+    assert _batterie.get_sensor_value('configuration_de_software') == '1.14.5'
     assert _batterie.get_sensor_value('installed_capacity') == 20000
     assert _batterie.get_sensor_value('seconds_since_full') == 3720
     since_full = datetime.timedelta(seconds=3720)
@@ -97,7 +101,7 @@ async def test_batteriechargeresponse(battery_charging: Batterie) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("battery_discharging")
-@freeze_time("20-11-2023 17:00:00")
+@freeze_time("20-11-2023 17:00:00.543210")
 async def test_batteriedischargeresponse(battery_discharging: Batterie) -> None:
     """BatterieBackup Response discharging using mock data.
         Discharging above backup reserve capacity.
@@ -111,9 +115,10 @@ async def test_batteriedischargeresponse(battery_discharging: Batterie) -> None:
 
     assert isinstance(response, BatterieResponse) is True
     assert response == BatterieResponse(
-        version='1.14.5',
-        last_updated=datetime.datetime(2023, 11, 20, 17, 0, tzinfo=tzlocal.get_localzone()),
-        sensor_values={}
+        version='0.5.15',
+        last_updated=datetime.datetime(2023, 11, 20, 17, 0, 0, 543210, tzinfo=tzlocal.get_localzone()),
+        sensor_values={},
+        package_build = '48'
     )
 
     assert _batterie.get_sensor_value('installed_capacity') == 20000
@@ -138,7 +143,7 @@ async def test_batteriedischargeresponse(battery_discharging: Batterie) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("battery_discharging_offgrid")
-@freeze_time("20-11-2023 17:00:00")
+@freeze_time("20-11-2023 17:00:00.543210")
 async def test_batterieoffgridresponse(battery_discharging_offgrid: Batterie) -> None:
     """BatterieBackup Response OffGrid using mock data.
         Discharging below backup reserve capacity.
@@ -152,9 +157,10 @@ async def test_batterieoffgridresponse(battery_discharging_offgrid: Batterie) ->
 
     assert isinstance(response, BatterieResponse) is True
     assert response == BatterieResponse(
-        version='1.14.5',
-        last_updated=datetime.datetime(2023, 11, 20, 17, 0, tzinfo=tzlocal.get_localzone()),
-        sensor_values={}
+        version='0.5.15',
+        last_updated=datetime.datetime(2023, 11, 20, 17, 0, 0, 543210, tzinfo=tzlocal.get_localzone()),
+        sensor_values={},
+        package_build = '48'
     )
 
     assert _batterie.get_sensor_value('installed_capacity') == 20000

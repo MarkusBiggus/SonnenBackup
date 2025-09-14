@@ -110,6 +110,8 @@ class PowerUnitEVO(BatterieSensors):
                 "seconds_to_reserve": (Units.NONE,),
 #       1082bytes         "dc_shutdown_reason": (Units.NONE,),
 #       394bytes          "microgrid_status": (Units.NONE,),
+                "package_version": (Units.NONE,), # None, "_response_attr_version"),
+                "package_build": (Units.NONE,), # None, "_response_attr_package_build"),
             },
 
             SENSOR_GROUP_TIMESTAMP: {

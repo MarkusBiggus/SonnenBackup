@@ -9,7 +9,7 @@ import voluptuous as vol
 
 from sonnen_api_v2 import BatterieBackup
 
-from .utils import strfdelta # , PackerBuilderResult
+from .utils import strfdelta
 from .units import Measurement, Units, SensorUnit
 from .const import (
     LOGGER,
@@ -21,16 +21,14 @@ from .const import (
 
 SensorAlias = str | None
 ProcessorTuple = Tuple[Callable[[Any], Any], ...]
-#SensorMap = Union[int, PackerBuilder]
 SensorMap = Tuple[SensorUnit, SensorAlias, Unpack[ProcessorTuple]]
 ResponseDecoder = Dict[
     str, SensorMap
-#    Tuple[SensorUnit,  Unpack[ProcessorTuple]],
 ]
 
 class BatterieSensors:
     """Base functions for SonnenBatterie sensor maps.
-        Sensor names are mapped to SonnenBattery properties.
+        Sensor names are mapped to SonnenBatterie properties.
     """
 
     # pylint: enable=C0301

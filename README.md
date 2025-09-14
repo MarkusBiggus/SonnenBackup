@@ -75,6 +75,8 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |led_state_text|led_state_text|string|always|
 |led_status|led_status|string|always|
 |operating_mode|configuration_em_operatingmode|string|always|
+|package_version|response.version|string|always|
+|package_build|response.package_build|string|always|
 |seconds_to_reserve|seconds_to_reserve|string|charging or discharging is true|
 |state_bms|state_bms|string|always|
 |state_inverter|state_inverter|string|always|
@@ -192,6 +194,12 @@ Specific usable values are based on *usable_charge* (USoC), like *usable_capacit
 Importantly, the *reserve_charge* percent for backup buffer is based on USoC. eg. when sensor *activity_state* is 'standby' USoC equals Backup Reserve Charge, a little less than RSoC.
 
 Sensors *capacity_to_reserve* & *capacity_until_reserve* are both zero when battery is in standby at *reserve_capacity*. Otherwise, only one has a value depending on USoC being above or below *reserve_charge*.
+
+### Underlying API package
+Two sensors are extracted from the sonnen_api_v2 API response:  \
+&nbsp;&nbsp;&nbsp;*package_version* is the version of the installed package being used  \
+&nbsp;&nbsp;&nbsp;*package_build* is build number of the installed package being used  \
+Build may increment without a new version during testing.
 
 ## Recording
 Some sensor values do not change, some only change when configuration changes, some are of little value when not current. These sensors will waste space if recorded.
