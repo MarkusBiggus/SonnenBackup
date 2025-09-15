@@ -69,7 +69,7 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |firmware_version|configuration_de_software|string|always|
 |interval_since_full|time_since_full|string|always|
 |interval_to_fully_charged|time_to_fully_charged|string|charging is true|
-|interval_to_fully_discharged|time_to_fully_discharged|string|discharging is true|
+|interval_until_fully_discharged|time_until_fully_discharged|string|discharging is true|
 |interval_to_reserve|time_to_reserve|string|*see notes below*|
 |led_state|led_state|string|always|
 |led_state_text|led_state_text|string|always|
@@ -238,7 +238,7 @@ recorder:
       - sensor.sonnenbackup_nnnnnn_status_frequency
       - sensor.sonnenbackup_nnnnnn_system_status_timestamp
       - sensor.sonnenbackup_nnnnnn_time_to_fully_charged
-      - sensor.sonnenbackup_nnnnnn_time_to_fully_discharged
+      - sensor.sonnenbackup_nnnnnn_time_until_fully_discharged
       - sensor.sonnenbackup_nnnnnn_time_to_reserve
       - sensor.sonnenbackup_nnnnnn_time_since_full
       - sensor.sonnenbackup_nnnnnn_unusable_capacity

@@ -74,7 +74,10 @@ async def test_batteriechargeresponse(battery_charging: Batterie) -> None:
     )
 
     assert response.version == '0.5.15'
+    assert _batterie.get_sensor_value('package_version') == response.version
     assert response.package_build == '48'
+    assert _batterie.get_sensor_value('package_build') == response.package_build
+
     assert _batterie.get_sensor_value('configuration_de_software') == '1.14.5'
     assert _batterie.get_sensor_value('installed_capacity') == 20000
     assert _batterie.get_sensor_value('seconds_since_full') == 3720
