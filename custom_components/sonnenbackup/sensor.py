@@ -49,7 +49,7 @@ async def async_setup_entry(
 ) -> None:
     """Set up Batterie sensors based on config entry."""
 
-    LOGGER.info('Setup sensor entities')
+#    LOGGER.info('Setup sensor entities')
 
 # from example, where is device defined before this call?
 #    device: ExampleDevice = hass.data[DOMAIN][config_entry.entry_id]

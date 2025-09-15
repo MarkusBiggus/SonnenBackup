@@ -224,7 +224,7 @@ recorder:
       - sensor.sonnenbackup_nnnnnn_fully_charged_at
       - sensor.sonnenbackup_nnnnnn_fully_discharged_at
       - sensor.sonnenbackup_nnnnnn_interval_to_fully_charged
-      - sensor.sonnenbackup_nnnnnn_interval_to_fully_discharged
+      - sensor.sonnenbackup_nnnnnn_interval_until_fully_discharged
       - sensor.sonnenbackup_nnnnnn_interval_to_reserve
       - sensor.sonnenbackup_nnnnnn_interval_since_full
       - sensor.sonnenbackup_nnnnnn_led_state

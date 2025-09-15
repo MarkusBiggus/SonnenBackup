@@ -80,8 +80,9 @@ async def test_form_works(hass: HomeAssistant) -> None:
 
     assert hass.states.get("sensor.sonnenbackup_321123_package_version").state == "0.5.15"
     assert hass.states.get("sensor.sonnenbackup_321123_package_build").state == "48"
+    print(f'sensor_attr:usable_charge: {hass.states.get("sensor.sonnenbackup_321123_usable_charge").attributes}')
+    print(f'sensor_data: {hass.states.get("sensor.sonnenbackup_321123_usable_charge").state}')
 
-    print(f'sensor_data: {hass.states.get("sensor.sonnenbackup_321123_led_state").state}')
     assert hass.states.get("sensor.sonnenbackup_321123_led_state").state == "Pulsing White 100%"
     assert hass.states.get("sensor.sonnenbackup_321123_led_state_text").state == "Normal Operation."
     assert hass.states.get("sensor.sonnenbackup_321123_led_status").state == "0x01 - ONGRID_READY"
