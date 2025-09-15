@@ -77,7 +77,9 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |operating_mode|configuration_em_operatingmode|string|always|
 |package_version|response.version|string|always|
 |package_build|response.package_build|string|always|
-|seconds_to_reserve|seconds_to_reserve|string|charging or discharging is true|
+|seconds_to_reserve|seconds_to_reserve|integer|charging or discharging is true|
+|seconds_to_fully_charged|seconds_to_fully_charged|integer|charging is true|
+|seconds_until_fully_discharged|seconds_until_fully_discharged|integer|discharging is true|
 |state_bms|state_bms|string|always|
 |state_inverter|state_inverter|string|always|
 |system_status|system_status|string|always|
@@ -109,7 +111,7 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |production_now|production|watts|always|
 |max_battery_temp|battery_max_cell_temp|celsius|always|
 |min_battery_temp|battery_min_cell_temp|celsius|always|
-|fully_charged_at|fully_charged_at|timestamp|charging is true|
+|fully_charged_at|fully_charged_at|timestamp|charging is true or activity_state=='charged'|
 |fully_discharged_at|fully_discharged_at|timestamp|discharging is true|
 |last_time_full|last_time_full|timestamp|always|
 |last_updated|last_updated|timestamp|always|
@@ -147,7 +149,8 @@ in both cases, *time_to_reserve* is estimated using current *charge_power* or *d
 ### activity_state
 "standby" indicates the battery is neither charging nor discharging.
 The battery could be fully charged, fully discharged or at backup reserve charge.
-Must be read in conjuction with *usable_charge* to determine the reason for "standby".
+Must be read in conjuction with *usable_charge* to determine the reason for "standby".  \
+Activity "discharging reserve" & "discharged" can only happen when *system_status* is "OffGrid".
 
 ### Timestamps
 Timestamps are datetime.datetime objects.  \
@@ -158,10 +161,11 @@ A slight discrepency will be apparent if HASS server time and batterie time are 
 
 ### Deltatimes
 Deltatimes are datetime.deltatime objects.  \
-Sensors prefixed with 'time_to' or 'time_since' are delatime objects.  \
-Sensors prefixed with 'interval' are deltatimes presented as string format "D HH:MM:SS".  \
-HASS has problems with delatime object sensors, so use the string format in things like LogBooks and anywhere deltatime object sensors don't work as expected.  \
-Sensors with 'seconds_' prefix are the values used to create the deltatime objects.
+Sensors prefixed with 'time_' are delatime objects.  \
+Sensors prefixed with 'interval_' are deltatimes as string format "D HH:MM:SS".  \
+HASS has problems with delatime object sensors, so use the string format in things like LogBooks and anywhere deltatime object sensors don't work as expected, like template variables.  \
+Sensors with 'seconds_' prefix are the values used to create the deltatime objects. \
+As a rule, 'time_to' is valid when charging & 'time_until' is valid when discharging. 'time_to_reserve' is valid when charging below reserve or discharging above reserve.
 
 ### led_state
 Sensor indicates the state of the status LED on the side of the battery.

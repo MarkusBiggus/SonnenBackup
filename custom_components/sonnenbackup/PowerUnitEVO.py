@@ -93,7 +93,7 @@ class PowerUnitEVO(BatterieSensors):
                 "battery_max_cell_temp": (Units.C, "max_battery_temp"), # "mdi:thermometer-alert"
                 "state_bms": (Units.NONE,),
                 "state_inverter": (Units.NONE,),
-                "seconds_since_full": (Units.NONE,), #seconds_since_full
+                "seconds_since_full": (Units.NONE,),
                 "time_to_fully_charged": (Units.NONE,), #seconds_to_fully_charged
                 "time_until_fully_discharged": (Units.NONE,), # seconds_until_fully_discharged
                 "time_to_reserve": (Units.NONE,), # seconds_to_reserve
@@ -110,8 +110,10 @@ class PowerUnitEVO(BatterieSensors):
                 "seconds_to_reserve": (Units.NONE,),
 #       1082bytes         "dc_shutdown_reason": (Units.NONE,),
 #       394bytes          "microgrid_status": (Units.NONE,),
-                "package_version": (Units.NONE,), # None, "_response_attr_version"),
-                "package_build": (Units.NONE,), # None, "_response_attr_package_build"),
+                "package_version": (Units.NONE,),
+                "package_build": (Units.NONE,),
+                "seconds_to_fully_charged": (Units.NONE,),
+                "seconds_until_fully_discharged": (Units.NONE,),
             },
 
             SENSOR_GROUP_TIMESTAMP: {
