@@ -231,6 +231,8 @@ recorder:
       - sensor.sonnenbackup_nnnnnn_last_time_full
       - sensor.sonnenbackup_nnnnnn_last_updated
       - sensor.sonnenbackup_nnnnnn_operating_mode
+      - sensor.sonnenbackup_nnnnnn_package_version
+      - sensor.sonnenbackup_nnnnnn_package_build
       - sensor.sonnenbackup_nnnnnn_reserve_charge
       - sensor.sonnenbackup_nnnnnn_seconds_since_full
       - sensor.sonnenbackup_nnnnnn_state_bms
