@@ -261,12 +261,12 @@ use Left rule for conservative values, Trapezoidal rule for more realistic value
 
 |  Helper Name       |    SonnenBackup Input Sensor                               | Rule |Precision | Interval |
 |-------------------:|:-----------------------------------------------------------|:----:|:--------:|:--------:|
-| PowerConsumption   | sensor.sonnenbackup_nnnnnn_consumption_now| Trapezoidal | 1 | 10 seconds|
-| PowerProduction| sensor.sonnenbackup_nnnnnn_production_now| Trapezoidal | 1 | 10 seconds|
-| GridImport| sensor.sonnenbackup_nnnnnn_grid_import| Trapezoidal | 1 | 10 seconds|
-| GridExport| sensor.sonnenbackup_nnnnnn_grid_export| Trapezoidal | 1 | 10 seconds|
-| BatteryInput| sensor.sonnenbackup_nnnnnn_charging| Trapezoidal | 1 | 10 seconds|
-| BatteryOutput| sensor.sonnenbackup_nnnnnn_discharging| Trapezoidal | 1 | 10 seconds|
+| PowerConsumption   | sensor.sonnenbackup_nnnnnn_consumption_now| Trapezoidal | 1 | 0 |
+| PowerProduction| sensor.sonnenbackup_nnnnnn_production_now| Trapezoidal | 1 | 0 |
+| GridImport| sensor.sonnenbackup_nnnnnn_grid_import| Trapezoidal | 1 | 0 |
+| GridExport| sensor.sonnenbackup_nnnnnn_grid_export| Trapezoidal | 1 | 0 |
+| BatteryInput| sensor.sonnenbackup_nnnnnn_charge_power| Trapezoidal | 1 | 0 |
+| BatteryOutput| sensor.sonnenbackup_nnnnnn_discharge_power| Trapezoidal | 1 | 0 |
 
 
 XXXXX will be the Batterie serial number entered on the configuration form.  \
@@ -288,21 +288,20 @@ Given Sonnen batterie is AC coupled, the Sonnen production value will be slightl
 
 # Managing backup reserve with Sonnen EVO batterie
 
-Sonnen EVO Batterie has a black start feature that will attemp to restart the batterie after depletion. A small reserve is kept to enable solar production at set times in the morning. Check configuration AC Microgrid is enabled with reenabling times also set to times solar production is usually available.
+Sonnen EVO Batterie has a Black Start feature that will attempt to restart the batterie after depletion. A small reserve is kept to enable solar production at set times in the morning. Check configuration AC Microgrid is enabled with reenabling times also set to times solar production is usually available.
 
-A weather event that will cause no sunshine for several days, such as a cyclone/hurricane, will exhaust black start retries before solar is available to charge the battery leaving the battery off until grid power is restored.
+A weather event that will cause no sunshine for several days, such as a cyclone/hurricane, will exhaust Black Start retries before solar production is available to charge the battery, leaving the battery off until grid power is restored.
 
 Have a generator option installed to your household powerboard to run the house from generator in absence of grid power for an extended period. Like, days after a severe weather event. For both strategies below, rely on generator for household power whilst battery is unavailable.
 
-The Batterie must be configured for Recharge Strategy "Green charging" to only charge from solar production.
+Sonnen Batterie must be configured for Recharge Strategy "Green charging" to only charge from solar production.
 ![Recharge Strategy "Green"](Sonnen-EVO-RechargeStrategy.jpg)
 
-## Strategy #1
-### Anticipated long duration power outage
+## Anticipated long duration power outage
+
 Isolate the battery from load before it turns itself off when USoC is low, under 15% or so. When solar production is available, enable the battery circuit and allow it to "green charge" normally.
 
-## Strategy #2
-### Unanticipated long duration power outage
+## Unanticipated long duration power outage
 
 Let Batterie deplete and rely on Black Start feature.  \
 Should Black Start feature not work after solar production can resume, use generator power to restart the battery. "Green charging" recharge strategy will not charge the battery from generator power.
