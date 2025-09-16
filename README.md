@@ -261,12 +261,12 @@ use Left rule for conservative values, Trapezoidal rule for more realistic value
 
 |  Helper Name       |    SonnenBackup Input Sensor                               | Rule |Precision | Interval |
 |-------------------:|:-----------------------------------------------------------|:----:|:--------:|:--------:|
-| PowerConsumption   | sensor.sonnenbackup_nnnnnn_consumption_now| Trapezoidal | 1 | 0 |
-| PowerProduction| sensor.sonnenbackup_nnnnnn_production_now| Trapezoidal | 1 | 0 |
-| GridImport| sensor.sonnenbackup_nnnnnn_grid_import| Trapezoidal | 1 | 0 |
-| GridExport| sensor.sonnenbackup_nnnnnn_grid_export| Trapezoidal | 1 | 0 |
-| BatteryInput| sensor.sonnenbackup_nnnnnn_charge_power| Trapezoidal | 1 | 0 |
-| BatteryOutput| sensor.sonnenbackup_nnnnnn_discharge_power| Trapezoidal | 1 | 0 |
+| PowerConsumption   | sensor.sonnenbackup_nnnnnn_consumption_now| Trapezoidal | 1 | 10s |
+| PowerProduction| sensor.sonnenbackup_nnnnnn_production_now| Trapezoidal | 1 | 10s |
+| GridImport| sensor.sonnenbackup_nnnnnn_grid_import| Trapezoidal | 1 | 10s |
+| GridExport| sensor.sonnenbackup_nnnnnn_grid_export| Trapezoidal | 1 | 10s |
+| BatteryInput| sensor.sonnenbackup_nnnnnn_charge_power| Trapezoidal | 1 | 10s |
+| BatteryOutput| sensor.sonnenbackup_nnnnnn_discharge_power| Trapezoidal | 1 | 10s |
 
 
 XXXXX will be the Batterie serial number entered on the configuration form.  \
