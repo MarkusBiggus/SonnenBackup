@@ -1,8 +1,8 @@
-# SonnenBackup
+# sonnenBackup
 
-Read from the real-time API on Sonnen Batterie to manage Backup Reserve use.
+Read from the real-time API on sonnenBatterie to manage Backup Reserve use.
 
-Use Sonnen Batterie web portal or mobile app to set Backup Reserve percent.
+Use sonnenBatterie web portal or mobile app to set Backup Reserve percent.
 
 * System state On Grid, Off Grid or Critical Error.
 * Real time power, current and voltage.
@@ -12,21 +12,21 @@ Use Sonnen Batterie web portal or mobile app to set Backup Reserve percent.
 * Temperature and batterie health.
 
 ## Why use this package
-This Home Assistant component helps manage Sonnen batterie backup reserve, particularly whilst batterie is 'OffGrid'.
+This Home Assistant component helps manage sonnenBatterie backup reserve, particularly whilst batterie is 'OffGrid'.
 
 The official Sonnen mobile app normally used to monitor the batterie relies on the cloud service the batterie reports to. When grid power is off, it is likely Internet may also be out either due to the same event or eventually power is out long enough to deplete ISP equipment emergency power.
 
-Without Internet access, Home Assistant server requires only the local home network to continue functioning using the Sonnen batterie backup reserve charge.
+Without Internet access, Home Assistant server requires only the local home network to continue functioning using the sonnenBatterie backup reserve charge.
 
-It is recommended to have an independent (small) UPS running off Sonnen batterie power for the LAN & Home Assistant server. There is a momentary power drop when Sonnen batterie switches to MicroGrid mode when grid power drops. A small UPS will prevent Home Assistant server from rebooting at the very moment it needs to alert you to batterie *system_status* changed to "OffGrid".
+It is recommended to have an independent (small) UPS running off sonnenBatterie power for the LAN & Home Assistant server. There is a momentary power drop when sonnenBatterie switches to MicroGrid mode when grid power drops. A small UPS will prevent Home Assistant server from rebooting at the very moment it needs to alert you to batterie *system_status* changed to "OffGrid".
 
 The excellent Weltmeyer/ha_sonnenbatterie package uses API v1 with user/password authentication. If you can't use a user account with API v1, this API v2 package can also be used to configure HASS Energy dashboard.
 
 ## HACS
 
-Install SonnenBackup integration.
+Install sonnenbackup custom integration.
 
-Uses sonnen_api_v2 driver package which requires a readonly API Token created in the Sonnen Batterie management portal.
+Uses sonnen_api_v2 driver package which requires a readonly API Token created in the sonnenBatterie management portal.
 
 Configuration will require the IP address of the battery device and the readonly API token.  \
 If the Batterie portal uses a non-standard port, other than 80, that can be configured too.  \
@@ -148,7 +148,7 @@ in both cases, *time_to_reserve* is estimated using current *charge_power* or *d
 
 ### activity_state
 "standby" indicates the battery is neither charging nor discharging.
-The battery could be fully charged, fully discharged or at backup reserve charge.
+The battery could be fully charged, fully discharged or idle at backup reserve charge.
 Must be read in conjuction with *usable_charge* to determine the reason for "standby".  \
 Activity "discharging reserve" & "discharged" can only happen when *system_status* is "OffGrid".
 
@@ -156,8 +156,8 @@ Activity "discharging reserve" & "discharged" can only happen when *system_statu
 Timestamps are datetime.datetime objects.  \
 Sensors *fully_charged_at*, *fully_discharged_at* & *backup_reserve_at* are calculated on current *charge_power* or *discharge_power* values.
 When battery *activity_state* is 'standby', these timestamp values are undefined.
-Times are calculated relative to Sonnen batterie server time *system_status_timestamp*.
-A slight discrepency will be apparent if HASS server time and batterie time are different.
+Times are calculated relative to sonnenBatterie system time *system_status_timestamp*.
+A slight discrepency will be apparent if HASS server time and batterie system time are different.
 
 ### Deltatimes
 Deltatimes are datetime.deltatime objects.  \
@@ -192,7 +192,7 @@ eg. "Normal Operation. [0x01 - ONGRID_READY]" is returned for LED state 'Pulsing
 *led_status* returns "Eclipse Status" text.
 
 ### State of Charge
-Sonnen batterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by sensor *depth_of_discharge_limit* (DoD). Depth of Discharge reserve is included in *relative_charge* (RSoC) overall values, like *full_charge_capacity*.
+sonnenBatterie reports two State of Charge values, Relative and Usable. The difference between these two values is reported by sensor *depth_of_discharge_limit* (DoD). Depth of Discharge reserve is included in *relative_charge* (RSoC) overall values, like *full_charge_capacity*.
 Specific usable values are based on *usable_charge* (USoC), like *usable_capacity*, which do not include the DoD limit reported by sensor *unusable_capacity*.
 
 Importantly, the *reserve_charge* percent for backup buffer is based on USoC. eg. when sensor *activity_state* is 'standby' USoC equals Backup Reserve Charge, a little less than RSoC.
@@ -201,9 +201,9 @@ Sensors *capacity_to_reserve* & *capacity_until_reserve* are both zero when batt
 
 ### Underlying API package
 Two sensors are extracted from the sonnen_api_v2 API response:  \
-&nbsp;&nbsp;&nbsp;*package_version* is the version of the installed package being used  \
-&nbsp;&nbsp;&nbsp;*package_build* is build number of the installed package being used  \
-Build may increment without a new version during testing.
+&nbsp;&nbsp;&nbsp;*package_version* is the version of the installed package being used.  \
+&nbsp;&nbsp;&nbsp;*package_build* is build number of the installed package being used.  \
+Use developer tools to examine these sensors to confirm which package verion/build is currently running in HASS.
 
 ## Recording
 Some sensor values do not change, some only change when configuration changes, some are of little value when not current. These sensors will waste space if recorded.
@@ -283,18 +283,18 @@ Use default time unit Hours for all integrals.
 |Battery Out|BatteryOutput|
 |Solar Production|PowerProduction|
 
-Solar production may also be provided by a sensor from your solar inverter component.
-Given Sonnen batterie is AC coupled, the Sonnen production value will be slightly less and so a more realistic value to use.
+Solar production may also be provided by a sensor from the solar inverter component.
+Given sonnenBatterie is AC coupled, the Sonnen production value will be slightly less and so a more realistic value to use.
 
-# Managing backup reserve with Sonnen EVO batterie
+# Managing backup reserve with sonnenBatterie EVO
 
-Sonnen EVO Batterie has a Black Start feature that will attempt to restart the batterie after depletion. A small reserve is kept to enable solar production at set times in the morning. Check configuration AC Microgrid is enabled with reenabling times also set to times solar production is usually available.
+The sonnenBatterie EVO model has a Black Start feature that will attempt to restart the batterie after depletion. A small reserve is kept to enable solar production at set times in the morning. Check configuration AC Microgrid is enabled with reenabling times also set to times solar production is usually available.
 
 A weather event that will cause no sunshine for several days, such as a cyclone/hurricane, will exhaust Black Start retries before solar production is available to charge the battery, leaving the battery off until grid power is restored.
 
-Have a generator option installed to your household powerboard to run the house from generator in absence of grid power for an extended period. Like, days after a severe weather event. For both strategies below, rely on generator for household power whilst battery is unavailable.
+Have a generator option installed to the household powerboard to run the house from generator in absence of grid power for an extended period. Like, days after a severe weather event. For both strategies below, rely on generator for household power whilst battery is unavailable.
 
-Sonnen Batterie must be configured for Recharge Strategy "Green charging" to only charge from solar production.
+sonnenBatterie must be configured for Recharge Strategy "Green charging" to only charge from solar production.
 ![Recharge Strategy "Green"](Sonnen-EVO-RechargeStrategy.jpg)
 
 ## Anticipated long duration power outage
@@ -306,7 +306,7 @@ Isolate the battery from load before it turns itself off when USoC is low, under
 Let Batterie deplete and rely on Black Start feature.  \
 Should Black Start feature not work after solar production can resume, use generator power to restart the battery. "Green charging" recharge strategy will not charge the battery from generator power.
 
-*Do NOT use generator power to recharge the batterie without assurance from manufacturer that you have a supported configuration for your Sonnen Batterie with your model generator.*
+*Do NOT use generator power to recharge the batterie without assurance from manufacturer that you have a supported configuration for your sonnenBatterie with your model generator.*
 
 
 # Confirmed Supported Batteries
