@@ -12,6 +12,6 @@
   "requirements": [
     "sonnen_api_v2 @ git+https://github.com/MarkusBiggus/sonnen_api_v2.git@0.5.15"
   ],
-  "version": "0.0.1"
+  "version": "0.1.0"
 }
 
