@@ -88,7 +88,7 @@ async def test_form_works(hass: HomeAssistant) -> None:
 #    assert len(mock_setup_entry.mock_calls) == 1
 #    print(f'sensor_data: {hass.states.get("sensor.sonnenbackup_321123_led_state")}')
     assert hass.states.get("sensor.sonnenbackup_321123_led_state").state == "Pulsing White 100%"
-    assert hass.states.get("sensor.sonnenbackup_321123_led_state_text").state == "Normal Operation. [0x01 - ONGRID_READY]"
+    assert hass.states.get("sensor.sonnenbackup_321123_led_state_text").state == "Normal Operation."
     assert hass.states.get("sensor.sonnenbackup_321123_led_status").state == "0x01 - ONGRID_READY"
     assert hass.states.get("sensor.sonnenbackup_321123_interval_to_fully_charged").state == "0d 01:46:52"
     assert hass.states.get("sensor.sonnenbackup_321123_last_time_full").state == "2023-11-20T05:58:55+00:00"

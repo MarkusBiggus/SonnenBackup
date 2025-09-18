@@ -1,6 +1,6 @@
 {
   "domain": "sonnenbackup",
-  "name": "SonnenBackup Power unit Evo",
+  "name": "sonnenBackup Power unit EVO",
   "codeowners": ["@markusbiggus"],
   "config_flow": true,
   "documentation": "https://github.com/MarkusBiggus/SonnenBackup/",
@@ -10,8 +10,7 @@
   "loggers": ["sonnenbackup"],
   "quality_scale": "bronze",
   "requirements": [
-    "tzlocal>=5.2",
-    "sonnen_api_v2 @ git+https://github.com/MarkusBiggus/sonnen_api_v2.git@0.5.15-RC1"
+    "sonnen_api_v2 @ git+https://github.com/MarkusBiggus/sonnen_api_v2.git@0.5.15"
   ],
   "version": "0.0.1"
 }

@@ -10,7 +10,7 @@ from unittest.mock import patch
 import logging
 
 import urllib3
-from freezegun.api import FakeDatetime
+#from freezegun.api import FakeDatetime
 import tzlocal
 
 from homeassistant import config_entries
@@ -66,10 +66,6 @@ async def test_form_works(hass: HomeAssistant) -> None:
     assert result["step_id"] == "user"
     assert result["errors"] == {}
 
-    # with patch(
-    #     "custom_components.sonnenbackup.config_flow._validate_api",
-    #     return_value=True,
-    # ):
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
         CONFIG_DATA,
@@ -82,15 +78,27 @@ async def test_form_works(hass: HomeAssistant) -> None:
     assert config_data['model'] == CONFIG_DATA['model']
 #    assert len(mock_setup_entry.mock_calls) == 1
 
-    print(f'sensor_data: {hass.states.get("sensor.sonnenbackup_321123_led_state").state}')
+    assert hass.states.get("sensor.sonnenbackup_321123_package_version").state == "0.5.15"
+    assert hass.states.get("sensor.sonnenbackup_321123_package_build").state == "48"
+    print(f'sensor_attr:usable_charge: {hass.states.get("sensor.sonnenbackup_321123_usable_charge").attributes}')
+    print(f'sensor_state:usable_charge: {hass.states.get("sensor.sonnenbackup_321123_usable_charge").state}')
+
     assert hass.states.get("sensor.sonnenbackup_321123_led_state").state == "Pulsing White 100%"
-    assert hass.states.get("sensor.sonnenbackup_321123_led_state_text").state == "Normal Operation. [0x01 - ONGRID_READY]"
+    assert hass.states.get("sensor.sonnenbackup_321123_led_state_text").state == "Normal Operation."
     assert hass.states.get("sensor.sonnenbackup_321123_led_status").state == "0x01 - ONGRID_READY"
     assert hass.states.get("sensor.sonnenbackup_321123_interval_to_fully_charged").state == "0d 01:46:52"
     assert hass.states.get("sensor.sonnenbackup_321123_status_timestamp").state == "2023-11-20T07:00:55+00:00"
     assert hass.states.get("sensor.sonnenbackup_321123_last_time_full").state == "2023-11-20T05:58:55+00:00"
     assert hass.states.get("sensor.sonnenbackup_321123_microgrid_enabled").state == 'False'
+    assert hass.states.get("sensor.sonnenbackup_321123_usable_charge").state == '81'
 
+#   Sensors used by Energy dashboard from integral helpers
+    assert hass.states.get("sensor.sonnenbackup_321123_charge_power").state == '1394'
+    assert hass.states.get("sensor.sonnenbackup_321123_consumption_now").state == '1578'
+    assert hass.states.get("sensor.sonnenbackup_321123_production_now").state == '2972'
+    assert hass.states.get("sensor.sonnenbackup_321123_discharge_power").state == '0'
+    assert hass.states.get("sensor.sonnenbackup_321123_grid_export").state == '0'
+    assert hass.states.get("sensor.sonnenbackup_321123_grid_import").state == '0'
 
 
 # @pytest.mark.asyncio

@@ -62,6 +62,9 @@
         "description": "Change scan interval or toggle debug mode.",
         "data": {
           "scan_interval": "Update interval"
+        },
+        "data_description": {
+          "scan_interval": "Interval in seconds the device API is polled for realtime data"
         }
       }
     }
@@ -150,6 +153,12 @@
       },
       "consumption_average": {
         "name": "Average consumption"
+      },
+      "consumption_now": {
+        "name": "Consumption now"
+      },
+      "production_now": {
+        "name": "Production now"
       },
       "frequency": {
         "name": "Frequency"

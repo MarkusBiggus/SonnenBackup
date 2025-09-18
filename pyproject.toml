@@ -1,20 +1,29 @@
+[build-system]
+requires = ["setuptools>=78.1.1", "wheel"]
+#build-backend = "setuptools.build_meta"
+
 [project]
 name = "sonnenbackup"
-version = "0.1.0"
-description = "SonnenBackup Batterie"
+description = "sonnenBatterie backup reserve management"
 authors = [
     {name = "MarkusBiggus", email = "6531552+MarkusBiggus@users.noreply.github.com"},
 ]
 dependencies = [
-    'sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git@0.5.15-RC1"',
-#       "sonnen_api_v2>=0.5.15",
-    "tzlocal>=5.2",
-    "voluptuous>=0.15.2",
-#    "setuptools>=78.1.1",
+    'sonnen_api_v2 @ "git+https://github.com/MarkusBiggus/sonnen_api_v2.git@0.5.15"',
 ]
 requires-python = ">=3.12"
-readme = "README.md"
+readme = {file="README.md", content-type = "text/markdown"}
 license = {text = "MIT"}
+classifiers=[
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 
-[tool.pdm]
-distribution = false
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = {attr = "sonnenbackup.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["custom_components"]

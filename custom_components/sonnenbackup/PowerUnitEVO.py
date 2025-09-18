@@ -93,10 +93,10 @@ class PowerUnitEVO(BatterieSensors):
                 "battery_max_cell_temp": (Units.C, "max_battery_temp"), # "mdi:thermometer-alert"
                 "state_bms": (Units.NONE,),
                 "state_inverter": (Units.NONE,),
-                "seconds_since_full": (Units.NONE,), #seconds_since_full
-                "time_to_fully_charged": (Units.NONE,), #seconds_until_fully_charged
-                "time_to_fully_discharged": (Units.NONE,), # seconds_until_fully_discharged
-                "time_to_reserve": (Units.NONE,), # seconds_until_reserve
+                "seconds_since_full": (Units.NONE,),
+                "time_to_fully_charged": (Units.NONE,), #seconds_to_fully_charged
+                "time_until_fully_discharged": (Units.NONE,), # seconds_until_fully_discharged
+                "time_to_reserve": (Units.NONE,), # seconds_to_reserve
                 "discharging": (Units.W, "discharge_power"),
                 "charging": (Units.W, "charge_power"),
                 "battery_dod_limit": (Units.PERCENT, "depth_of_discharge_limit"),
@@ -107,8 +107,13 @@ class PowerUnitEVO(BatterieSensors):
                 "status_grid_feedin": (Units.W, "grid_feedin"), #"mdi:transmission-tower-import"
                 "capacity_to_reserve": (BatteryCapacity,),
                 "configuration_em_operatingmode": (Units.NONE, "operating_mode", "_decode_operatingmode"),
+                "seconds_to_reserve": (Units.NONE,),
 #       1082bytes         "dc_shutdown_reason": (Units.NONE,),
 #       394bytes          "microgrid_status": (Units.NONE,),
+                "package_version": (Units.NONE,),
+                "package_build": (Units.NONE,),
+                "seconds_to_fully_charged": (Units.NONE,),
+                "seconds_until_fully_discharged": (Units.NONE,),
             },
 
             SENSOR_GROUP_TIMESTAMP: {
@@ -131,7 +136,7 @@ class PowerUnitEVO(BatterieSensors):
 
             SENSOR_GROUP_DELTATIME: {
                 "time_to_fully_charged": (Units.NONE, "interval_to_fully_charged", "_format_deltatime"), #seconds_until_fully_charged
-                "time_to_fully_discharged": (Units.NONE, "interval_to_fully_discharged", "_format_deltatime"), # seconds_until_fully_discharged
+                "time_until_fully_discharged": (Units.NONE, "interval_until_fully_discharged", "_format_deltatime"), # seconds_until_fully_discharged
                 "time_to_reserve": (Units.NONE, "interval_to_reserve", "_format_deltatime"), # seconds_until_reserve
                 "time_since_full": (Units.NONE, "interval_since_full", "_format_deltatime"), # seconds_since_full
             },
