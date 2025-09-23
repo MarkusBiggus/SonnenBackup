@@ -81,7 +81,7 @@ class PowerUnitEVO(BatterieSensors):
 
 #            """These consumption/production daily numbers seem to be meaningless"""
                 "*skip9*": (Units.W, "consumption_daily"),# "consumption_total_w"
-                "*skip0*": (Units.W, "production_daily"),# "production_total_w"
+                "pac_total": (Units.W,),# "production_total_w"
             #
                 "consumption": (Units.W, "consumption_now"), # "mdi:meter-electric-outline"
                 "production": (Units.W, "production_now"),

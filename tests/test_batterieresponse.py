@@ -70,12 +70,12 @@ async def test_batteriechargeresponse(battery_charging: Batterie) -> None:
         version='0.5.15',
         last_updated=datetime.datetime(2023, 11, 20, 17, 0, 0, 543210, tzinfo=tzlocal.get_localzone()),
         sensor_values={},
-        package_build = '48'
+        package_build = '52'
     )
 
     assert response.version == '0.5.15'
     assert _batterie.get_sensor_value('package_version') == response.version
-    assert response.package_build == '48'
+    assert response.package_build == '52'
     assert _batterie.get_sensor_value('package_build') == response.package_build
 
     assert _batterie.get_sensor_value('configuration_de_software') == '1.14.5'
@@ -97,7 +97,7 @@ async def test_batteriechargeresponse(battery_charging: Batterie) -> None:
     assert _batterie.get_sensor_value('configuration_blackstart_time3') == "10:10"
 
 #    assert _batterie.get_sensor_value('interval_to_fully_charged') == "0d 00:00:00"
-    assert _batterie.get_sensor_value('time_to_fully_charged') == datetime.timedelta(seconds=6412)
+    assert _batterie.get_sensor_value('time_to_fully_charged') == datetime.timedelta(seconds=6519)
     assert _batterie.get_sensor_value('time_to_reserve') is None
     assert _batterie.get_sensor_value('capacity_until_reserve') == 12314.1
     assert _batterie.get_sensor_value('capacity_to_reserve') is None
@@ -121,7 +121,7 @@ async def test_batteriedischargeresponse(battery_discharging: Batterie) -> None:
         version='0.5.15',
         last_updated=datetime.datetime(2023, 11, 20, 17, 0, 0, 543210, tzinfo=tzlocal.get_localzone()),
         sensor_values={},
-        package_build = '48'
+        package_build = '52'
     )
 
     assert _batterie.get_sensor_value('installed_capacity') == 20000
@@ -163,7 +163,7 @@ async def test_batterieoffgridresponse(battery_discharging_offgrid: Batterie) ->
         version='0.5.15',
         last_updated=datetime.datetime(2023, 11, 20, 17, 0, 0, 543210, tzinfo=tzlocal.get_localzone()),
         sensor_values={},
-        package_build = '48'
+        package_build = '52'
     )
 
     assert _batterie.get_sensor_value('installed_capacity') == 20000
