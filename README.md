@@ -108,7 +108,7 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |grid_import|status_grid_import|watts|always|
 |offgrid_power|inverter_pac_microgrid|watts|system_status is 'OffGrid'|
 |ongrid_power|inverter_pac_total|watts|system_status is 'OnGrid'|
-|pac_total|prodpac_totaluction|watts|always -ve=charge +ve=discharge|
+|pac_total|pac_total|watts|always -ve=charge +ve=discharge|
 |production_now|production|watts|always|
 |max_battery_temp|battery_max_cell_temp|celsius|always|
 |min_battery_temp|battery_min_cell_temp|celsius|always|
