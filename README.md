@@ -233,6 +233,7 @@ recorder:
       - sensor.sonnenbackup_nnnnnn_interval_to_reserve
       - sensor.sonnenbackup_nnnnnn_interval_since_full
       - sensor.sonnenbackup_nnnnnn_led_state
+      - sensor.sonnenbackup_nnnnnn_led_state_text
       - sensor.sonnenbackup_nnnnnn_last_time_full
       - sensor.sonnenbackup_nnnnnn_last_updated
       - sensor.sonnenbackup_nnnnnn_operating_mode
@@ -243,7 +244,7 @@ recorder:
       - sensor.sonnenbackup_nnnnnn_state_bms
       - sensor.sonnenbackup_nnnnnn_state_inverter
       - sensor.sonnenbackup_nnnnnn_status_frequency
-      - sensor.sonnenbackup_nnnnnn_system_status_timestamp
+      - sensor.sonnenbackup_nnnnnn_status_timestamp
       - sensor.sonnenbackup_nnnnnn_time_to_fully_charged
       - sensor.sonnenbackup_nnnnnn_time_until_fully_discharged
       - sensor.sonnenbackup_nnnnnn_time_to_reserve
