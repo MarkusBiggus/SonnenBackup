@@ -118,6 +118,7 @@ HASS Sensor is the name used by Home Assistant from the sonnen_api_v2 package pr
 |last_updated|last_updated|timestamp|always|
 |reserve_at|backup_reserve_at|timestamp|*see notes below*|
 |status_timestamp|system_status_timestamp|timestamp|always|
+|tou_schedule|tou_schedule|dict|always|
 |time_since_full|time_since_full|deltatime|always|
 |time_to_fully_charged|time_to_fully_charged|deltatime|charging is true|
 |time_until_fully_discharged|time_until_fully_discharged|deltatime|discharging is true|

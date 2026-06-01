@@ -48,24 +48,17 @@ class PowerUnitEVO(BatterieSensors):
                 "system_status": (Units.NONE,),
                 "battery_activity_state": (Units.NONE, "activity_state"),
                 "battery_cycle_count": (Units.NONE, "cycle_count"),
-            #    "*skip*": ("deleted sensor: index is skipped", "replace later with a new sensor"),
                 "led_status": (Units.NONE,),
                 "installed_capacity": (BatteryCapacity,),
-#                "full_charge_capacity": (BatteryCapacity,),
                 "battery_full_charge_capacity_wh": (BatteryCapacity, "full_charge_capacity"),
-#                "battery_usable_remaining_capacity_wh": (BatteryCapacity, "usable_capacity"),
                 "usable_remaining_capacity_wh": (BatteryCapacity, "usable_capacity"),
-#                "unusable_capacity_wh": (BatteryCapacity, "unusable_capacity"),
                 "battery_unusable_capacity_wh": (BatteryCapacity, "unusable_capacity"),
                 "battery_average_current": (Units.A, "average_current"), # "mdi:flash-triangle-outline"
                 "configuration_blackstart_time1": (Units.NONE, "blackstart_time1"),
                 "configuration_blackstart_time2": (Units.NONE, "blackstart_time2"),
-#                "battery_remaining_capacity_wh": (BatteryCapacity, "remaining_capacity"),
                 "remaining_capacity_wh": (BatteryCapacity, "remaining_capacity"),
-#                "status_remaining_capacity_wh": (BatteryCapacity, "remaining_capacity"),
                 "capacity_until_reserve": (BatteryCapacity,),
                 "backup_buffer_capacity_wh": (BatteryCapacity, "reserve_capacity"),
-#                "status_usable_capacity_wh": (BatteryCapacity, "usable_remaining_capacity"),
                 "configuration_blackstart_time3": (Units.NONE, "blackstart_time3"),
                 "kwh_consumed": (TotalKWH,), #Total(Units.KWH)),
                 "kwh_produced": (TotalKWH,), #Total(Units.KWH)),
@@ -74,8 +67,6 @@ class PowerUnitEVO(BatterieSensors):
                 "status_backup_buffer": (Units.PERCENT, "reserve_charge"),
 
 #            """Latest data values seem to be adjusted to be consistent with related sensors"""
-                # "battery_rsoc": (Units.PERCENT, "relative_charge"),
-                # "battery_usoc": (Units.PERCENT, "usable_charge"),
                 "r_soc": (Units.PERCENT, "relative_charge"),
                 "u_soc": (Units.PERCENT, "usable_charge"),
 
@@ -114,6 +105,7 @@ class PowerUnitEVO(BatterieSensors):
                 "package_build": (Units.NONE,),
                 "seconds_to_fully_charged": (Units.NONE,),
                 "seconds_until_fully_discharged": (Units.NONE,),
+                "tou_schedule": (Units.NONE,),
             },
 
             SENSOR_GROUP_TIMESTAMP: {

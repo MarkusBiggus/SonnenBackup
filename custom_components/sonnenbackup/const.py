@@ -71,9 +71,7 @@ CONFIG_SCHEMA = vol.Schema(
 OPTIONS_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_SCAN_INTERVAL,
-                     vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),
-                     default=DEFAULT_SCAN_INTERVAL,
-                    ): int #,
+                     default=DEFAULT_SCAN_INTERVAL): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL))
 #        vol.Required("sonnenbackup_debug", default=False): cv.boolean
     }
 )
@@ -180,7 +178,7 @@ SENSOR_DESCRIPTIONS: dict[str, dict[tuple[Units, bool], SensorEntityDescription]
         (Units.NONE, True): SensorEntityDescription(
             key=f"{Units.NONE}_{True}",
             device_class=SensorDeviceClass.ENUM,
-            options=[False,True] # special boolean description
+            options=["False","True"] # special boolean description
         ),
     }
 }
