@@ -1,6 +1,7 @@
 """Sensor definitions for Sonnen Batterie model Power Unit EVO"""
 
 from dataclasses import dataclass
+from typing import Dict, Tuple, Optional
 from homeassistant.components.sensor import (
     SensorEntityDescription,
     # SensorDeviceClass,
@@ -30,10 +31,10 @@ class PowerUnitEVO(BatterieSensors):
         super(PowerUnitEVO, self).__init__(*args, **kwargs)
 
     @classmethod
-    def response_decoder(cls) -> dict:
-        """sonnen_api_v2 properties used as hass sensor values."""
+    def response_decoder(cls) -> Dict[str, Dict[str, Tuple[Units, Optional[str], Optional[str|bool]]]]:
+        """sonnen_api_v2 properties used as hass sensor values.
 
-        """format: api.property : (index, Units, Alias, Formatter)
+        format: api.property : (index, Units, Alias, Formatter)
             Alias is only used when api.property name is unsuitable as a sensor name.
             Assigned index is unique for each group - they become one list of sensors, eventually.
             Add new sensors only to the end of a group.
@@ -43,7 +44,7 @@ class PowerUnitEVO(BatterieSensors):
         """
         return {
             SENSOR_GROUP_UNITS: {
-                "configuration_de_software": (Units.NONE, "firmware_version"),
+                "configuration_de_software": (Units.NONE, "firmware_version",),
                 "led_state": (Units.NONE,),
                 "system_status": (Units.NONE,),
                 "battery_activity_state": (Units.NONE, "activity_state"),

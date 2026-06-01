@@ -140,7 +140,7 @@ class BatterieSensors:
                 if sensor_name[:5] == "*skip": #and sensor_name[-1:] == "*":
                     idx += 1
                     continue
-                option = None
+                option:bool | None = None
                 unit_or_measurement:Measurement | Units
                 if len(mapping) == 1:
                     (unit_or_measurement, *_) = mapping
@@ -160,7 +160,7 @@ class BatterieSensors:
                     else:
                         raise ValueError(f'{SENSOR_GROUP_UNITS} sensor {sensor_name} wrong type: {type(unit_or_measurement)}')
                 elif sensor_group == SENSOR_GROUP_ENUM:
-                    if type(option) is bool:
+                    if isinstance(option, bool):
                         unit = Measurement(Units.NONE, is_monotonic = option)
                     else:
                         unit = Measurement(Units.NONE, False)
@@ -184,7 +184,7 @@ class BatterieSensors:
         }.get(operating_mode, f"unknown: {operating_mode}")
 
     @classmethod
-    def _format_datetime(cls, TimeStamp: datetime = None) -> Optional[str]:
+    def _format_datetime(cls, TimeStamp: datetime) -> Optional[str]:
         """Return datime formatted: d-m-Y H:M:S."""
 
         return TimeStamp.strftime("%d-%b-%Y %H:%M:%S") if TimeStamp is not None else None
